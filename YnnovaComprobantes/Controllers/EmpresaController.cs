@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using YnnovaComprobantes.Data;
 using YnnovaComprobantes.Models;
 
 namespace YnnovaComprobantes.Controllers
 {
+    //[Authorize]
     public class EmpresaController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -21,7 +23,7 @@ namespace YnnovaComprobantes.Controllers
             try
             {
                 var empresaData = _context.Empresas.ToList();
-                return Json(new { data = empresaData, message = "", status = true });
+                return Json(new { data = empresaData, message = "Empresas retornadas exitosamente.", status = true });
             }
             catch (Exception ex)
             {

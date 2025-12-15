@@ -43,7 +43,7 @@
         var windowHeight = $('body > div.wrapper > div.content-wrapper').height() / 2;
         //CONFIGURACION POR DEFECTO DATATABLES
         $.extend($.fn.dataTable.defaults, {
-            dom: "<'row align-items-center'<'col-sm-8 justify-content-start'f><'col-sm-4 c1 d-flex justify-content-end'>>" + "<'row align-items-center'<'col-sm-4'l><'col-sm-4 my-3 justify-content-start d-flex'B>" + "<'row'<'col-sm-6'i><'col-sm-6 mb-3 d-flex justify-content-end'p>>" + "rt" + "<'row'<'col-sm-6'i><'col-sm-6 mt-1 d-flex justify-content-end'p>>",
+            dom: "<'row align-items-center'<'col-sm-8 justify-content-start'f><'col-sm-4 c1 d-flex justify-content-end'>>" + "<'row align-items-center'<'col-sm-6'l><'col-sm-6 my-3 justify-content-start d-flex'B>" + "<'row'<'col-sm-6'i><'col-sm-6 mb-3 d-flex justify-content-end'p>>" + "rt" + "<'row'<'col-sm-6'i><'col-sm-6 mt-1 d-flex justify-content-end'p>>",
             // dom: "<'row pb-1'<'col-sm-9 d-flex'B><'col-sm-3 c1 d-flex justify-content-end'>>" + "<'row'<'col-sm-4'l><'col-sm-8 justify-content-start'f>>" + "<'row'<'col-sm-6'i><'col-sm-6 d-flex justify-content-end'p>>" + "rt" + "<'row'<'col-sm-6'i><'col-sm-6 mt-1 d-flex justify-content-end'p>>",
             // dom: "<'row pb-1'<'col-sm-9'B><'col-sm-3 c1 d-flex justify-content-end'>>" + "<'row'<'col-sm-10'l><'col-sm-2'f>>" + "<'row'<'col-sm-6'i><'col-sm-6'p>>" + "rt" + "<'row'<'col-sm-6'i><'col-sm-6'p>>",
             // dom: "<'row pb-1'<'col-sm-10'B><'col-sm-2 c1 d-flex justify-content-end'>>" + "<'row'<'col-sm-11'l><'col-sm-1'f>>" + "<'row'<'col-sm-10'i><'col-sm-2'p>>" + "rt" + "<'row'<'col-sm-10'i><'col-sm-2'p>>",
@@ -183,9 +183,9 @@
                     }
                     return json.data;
                 },
-                error: function (xhr, error, thrown) {
+                error: function (xhr, Status, error) {
                     toastr.error('Ocurrió un error inesperado al intentar listar la tabla');
-                    console.error('Error en la solicitud Ajax: ' + error + xhr.Msj + thrown);
+                    console.error('Error en la solicitud Ajax. Status:', Status, 'Error:', error, 'XHR:', xhr);
                 },
             },
             columns: [
@@ -197,10 +197,10 @@
                     data: "estado",
                     name: "estado",
                     render: function (data, type, row) {
-                        let estado = data === true ? 'Vigente' : 'No vigente';
-                        if (estado === "Vigente") {
+                        let estado = data === true ? 'Activo' : 'Inactivo';
+                        if (estado === "Activo") {
                             return `<h5 class="mb-0 d-flex align-items-center justify-content-center"><span class="badge badge-success fs-5">${estado}</span></h5>`;
-                        } else if (estado === "No vigente") {
+                        } else if (estado === "Inactivo") {
                             return `<h5 class="mb-0 d-flex align-items-center justify-content-center"><span class="badge badge-danger fs-5">${estado}</span></h5>`;
                         } else {
                             return `<h5 class="mb-0 d-flex align-items-center justify-content-center"><span class="badge fs-5" style="background-color: #800080; color: white;">${estado}</span></h5>`;
@@ -296,7 +296,7 @@
                     },
                     error: function (xhr, Status, error) {
                         toastr.error("Error en el servidor", "MENSAJE DE SISTEMA");
-                        console.error('Error en la solicitud Ajax: ' + error + xhr.Msj + thrown);
+                        console.error('Error en la solicitud Ajax. Status:', Status, 'Error:', error, 'XHR:', xhr);
                     }
                 });
             }

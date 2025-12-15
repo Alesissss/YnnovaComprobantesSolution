@@ -92,7 +92,6 @@ CREATE TABLE moneda (
     simbolo VARCHAR(20) NOT NULL
 );
 
-
 -- TABLA observaciones
 CREATE TABLE observaciones (
     id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,

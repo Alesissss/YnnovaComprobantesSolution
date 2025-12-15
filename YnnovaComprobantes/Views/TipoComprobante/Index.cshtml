@@ -184,7 +184,7 @@
                 },
                 error: function (xhr, error, thrown) {
                     toastr.error('Ocurrió un error inesperado al intentar listar la tabla');
-                    console.error('Error en la solicitud Ajax: ' + error + xhr.Msj + thrown);
+                    console.error('Error en la solicitud Ajax. Status:', Status, 'Error:', error, 'XHR:', xhr);
                 },
             },
             columns: [
@@ -295,7 +295,7 @@
                     },
                     error: function (xhr, Status, error) {
                         toastr.error("Error en el servidor", "MENSAJE DE SISTEMA");
-                        console.error('Error en la solicitud Ajax: ' + error + xhr.Msj + thrown);
+                        console.error('Error en la solicitud Ajax. Status:', Status, 'Error:', error, 'XHR:', xhr);
                     }
                 });
             }
