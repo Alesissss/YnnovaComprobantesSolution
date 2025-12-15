@@ -1,7 +1,10 @@
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
+using System.Security.Claims;
 using YnnovaComprobantes.Data;
 using YnnovaComprobantes.Models;
 
@@ -35,17 +38,82 @@ namespace YnnovaComprobantes.Controllers
         {
             return View();
         }
-        public JsonResult IniciarSesion(string dni, string password)
+        [AllowAnonymous]
+        [HttpPost]
+        public async Task<JsonResult> IniciarSesion(string dni, string password)
         {
             try
             {
-                var empresaData = _context.Empresas.ToList();
-                return Json(new { data = empresaData, message = "Empresas retornadas exitosamente.", status = true });
+                var usuario = _context.Usuarios.FirstOrDefault(u => u.Dni == dni && u.Password == password);
+
+                if (usuario == null)
+                {
+                    return Json(new ApiResponse { data = null, message = "Credenciales incorrectas.", status = false });
+                }
+                else
+                {
+                    var empresas = (from emp in _context.Empresas
+                                    from eu in _context.EmpresasUsuarios
+                                    where emp.Id == eu.EmpresaId
+                                    where eu.UsuarioId == usuario.Id
+                                    select emp).ToList();
+
+                    var tipoUsuario = _context.TipoUsuarios.FirstOrDefault(tu => tu.Id == usuario.TipoUsuarioId);
+
+                    string nombreTipoUsuario = tipoUsuario != null ? tipoUsuario.Nombre : "SinRol";
+
+                    var claims = new List<Claim>
+                    {
+                        new Claim(ClaimTypes.Name, usuario.Nombre),
+                        new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
+                        new Claim("DNI", usuario.Dni),
+                        new Claim("TipoUsuario", tipoUsuario.Nombre)
+                    };
+
+                    var claimsIdentity = new ClaimsIdentity(
+                        claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+                    var authProperties = new AuthenticationProperties
+                    {
+                        // Puedes configurar la duración de la cookie si lo deseas
+                        IsPersistent = true,
+                        ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(60)
+                    };
+
+                    await HttpContext.SignInAsync(
+                        CookieAuthenticationDefaults.AuthenticationScheme,
+                        new ClaimsPrincipal(claimsIdentity),
+                        authProperties);
+
+                    GuardarEmpresasEnSesion(empresas);
+
+                    return Json(new ApiResponse { data = null, message = "Login satisfactorio.", status = true });
+                }
             }
             catch (Exception ex)
             {
                 return Json(new ApiResponse { data = null, message = ex.Message, status = false });
             }
+        }
+        [AllowAnonymous]
+        [HttpPost]
+        public async Task<IActionResult> Logout()
+        {
+            // 1. Eliminar la Cookie de Autenticación
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+            // 2. Eliminar los datos de la Sesión Estándar (Lista de Empresas, etc.)
+            if (HttpContext.Session != null)
+                HttpContext.Session.Clear();
+
+            // 3. Redirigir al usuario a la página de Login
+            return RedirectToAction("Index", "Home");
+        }
+
+        private void GuardarEmpresasEnSesion(List<Empresa> empresas)
+        {
+            // Usa la extensión SetObjectAsJson para guardar la lista
+            HttpContext.Session.SetObjectAsJson("EmpresasUsuario", empresas);
         }
     }
 }

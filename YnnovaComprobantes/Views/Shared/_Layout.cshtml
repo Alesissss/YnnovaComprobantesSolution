@@ -1,4 +1,9 @@
-﻿<!DOCTYPE html>
+﻿@{
+    // Obtenemos el nombre del controlador y la acción que se está ejecutando
+    var controllerName = ViewContext.RouteData.Values["controller"].ToString();
+    var actionName = ViewContext.RouteData.Values["action"].ToString();
+}
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8" />
@@ -69,39 +74,118 @@
         };
     </script>
 </head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">YnnovaComprobantes</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+<body class="hold-transition sidebar-mini layout-footer-fixed">
+    <div class="wrapper">
+        <!-- Preloader -->
+        <!-- <div class="preloader flex-column justify-content-center align-items-center">
+            <img class="animation__shake" src="/Static/img/yatrax-preloader.png" alt="YatraxLogo" height="120" width="200">
+        </div> -->
+        <!-- Navbar -->
+        <nav class="main-header navbar navbar-expand navbar-white navbar-light" id="maestra_header">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" data-widget="pushmenu" href="#" role="button" id="btn_sidebar">
+                        <i class="fas fa-bars"></i>
+                    </a>
+                </li>
+                <li class="nav-item d-none d-sm-inline-block">
+                    <a href="#" class="nav-link">Inicio</a>
+                </li>
+            </ul>
+
+            <!-- Botón de Logout -->
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <form action="/Home/Logout" method="post">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Sidebar -->
+        <aside class="main-sidebar sidebar-dark-primary elevation-4">
+            <!-- Brand Logo -->
+            <a href="" class="brand-link">
+                <img src="" alt="Ynnova" class="brand-image img-circle elevation-3" style="opacity: .8">
+                <span class="brand-text font-weight-light">Ynnova</span>
+            </a>
+
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <!-- Sidebar user panel (optional) -->
+                <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+                    <div class="image">
+                        <img src="/uploads/fotos/default-user.png" class="img-circle elevation-2" alt="User Image">
+                    </div>
+                    <div class="info">
+                        <a href="#" class="d-block">@User.Identity.Name</a>
+                        <!-- Texto por defecto -->
+                    </div>
+                </div>
+
+                <!-- Sidebar Menu -->
+                <nav class="mt-2">
+                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
+                        data-accordion="false">
+                        <!-- Add icons to the links using the .nav-icon class
+                        with font-awesome or any other icon font library -->
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a href="/Home/"
+                               class="nav-link @(controllerName == "Home" && actionName == "Index" ? "active" : "")">
+                                <i class="nav-icon fas fa-home"></i>
+                                <p>
+                                    Inicio
+                                </p>
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a href="/Empresa/"
+                               class="nav-link @(controllerName == "Empresa" ? "active" : "")">
+                                <i class="nav-icon fas fa-home"></i>
+                                <p>
+                                    Empresa
+                                </p>
+                            </a>
                         </li>
                     </ul>
-                </div>
+                </nav>
+                <!-- /.sidebar-menu -->
             </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
+            <!-- /.sidebar -->
+        </aside>
+
+        <!-- Contenido principal -->
+        <div class="content-wrapper">
             @RenderBody()
-        </main>
+        </div>
+        <footer class="main-footer" id="maestra_footer">
+            <div class="float-right d-none d-sm-block">
+                <b>Versión</b> 1.0
+            </div>
+            <strong>Copyright © 2025 <a href="#">Ynnovacorpsaf Comprobantes</a>.</strong>
+        </footer>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - YnnovaComprobantes - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <div id="dynamic-modal" class="modal fade" style="display: none;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 id="modal-title" class="modal-title">Default Modal</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span>×</span>
+                    </button>
+                </div>
+                <div id="modal-body" class="modal-body">
+                    <p>One fine body…</p>
+                </div>
+            </div>
+            <!-- /.modal-content -->
         </div>
-    </footer>
+        <!-- /.modal-dialog -->
+    </div>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
