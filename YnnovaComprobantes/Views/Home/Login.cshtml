@@ -29,6 +29,8 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700">
     <!-- Datatables -->
     <link rel="stylesheet" href="/plugins/datatables-test/datatables.min.css">
+    <!-- Select2 Bootstrap 4-->
+    <link rel="stylesheet" href="/plugins/select2-bootstrap4-theme/select2-bootstrap4.css" />
 
     <!-- Scripts -->
     <!-- jQuery -->
@@ -84,6 +86,14 @@
                 <div class="card-body login-card-body">
                     <p class="login-box-msg">Inicia sesión para acceder al sistema</p>
                     <form>
+                        <div class="input-group mb-3">
+                            <label for="cbx_Empresa">Empresa</label>
+                            <div class="input-group">
+                                <select id="cbx_Empresa" class="form-control">
+                                    <option value="" disabled selected>--SELECCIONAR--</option>
+                                </select>
+                            </div>
+                        </div>
                         <div class="input-group mb-3">
                             <input id="txt_DNI" type="text" class="form-control" placeholder="DNI">
                             <div class="input-group-append">
@@ -142,6 +152,30 @@
         };
 
         $(document).ready(function () {
+            $.getJSON('/Gasto/GetEmpresaData', function (response) {
+                let empresas = response.data;
+
+                    var empresasMap = empresas.map(function(empresa) {
+                        return {
+                            id: empresa.id,
+                            text: empresa.ruc + ' - ' + empresa.nombre
+                        };
+                    });
+
+                    $('#cbx_Empresa').empty().select2({
+                        theme: 'bootstrap4',
+                        data: empresasMap,
+                        placeholder: "Buscar empresa...",
+                        allowClear: true,
+                        language: {
+                            noResults: function () {
+                                return "No se encontraron resultados";
+                            }
+                        }
+                    });
+
+                    $('#cbx_Empresa').val(null).trigger('change');
+            });
 
             // 1. Validación de DNI (solo dígitos y límite de 8)
             $('#txt_DNI').on('keypress', function (e) {

@@ -41,7 +41,7 @@ namespace YnnovaComprobantes.Controllers
         {
             try
             {
-                if (_context.Empresas.Any(e => e.Codigo == empresa.Codigo))
+                if (_context.Empresas.Any(e => e.Ruc == empresa.Ruc))
                 {
                     return Json(new ApiResponse { data = null, message = "Ya existe una empresa registrada con el código de empresa ingresado.", status = false });
                 }
@@ -85,7 +85,7 @@ namespace YnnovaComprobantes.Controllers
                     return Json(new ApiResponse { data = null, message = "La empresa que intenta editar no existe.", status = false });
                 }
 
-                if (_context.Empresas.Where(e => e.Id != empresa.Id).Any(e => e.Codigo == empresa.Codigo))
+                if (_context.Empresas.Where(e => e.Id != empresa.Id).Any(e => e.Ruc == empresa.Ruc))
                 {
                     return Json(new ApiResponse { data = null, message = "Ya existe una empresa registrada con el código de empresa ingresado.", status = false });
                 }

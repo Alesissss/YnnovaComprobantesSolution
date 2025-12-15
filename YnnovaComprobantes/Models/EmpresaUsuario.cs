@@ -10,5 +10,7 @@ namespace YnnovaComprobantes.Models
         public int EmpresaId { get; set; }
         [Column("Usuario_Id")]
         public int UsuarioId { get; set; }
+        [Column("Tipo_Usuario_Id")]
+        public int TipoUsuarioId { get; set; }
     }
 }

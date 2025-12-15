@@ -40,7 +40,7 @@ namespace YnnovaComprobantes.Controllers
         {
             try
             {
-                if (_context.Empresas.Any(e => e.Codigo == TipoComprobante.Codigo))
+                if (_context.Empresas.Any(e => e.Ruc == TipoComprobante.Codigo))
                 {
                     return Json(new ApiResponse { data = null, message = "Ya existe un tipo comprobante registrado con el código ingresado.", status = false });
                 }
@@ -84,7 +84,7 @@ namespace YnnovaComprobantes.Controllers
                     return Json(new ApiResponse { data = null, message = "El tipo de comprobante que intenta editar no existe.", status = false });
                 }
 
-                if (_context.Empresas.Where(e => e.Id != TipoComprobante.Id).Any(e => e.Codigo == TipoComprobante.Codigo))
+                if (_context.Empresas.Where(e => e.Id != TipoComprobante.Id).Any(e => e.Ruc == TipoComprobante.Codigo))
                 {
                     return Json(new ApiResponse { data = null, message = "Ya existe un tipo de comprobante registrado con el código ingresado.", status = false });
                 }

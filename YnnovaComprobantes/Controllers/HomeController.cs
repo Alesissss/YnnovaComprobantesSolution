@@ -39,12 +39,40 @@ namespace YnnovaComprobantes.Controllers
             return View();
         }
         [AllowAnonymous]
-        [HttpPost]
-        public async Task<JsonResult> IniciarSesion(string dni, string password)
+        [HttpGet]
+        public JsonResult GetEmpresaData()
         {
             try
             {
-                var usuario = _context.Usuarios.FirstOrDefault(u => u.Dni == dni && u.Password == password);
+                var empresaData = _context.Empresas.Where(e => e.Estado == true).ToList();
+                return Json(new { data = empresaData, message = "Empresas retornadas exitosamente.", status = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new ApiResponse { data = null, message = ex.Message, status = false });
+            }
+        }
+        [AllowAnonymous]
+        [HttpPost]
+        public async Task<JsonResult> IniciarSesion(string dni, string password, int EmpresaId)
+        {
+            try
+            {
+                var usuario = (from eu in _context.EmpresasUsuarios
+                               from tu in _context.TipoUsuarios
+                               where eu.TipoUsuarioId == tu.Id
+                               where eu.EmpresaId == EmpresaId
+                               from u in _context.Usuarios
+                               where eu.UsuarioId == u.Id
+                               where u.Dni == dni
+                               where u.Password == password
+                               select new
+                               {
+                                   u.Id,
+                                   u.Dni,
+                                   u.Nombre,
+                                   tipoUsuario = tu.Nombre,
+                               }).FirstOrDefault();
 
                 if (usuario == null)
                 {
@@ -52,42 +80,30 @@ namespace YnnovaComprobantes.Controllers
                 }
                 else
                 {
-                    var empresas = (from emp in _context.Empresas
-                                    from eu in _context.EmpresasUsuarios
-                                    where emp.Id == eu.EmpresaId
-                                    where eu.UsuarioId == usuario.Id
-                                    select emp).ToList();
-
-                    var tipoUsuario = _context.TipoUsuarios.FirstOrDefault(tu => tu.Id == usuario.TipoUsuarioId);
-
-                    string nombreTipoUsuario = tipoUsuario != null ? tipoUsuario.Nombre : "SinRol";
-
-                    var claims = new List<Claim>
+                        var claims = new List<Claim>
                     {
                         new Claim(ClaimTypes.Name, usuario.Nombre),
                         new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
                         new Claim("DNI", usuario.Dni),
-                        new Claim("TipoUsuario", tipoUsuario.Nombre)
+                        new Claim("TipoUsuario", usuario.tipoUsuario)
                     };
 
-                    var claimsIdentity = new ClaimsIdentity(
-                        claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                        var claimsIdentity = new ClaimsIdentity(
+                            claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
-                    var authProperties = new AuthenticationProperties
-                    {
-                        // Puedes configurar la duración de la cookie si lo deseas
-                        IsPersistent = true,
-                        ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(60)
-                    };
+                        var authProperties = new AuthenticationProperties
+                        {
+                            // Puedes configurar la duración de la cookie si lo deseas
+                            IsPersistent = true,
+                            ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(60)
+                        };
 
-                    await HttpContext.SignInAsync(
-                        CookieAuthenticationDefaults.AuthenticationScheme,
-                        new ClaimsPrincipal(claimsIdentity),
-                        authProperties);
+                        await HttpContext.SignInAsync(
+                            CookieAuthenticationDefaults.AuthenticationScheme,
+                            new ClaimsPrincipal(claimsIdentity),
+                            authProperties);
 
-                    GuardarEmpresasEnSesion(empresas);
-
-                    return Json(new ApiResponse { data = null, message = "Login satisfactorio.", status = true });
+                        return Json(new ApiResponse { data = null, message = "Login satisfactorio.", status = true });
                 }
             }
             catch (Exception ex)
@@ -108,12 +124,6 @@ namespace YnnovaComprobantes.Controllers
 
             // 3. Redirigir al usuario a la página de Login
             return RedirectToAction("Index", "Home");
-        }
-
-        private void GuardarEmpresasEnSesion(List<Empresa> empresas)
-        {
-            // Usa la extensión SetObjectAsJson para guardar la lista
-            HttpContext.Session.SetObjectAsJson("EmpresasUsuario", empresas);
         }
     }
 }

@@ -11,9 +11,9 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-12 mb-3">
-                            <label for="txt_Codigo">Código</label>
+                            <label for="txt_RUC">RUC</label>
                             <div class="input-group">
-                                <input type="text" id="txt_Codigo" class="form-control" placeholder="Código">
+                                <input type="text" id="txt_RUC" class="form-control" placeholder="RUC">
                             </div>
                         </div>
                         <div class="col-md-12 mb-3">
@@ -53,14 +53,40 @@
 </div>
 <script>
     $(document).ready(function () {
+        // 1. Validación de RUC (solo dígitos y límite de 11)
+            $('#txt_RUC').on('keypress', function (e) {
+                // Obtenemos el código de la tecla presionada
+                var charCode = (e.which) ? e.which : e.keyCode;
+
+                // Permitir solo dígitos (48-57) y teclas de control
+                if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+                    e.preventDefault();
+                    return false;
+                }
+
+                // Limitar la longitud a 11 dígitos (antes de que se añada el nuevo dígito)
+                if ($(this).val().length >= 11) {
+                    // Si es un dígito, prevenir la entrada
+                    if (charCode > 47 && charCode < 58) {
+                        e.preventDefault();
+                        return false;
+                    }
+                }
+            });
+        
         $("#btn_Registrar").click(function () {
-            let codigo = $("#txt_Codigo").val().trim();
+            let ruc = $("#txt_RUC").val().trim();
             let nombre = $("#txt_Nombre").val().trim();
             let descripcion = $("#txt_Descripcion").val().trim();
             let estado = $('#cbx_Estado').val();
 
-            if (!codigo || !nombre || !descripcion || !estado) {
+            if (!ruc || !nombre || !descripcion || !estado) {
                 toastr.warning("Todos los campos son obligatorios", "MENSAJE DE SISTEMA");
+                return;
+            }
+
+            if (ruc.length !== 11) {
+                toastr.warning("El RUC debe tener exactamente 11 dígitos.", "MENSAJE DE SISTEMA");
                 return;
             }
 
@@ -78,7 +104,7 @@
                 if (result.isConfirmed) {
 
                     let formData = new FormData();
-                    formData.append("Codigo", codigo);
+                    formData.append("Ruc", ruc);
                     formData.append("Nombre", nombre);
                     formData.append("Descripcion", descripcion);
                     formData.append("Estado", estado == 1 ? true : false);

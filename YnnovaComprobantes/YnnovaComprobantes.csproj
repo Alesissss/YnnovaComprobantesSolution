@@ -15,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="wwwroot\plugins\select2-bootstrap4-theme\" />
     <Folder Include="wwwroot\uploads\comprobantes\" />
     <Folder Include="wwwroot\uploads\fotos\" />
   </ItemGroup>

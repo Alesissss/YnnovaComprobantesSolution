@@ -41,22 +41,25 @@
                             </div>
                         </div>
                         <div class="col-md-12 mb-3">
-                            <label for="txt_Descripcion">Descripción</label>
+                            <label for="cbx_TipoRendicion">Tipo de rendición</label>
                             <div class="input-group">
-                                <textarea id="txt_Descripcion"
-                                          class="form-control"
-                                          placeholder="Introduce la descripción aquí..."
-                                          rows="4"></textarea>
+                                <select id="cbx_TipoRendicion" class="form-control">
+                                    <option value="" disabled selected>--SELECCIONAR--</option>
+                                </select>
                             </div>
                         </div>
                         <div class="col-md-12 mb-3">
-                            <label for="cbx_Estado">Estado</label>
+                            <label for="cbx_Banco">Banco</label>
                             <div class="input-group">
-                                <select id="cbx_Estado" class="form-control">
+                                <select id="cbx_Banco" class="form-control">
                                     <option value="" disabled selected>--SELECCIONAR--</option>
-                                    <option value="1">Vigente</option>
-                                    <option value="0">No vigente</option>
                                 </select>
+                            </div>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label for="txt_Importe">Importe</label>
+                            <div class="input-group">
+                                <input type="number" id="txt_Importe" class="form-control" placeholder="Importe" step="0.01" min="0">
                             </div>
                         </div>
                         <div class="col-md-12 text-center">
@@ -69,3 +72,38 @@
         </div>
     </div>
 </div>
+<script>
+    $(document).ready(function () {
+        let empresas = [];
+        let usuarios = [];
+        let tiposGastos = [];
+        let tiposRendiciones = [];
+        let bancos = [];
+
+    });
+
+    function fct_GetEmpresas() {
+            $.getJSON('/Gasto/GetEmpresaData', function (response) {
+                let empresas = response.data;
+
+                    var dataSelect2 = empresas.map(function(empresa) {
+                        return {
+                            id: empresa.id,
+                            text: empresa.ruc + ' - ' + empresa.nombre
+                        };
+                    });
+
+                    $('#cbx_Empresa').empty().select2({
+                        theme: 'bootstrap4',
+                        data: dataSelect2, // <-- Usamos los datos mapeados
+                        placeholder: "Buscar empresa...",
+                        allowClear: true,
+                        language: {
+                            noResults: function () {
+                                return "No se encontraron resultados";
+                            }
+                        }
+                    });
+            });
+        }
+</script>

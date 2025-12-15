@@ -55,7 +55,7 @@ CREATE TABLE concepto (
 -- TABLA empresa
 CREATE TABLE empresa (
     id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
-    codigo VARCHAR(20) NOT NULL,
+    ruc char(11) NOT NULL,
     nombre VARCHAR(255) NOT NULL,
     descripcion TEXT,
     estado BIT NOT NULL DEFAULT 1
@@ -73,7 +73,7 @@ CREATE TABLE estado (
 -- TABLA gasto
 CREATE TABLE gasto (
     id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
-    fecha_hora DATETIME NOT NULL DEFAULT GETDATE(),
+    fecha_hora DATETIME NOT NULL,
     importe DECIMAL(12, 2) NOT NULL,
     descripcion TEXT,
     empresa_id INT NOT NULL,
@@ -81,9 +81,9 @@ CREATE TABLE gasto (
     tipo_rendicion_id INT NOT NULL,
     usuario_id INT NOT NULL,
     tipo_gasto_id INT NOT NULL,
-    estado_id INT NOT NULL
+    estado_id INT NOT NULL,
+    fecha_registro DATETIME NOT NULL DEFAULT GETDATE(),
 );
-
 
 -- TABLA moneda
 CREATE TABLE moneda (
@@ -131,7 +131,8 @@ CREATE TABLE tipo_rendicion (
 -- TABLA tipo_usuario
 CREATE TABLE tipo_usuario (
     id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
-    nombre VARCHAR(30) NOT NULL
+    nombre VARCHAR(30) NOT NULL,
+    estado BIT NOT NULL
 );
 
 
@@ -143,13 +144,13 @@ CREATE TABLE usuario (
     email VARCHAR(255),
     telefono VARCHAR(20),
     password VARCHAR(255) NOT NULL,
-    estado BIT NOT NULL,
-    tipo_usuario_id INT NOT NULL
+    estado BIT NOT NULL
 );
 
 -- TABLA empresa_usuario
 CREATE TABLE empresa_usuario (
     id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
     empresa_id INT NOT NULL,
-    usuario_id INT NOT NULL
+    usuario_id INT NOT NULL,
+    tipo_usuario_id INT NOT NULL
 );

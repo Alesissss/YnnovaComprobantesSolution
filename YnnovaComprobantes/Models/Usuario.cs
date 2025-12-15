@@ -12,7 +12,5 @@ namespace YnnovaComprobantes.Models
         public string Telefono { get; set; }
         public string Password { get; set; }
         public bool Estado { get; set; }
-        [Column("tipo_usuario_id")]
-        public int TipoUsuarioId { get; set; }
     }
 }
