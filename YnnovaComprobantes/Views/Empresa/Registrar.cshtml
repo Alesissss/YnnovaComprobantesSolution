@@ -100,64 +100,7 @@
                         },
                         error: function (xhr, Status, error) {
                             toastr.error("Error en el servidor", "MENSAJE DE SISTEMA");
-                            console.error('Error:' + error);
-                        }
-                    });
-                }
-            });
-        });
-
-        $("#btn_Editar").click(function () {
-            const id = Number("{{ tipoUsuario.id }}");
-
-            let nombre = $("#txt_TipoUsuario").val().trim();
-            let estado = $('#cbx_Estado').val();
-
-            if (!nombre || !estado) {
-                toastr.warning("Todos los campos son obligatorios", "MENSAJE DE SISTEMA");
-                return;
-            }
-
-            Swal.fire({
-                title: "¿Estás seguro?",
-                text: "Esta acción modificará al tipo usuario. ¿Deseas continuar?",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#3085d6",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Sí, editar tipo usuario",
-                cancelButtonText: "Cancelar",
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-
-                    let formData = new FormData();
-                    formData.append("nombre", nombre);
-                    formData.append("estado", estado);
-
-                    $.ajax({
-                        url: `/trabajadores/usuarios/EditarTipoUsuario/${id}`,
-                        type: "POST",
-                        processData: false,
-                        contentType: false,
-                        data: formData,
-                        success: function (response) {
-                            if (response.Status === "success") {
-                                if (response.Msj2 !== '' && response.Msj2 !== null) {
-                                    toastr.warning(response.Msj2, 'MENSAJE DE SISTEMA');
-                                    return;
-                                } else {
-                                    toastr.success(response.Msj, "MENSAJE DE SISTEMA");
-                                    setTimeout(() => {
-                                        window.location.href = "/trabajadores/usuarios/GestionarTipoUsuario";
-                                    }, 500);
-                                }
-                            } else {
-                                toastr.error(response.Msj, "MENSAJE DE SISTEMA");
-                            }
-                        },
-                        error: function (xhr, Status, error) {
-                            toastr.error("Error en el servidor", "MENSAJE DE SISTEMA");
+                            console.error('Error en la solicitud Ajax: ' + error + xhr.Msj + thrown);
                         }
                     });
                 }

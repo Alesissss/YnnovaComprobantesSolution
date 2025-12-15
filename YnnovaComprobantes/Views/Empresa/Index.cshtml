@@ -178,7 +178,7 @@
                 dataSrc: function (json) {
                     if (json.status === false) {
                         toastr.error('Ocurrió un error inesperado al intentar listar la tabla');
-                        console.error(json.Msj);
+                        console.error(json.message);
                         return [];
                     }
                     return json.data;
@@ -286,11 +286,17 @@
                     type: "POST",
                     contentType: "application/json",
                     success: function (response) {
-                        
+                        if (response.status === true) {
+                                toastr.success(response.message, "MENSAJE DE SISTEMA");
+                                window.location.href = "/Empresa";
+                        } else {
+                            toastr.warning(response.message, 'MENSAJE DE SISTEMA');
+                            return;
+                        }
                     },
                     error: function (xhr, Status, error) {
                         toastr.error("Error en el servidor", "MENSAJE DE SISTEMA");
-                        console.error('Error:' + error);
+                        console.error('Error en la solicitud Ajax: ' + error + xhr.Msj + thrown);
                     }
                 });
             }
