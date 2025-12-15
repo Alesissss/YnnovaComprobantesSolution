@@ -1,0 +1,312 @@
+﻿@{
+    ViewData["Title"] = "Gestinar Tipos de Comprobantes";
+}
+<div class="card d-none" id="efec-cargando">
+    <div class="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center overlay dark">
+        <i class="fas fa-3x fa-sync-alt fa-spin text-white"></i>
+    </div>
+</div>
+<div class="container-fluid p-4">
+    <div class="panel-heading">
+        <div class="row">
+            <div class="col-md-12">
+                <h1>Gestionar Tipos de Comprobantes</h1>
+            </div>
+        </div>
+    </div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-12">
+                <table id="tbl_TipoComprobante" class="table table-bordered table-hover">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th class="text-center">ID</th>
+                            <th class="text-center">CÓDIGO</th>
+                            <th class="text-center">DESCRIPCIÓN</th>
+                            <th class="text-center">ESTADO</th>
+                            <th class="text-center">ACCIÓN</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var dtTipoComprobante;
+
+    $(document).ready(function () {
+        // $('body').addClass('sidebar-collapse');
+        var windowHeight = $('body > div.wrapper > div.content-wrapper').height() / 2;
+        //CONFIGURACION POR DEFECTO DATATABLES
+        $.extend($.fn.dataTable.defaults, {
+            dom: "<'row align-items-center'<'col-sm-8 justify-content-start'f><'col-sm-4 c1 d-flex justify-content-end'>>" + "<'row align-items-center'<'col-sm-6'l><'col-sm-6 my-3 justify-content-start d-flex'B>" + "<'row'<'col-sm-6'i><'col-sm-6 mb-3 d-flex justify-content-end'p>>" + "rt" + "<'row'<'col-sm-6'i><'col-sm-6 mt-1 d-flex justify-content-end'p>>",
+            // dom: "<'row pb-1'<'col-sm-9 d-flex'B><'col-sm-3 c1 d-flex justify-content-end'>>" + "<'row'<'col-sm-4'l><'col-sm-8 justify-content-start'f>>" + "<'row'<'col-sm-6'i><'col-sm-6 d-flex justify-content-end'p>>" + "rt" + "<'row'<'col-sm-6'i><'col-sm-6 mt-1 d-flex justify-content-end'p>>",
+            // dom: "<'row pb-1'<'col-sm-9'B><'col-sm-3 c1 d-flex justify-content-end'>>" + "<'row'<'col-sm-10'l><'col-sm-2'f>>" + "<'row'<'col-sm-6'i><'col-sm-6'p>>" + "rt" + "<'row'<'col-sm-6'i><'col-sm-6'p>>",
+            // dom: "<'row pb-1'<'col-sm-10'B><'col-sm-2 c1 d-flex justify-content-end'>>" + "<'row'<'col-sm-11'l><'col-sm-1'f>>" + "<'row'<'col-sm-10'i><'col-sm-2'p>>" + "rt" + "<'row'<'col-sm-10'i><'col-sm-2'p>>",
+            paging: true,
+            select: true,
+            scroller: false,
+            deferRender: true,
+            scrollY: windowHeight,
+            scrollX: false,
+            fixedHeader: true,
+            ordering: true,
+            destroy: true,
+            responsive: true,
+            autoWidth: false,
+            processing: true,
+            filter: true,
+            orderMulti: true,
+            stateSave: false,
+            serverSide: false,
+            language: {
+                processing: "Procesando...",
+                sSearch: "Buscar:",
+                lengthMenu: "Mostrar _MENU_ registros",
+                info: "Mostrando del _START_ al _END_ de un total de _TOTAL_ registros",
+                infoEmpty: "Sin registros encontrados.",
+                infoFiltered: "(Total de _MAX_ registros filtrados)",
+                loadingRecords: "Cargando...",
+                zeroRecords: "No se encontraron registros",
+                emptyTable: "No hay datos disponibles en la tabla",
+                paginate: {
+                    previous: "Anterior",
+                    next: "Siguiente",
+                    first: "Primero",
+                    last: "Último",
+                },
+                aria: {
+                    sortAscending: ": Activar para ordenar la columna de manera ascendente",
+                    sortDescending: ": Activar para ordenar la columna de manera descendente"
+                },
+                select: {
+                    rows: {
+                        _: "%d filas seleccionadas",
+                        0: "Haz clic en una fila para seleccionarla",
+                        1: "1 fila seleccionada"
+                    }
+                },
+                buttons: {
+                    copyTitle: 'Copiado en el portapapeles',
+                    copyKeys: 'Presiona <i>ctrl</i> o <i>\u2318</i> + <i>C</i> para copiar los datos de la tabla a tu portapapeles. <br><br>Para cancelar, haga clic en este mensaje o presione Esc.',
+                    copySuccess: {
+                        _: '%d registros copiados correctamente',
+                        1: '1 registro copiado correctamente'
+                    }
+                }
+            },
+            lengthMenu: [[100, 200, 500, -1], [100, 200, 500, 'Todos']],
+        });
+
+        fct_IniciarTablaTipoComprobante('#tbl_TipoComprobante');
+    });
+
+    function fct_IniciarTablaTipoComprobante(IdTabla) {
+        // Inicializar DataTables con botones
+        dtTipoComprobante = $(IdTabla).DataTable({
+            buttons: [
+                {
+                    extend: 'copy',
+                    text: '<i class="bi bi-back"></i>',
+                    titleAttr: 'Copiar en portapapeles',
+                    className: 'btn btn-primary',
+                },
+                {
+                    extend: 'excel',
+                    text: '<i class="bi bi-file-earmark-excel"></i>',
+                    titleAttr: 'Exportar a Excel',
+                    className: 'btn btn-success',
+                    filename: 'TiposDeComprobante' + moment().format('DD-MM-YYYY HH_mm'),
+                    footer: true,
+                    exportOptions:
+                    {
+                        stripHtml: true,
+                        columns: ':not(:last-child)'
+                    },
+                },
+                {
+                    extend: 'pdf',
+                    text: '<i class="bi bi-file-earmark-pdf"></i>',
+                    titleAttr: 'Exportar a PDF',
+                    className: 'btn btn-danger',
+                    filename: 'TiposDeComprobant' + moment().format('DD-MM-YYYY HH_mm'),
+                    exportOptions:
+                    {
+                        stripHtml: true,
+                        columns: ':not(:last-child)'
+                    },
+                    orientation: 'landscape',
+                    pageSize: 'LEGAL',
+                },
+                {
+                    extend: 'print',
+                    text: '<i class="bi bi-printer-fill"></i>',
+                    titleAttr: 'Imprimir',
+                    className: 'btn btn-info',
+                    exportOptions:
+                    {
+                        stripHtml: true,
+                        columns: ':not(:last-child)'
+                    },
+                },
+                {
+                    extend: 'colvis',
+                    text: '<i class="bi bi-ui-checks"></i>',
+                    titleAttr: 'Seleccionar',
+                    className: 'btn btn-warning',
+                    columns: ':not(.noVis)',
+                },
+                {
+                    text: '<i class= "bi bi-plus-circle" style="margin-right: 5px;"></i>Nuevo TipoDeComprobante',
+                    className: 'btn bg-success m-1',
+                    titleAttr: 'Nuevo',
+                    action: function (e, dt, node, config) {
+                        fct_TipoComprobanteNuevo();
+                    },
+                },
+            ],
+            ajax: {
+                url: "/TipoComprobante/GetTipoComprobanteData",
+                type: "GET",
+                datatype: "json",
+                data: function (d) {
+                },
+                dataSrc: function (json) {
+                    if (json.status === false) {
+                        toastr.error('Ocurrió un error inesperado al intentar listar la tabla');
+                        console.error(json.message);
+                        return [];
+                    }
+                    return json.data;
+                },
+                error: function (xhr, error, thrown) {
+                    toastr.error('Ocurrió un error inesperado al intentar listar la tabla');
+                    console.error('Error en la solicitud Ajax: ' + error + xhr.Msj + thrown);
+                },
+            },
+            columns: [
+                { data: "id", name: "id" },
+                { data: "codigo", name: "codigo" },
+                { data: "nombre", name: "nombre" },
+                { data: "descripcion", name: "descripcion" },
+                {
+                    data: "estado",
+                    name: "estado",
+                    render: function (data, type, row) {
+                        let estado = data === true ? 'Activo' : 'Inactivo';
+                        if (estado === "Activo") {
+                            return `<h5 class="mb-0 d-flex align-items-center justify-content-center"><span class="badge badge-success fs-5">${estado}</span></h5>`;
+                        } else if (estado === "Inactivo") {
+                            return `<h5 class="mb-0 d-flex align-items-center justify-content-center"><span class="badge badge-danger fs-5">${estado}</span></h5>`;
+                        } else {
+                            return `<h5 class="mb-0 d-flex align-items-center justify-content-center"><span class="badge fs-5" style="background-color: #800080; color: white;">${estado}</span></h5>`;
+                        }
+                    },
+                },
+                {
+                    data: null,
+                    name: null,
+                    render: function (data, type, row) {
+                        let buttons = `
+                        <button class="btn btn m-1 btn-info" onclick="fct_TipoComprobanteVer('${data.id}')" title="Ver Tipo de Comprobante"><i class="bi bi-eye"></i></button>
+                        <button class="btn btn m-1 btn-primary" onclick="fct_TipoComprobanteEditar('${data.id}')" title="Editar Tipo de Comprobante"><i class="bi bi-pencil-square"></i></button>
+                        <button class="btn btn m-1 btn-danger" onclick = "fct_TipoComprobanteEliminar('${data.id}')" title="Eliminar Tipo de Comprobante"><i class="bi bi-trash"></i></button>`
+
+                        return `
+                        <div class="flex-wrap btn-group">
+                            ${buttons}
+                        </div>
+                        `;
+                    },
+                    className: 'text-center align-middle',
+                }
+            ],
+            columnDefs: [
+                {
+                    targets: [0],
+                    className: "text-center align-middle",
+                },
+                {
+                    targets: [1, 2, 3, 4],
+                    className: 'align-middle',
+                },
+                {
+                    targets: [5],
+                    orderable: false,
+                },
+            ],
+            lengthMenu: [[100, 200, 500, -1], [100, 200, 500, 'Todos']],
+            initComplete: function (data, row, cell, start, end, display) {
+                $('.dt-buttons button').addClass('m-1');
+                $('.dt-button-collection').appendTo('.dt-buttons');
+                $('.btn.btn-success').removeClass('dt-button btn-secondary buttons-excel buttons-html5');
+                $('.btn.btn-danger').removeClass('dt-button btn-secondary buttons-pdf buttons-html5');
+                $('.btn.btn-primary').removeClass('dt-button btn-secondary buttons-copy buttons-html5');
+                $('.btn.btn-info').removeClass('dt-button btn-secondary buttons-print');
+                $('.btn.btn-warning').removeClass('dt-button btn-secondary buttons-collection buttons-colvis');
+                //Botón Nuevo
+                $('button[title="Nuevo"]').attr('id', 'btn_Nuevo');
+                $('#btn_Nuevo').removeClass('dt-button');
+                $('#btn_Nuevo').appendTo('div.col-sm-4.c1.d-flex.justify-content-end');
+            },
+        });
+    }
+
+    function fct_TipoComprobanteNuevo() {
+        window.location.href = '/TipoComprobante/Registrar';
+    }
+
+    function fct_TipoComprobanteaEditar(Id) {
+        window.location.href = `/TipoComprobante/Editar/${Id}`;
+    }
+
+    function fct_TipoComprobanteVer(Id) {
+        window.location.href = `/TipoComprobante/Ver/${Id}`;
+    }
+
+    function fct_TipoComprobanteEliminar(Id) {
+        Swal.fire({
+            title: "¿Estás seguro?",
+            text: "Esta acción eliminará el Comprobante. ¿Deseas continuar?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Sí, eliminar",
+            cancelButtonText: "Cancelar",
+            reverseButtons: true // Invertir el orden de los botones
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: `/TipoComprobante/TipoComprobanteEmpresa/${Id}`,  // Pasamos el ID en la URL
+                    type: "POST",
+                    contentType: "application/json",
+                    success: function (response) {
+                        if (response.status === true) {
+                                toastr.success(response.message, "MENSAJE DE SISTEMA");
+                                window.location.href = "/TipoComprobante";
+                        } else {
+                            toastr.warning(response.message, 'MENSAJE DE SISTEMA');
+                            return;
+                        }
+                    },
+                    error: function (xhr, Status, error) {
+                        toastr.error("Error en el servidor", "MENSAJE DE SISTEMA");
+                        console.error('Error en la solicitud Ajax: ' + error + xhr.Msj + thrown);
+                    }
+                });
+            }
+        });
+    }
+
+    function ShowSpinner() {
+        $('#efec-cargando').removeClass('d-none');
+    }
+
+    function HideSpinner() {
+        $('#efec-cargando').addClass('d-none');
+    }
+</script>
