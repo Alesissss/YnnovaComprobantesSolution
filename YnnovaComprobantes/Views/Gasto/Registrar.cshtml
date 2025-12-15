@@ -1,0 +1,71 @@
+﻿@{
+    ViewData["Title"] = "Registrar gasto";
+}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="text-center mb-0">Registrar gasto</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label for="cbx_Empresa">Empresa</label>
+                            <div class="input-group">
+                                <select id="cbx_Empresa" class="form-control">
+                                    <option value="" disabled selected>--SELECCIONAR--</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label for="cbx_Empresa">Solicitante</label>
+                            <div class="input-group">
+                                <select id="cbx_Solicitante" class="form-control">
+                                    <option value="" disabled selected>--SELECCIONAR--</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label for="cbx_TipoGasto">Tipo de gasto</label>
+                            <div class="input-group">
+                                <select id="cbx_TipoGasto" class="form-control">
+                                    <option value="" disabled selected>--SELECCIONAR--</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label for="txt_Fecha">Fecha</label>
+                            <div class="input-group">
+                                <input type="date" id="txt_Fecha" class="form-control" placeholder="Fecha">
+                            </div>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label for="txt_Descripcion">Descripción</label>
+                            <div class="input-group">
+                                <textarea id="txt_Descripcion"
+                                          class="form-control"
+                                          placeholder="Introduce la descripción aquí..."
+                                          rows="4"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label for="cbx_Estado">Estado</label>
+                            <div class="input-group">
+                                <select id="cbx_Estado" class="form-control">
+                                    <option value="" disabled selected>--SELECCIONAR--</option>
+                                    <option value="1">Vigente</option>
+                                    <option value="0">No vigente</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-12 text-center">
+                            <button id="btn_Volver" type="button" class="btn btn-danger">Volver</button>
+                            <button id="btn_Registrar" type="button" class="btn btn-primary">Registrar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
