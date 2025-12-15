@@ -14,4 +14,9 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\uploads\comprobantes\" />
+    <Folder Include="wwwroot\uploads\fotos\" />
+  </ItemGroup>
+
 </Project>

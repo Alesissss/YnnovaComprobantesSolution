@@ -81,9 +81,9 @@
             </div>
             <!-- /.login-logo -->
             <div class="card">
-                <form class="card-body login-card-body">
+                <div class="card-body login-card-body">
                     <p class="login-box-msg">Inicia sesión para acceder al sistema</p>
-                    <div action="" method="post">
+                    <form>
                         <div class="input-group mb-3">
                             <input id="txt_DNI" type="text" class="form-control" placeholder="DNI">
                             <div class="input-group-append">
@@ -110,13 +110,13 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </form>
                     <div class="text-center mb-3">
                         <button id="btn_Login" type="button" class="btn btn-block btn-primary">
                             Iniciar sesión
                         </button>
                     </div>
-                </form>
+                </div>
                 <!-- /.login-card-body -->
             </div>
         </div>
@@ -188,6 +188,11 @@
                 // Validar campos vacíos
                 if (dni === '' || password === '') {
                     toastr.warning('Debe ingresar sus credenciales de acceso', 'MENSAJE DE SISTEMA');
+                    return;
+                }
+
+                if (dni.length !== 8) {
+                    toastr.warning('El DNI debe tener exactamente 8 dígitos', 'MENSAJE DE SISTEMA');
                     return;
                 }
 
