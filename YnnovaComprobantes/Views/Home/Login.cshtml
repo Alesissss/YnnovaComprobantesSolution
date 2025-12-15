@@ -191,6 +191,11 @@
                     return;
                 }
 
+                if (dni.length !== 8) {
+                    toastr.warning('El DNI debe tener exactamente 8 dígitos', 'MENSAJE DE SISTEMA');
+                    return;
+                }
+
                 // Mostrar estado de carga / deshabilitar botón
                 const btn = $(this);
                 btn.prop('disabled', true);
