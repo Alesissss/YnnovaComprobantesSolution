@@ -48,6 +48,16 @@ namespace YnnovaComprobantes.Controllers
                 return Json(new ApiResponse { data = null, message = ex.Message, status = false });
             }
         }
+        // VER
+        public IActionResult Ver(int id)
+        {
+            var empresa = _context.Empresas.Where(e => e.Id == id);
+            if (empresa == null)
+            {
+                return NotFound();
+            }
+            return View(empresa);
+        }
         // EDITAR
         public IActionResult Editar(int id)
         {

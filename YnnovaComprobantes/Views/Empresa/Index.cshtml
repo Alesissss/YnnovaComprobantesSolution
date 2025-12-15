@@ -104,7 +104,7 @@
 
     function fct_IniciarTablaEmpresas(IdTabla) {
         // Inicializar DataTables con botones
-        dtUsuarios = $(IdTabla).DataTable({
+        dtEmpresas = $(IdTabla).DataTable({
             buttons: [
                 {
                     extend: 'copy',
@@ -162,7 +162,7 @@
                     className: 'btn bg-success m-1',
                     titleAttr: 'Nuevo',
                     action: function (e, dt, node, config) {
-                        fct_UsuarioNuevo();
+                        fct_EmpresaNuevo();
                     },
                 },
             ],
@@ -208,10 +208,10 @@
                     data: null,
                     name: null,
                     render: function (data, type, row) {
-                        let buttons = `<button class="btn btn m-1 btn-info" onclick="fct_UsuarioVer('${data.id}')" title="Ver empresa"><i class="bi bi-eye"></i></button>
-                        <button class="btn btn m-1 btn-primary" onclick="fct_UsuarioEditar('${data.id}')" title="Editar empresa"><i class="bi bi-pencil-square"></i></button>
-                        <button class="btn btn m-1 btn-warning" onclick="fct_UsuarioDarBaja('${data.id}')" title="Dar de baja empresa"><i class="bi bi-arrow-down-circle"></i></button>
-                        <button class="btn btn m-1 btn-danger" onclick = "fct_UsuarioEliminar('${data.id}')" title="Eliminar empresa"><i class="bi bi-trash"></i></button>`
+                        let buttons = `
+                        <button class="btn btn m-1 btn-info" onclick="fct_EmpresaVer('${data.id}')" title="Ver empresa"><i class="bi bi-eye"></i></button>
+                        <button class="btn btn m-1 btn-primary" onclick="fct_EmpresaEditar('${data.id}')" title="Editar empresa"><i class="bi bi-pencil-square"></i></button>
+                        <button class="btn btn m-1 btn-danger" onclick = "fct_EmpresaEliminar('${data.id}')" title="Eliminar empresa"><i class="bi bi-trash"></i></button>`
 
                         return `
                         <div class="flex-wrap btn-group">
@@ -254,21 +254,21 @@
     }
 
     function fct_EmpresaNuevo() {
-        window.location.href = '/trabajadores/usuarios/UsuarioNuevo';
+        window.location.href = '/Empresa/Registrar';
     }
 
     function fct_EmpresaEditar(Id) {
-        window.location.href = `/trabajadores/usuarios/EditarUsuario/${Id}`;
+        window.location.href = `/Empresa/Editar/${Id}`;
     }
 
     function fct_EmpresaVer(Id) {
-        window.location.href = `/trabajadores/usuarios/VerUsuario/${Id}`;
+        window.location.href = `/Empresa/Ver/${Id}`;
     }
 
     function fct_EmpresaEliminar(Id) {
         Swal.fire({
             title: "¿Estás seguro?",
-            text: "Esta acción eliminará al usuario. ¿Deseas continuar?",
+            text: "Esta acción eliminará a la empresa. ¿Deseas continuar?",
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#3085d6",
@@ -279,60 +279,11 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
-                    url: `/trabajadores/usuarios/EliminarUsuario/${Id}`,  // Pasamos el ID en la URL
+                    url: `/Empresa/EliminarEmpresa/${Id}`,  // Pasamos el ID en la URL
                     type: "POST",
                     contentType: "application/json",
                     success: function (response) {
-                        if (response.Status === "success") {
-                            if (response.Msj2 !== '' && response.Msj2 !== null) {
-                                toastr.warning(response.Msj2, 'MENSAJE DE SISTEMA');
-                                return;
-                            }
-                            fct_IniciarTablaUsuarios('#tbl_Usuarios');
-                            toastr.success(response.Msj, "MENSAJE DE SISTEMA");
-                        } else {
-                            toastr.error(response.Msj, "MENSAJE DE SISTEMA");
-                            console.error('Error: ' + response.Msj);
-                        }
-                    },
-                    error: function (xhr, Status, error) {
-                        toastr.error("Error en el servidor", "MENSAJE DE SISTEMA");
-                        console.error('Error:' + error);
-                    }
-                });
-            }
-        });
-    }
-
-    function fct_EmpresaDarBaja(Id) {
-        Swal.fire({
-            title: "¿Estás seguro?",
-            text: "Esta acción le dará de baja al usuario. ¿Deseas continuar?",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Sí, dar de baja",
-            cancelButtonText: "Cancelar",
-            reverseButtons: true // Invertir el orden de los botones
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $.ajax({
-                    url: `/trabajadores/usuarios/DarBajaUsuario/${Id}`,  // Pasamos el ID en la URL
-                    type: "POST",
-                    contentType: "application/json",
-                    success: function (response) {
-                        if (response.Status === "success") {
-                            if (response.Msj2 !== '' && response.Msj2 !== null) {
-                                toastr.warning(response.Msj2, 'MENSAJE DE SISTEMA');
-                                return;
-                            }
-                            fct_IniciarTablaUsuarios('#tbl_Usuarios');
-                            toastr.success(response.Msj, "MENSAJE DE SISTEMA");
-                        } else {
-                            toastr.error(response.Msj, "MENSAJE DE SISTEMA");
-                            console.error('Error: ' + response.Msj);
-                        }
+                        
                     },
                     error: function (xhr, Status, error) {
                         toastr.error("Error en el servidor", "MENSAJE DE SISTEMA");
