@@ -11,5 +11,6 @@ namespace YnnovaComprobantes.Data
         }
 
         public DbSet<Empresa> Empresas { get; set; }
+        public DbSet<TipoComprobante> TipoComprobantes { get; set; }
     }
 }

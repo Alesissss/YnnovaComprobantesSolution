@@ -14,6 +14,7 @@ DROP TABLE IF EXISTS tipo_gasto;
 DROP TABLE IF EXISTS tipo_rendicion;
 DROP TABLE IF EXISTS tipo_usuario;
 DROP TABLE IF EXISTS usuario;
+DROP TABLE IF EXISTS empresa_usuario;
 
 -- TABLA banco
 CREATE TABLE banco (
@@ -143,7 +144,13 @@ CREATE TABLE usuario (
     email VARCHAR(255),
     telefono VARCHAR(20),
     password VARCHAR(255) NOT NULL,
-    empresa_id INT NOT NULL,
     estado BIT NOT NULL,
     tipo_usuario_id INT NOT NULL
+);
+
+-- TABLA empresa_usuario
+CREATE TABLE empresa_usuario (
+    id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
+    empresa_id INT NOT NULL,
+    usuario_id INT NOT NULL
 );
