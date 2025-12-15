@@ -190,7 +190,6 @@
             columns: [
                 { data: "id", name: "id" },
                 { data: "codigo", name: "codigo" },
-                { data: "nombre", name: "nombre" },
                 { data: "descripcion", name: "descripcion" },
                 {
                     data: "estado",
@@ -230,11 +229,11 @@
                     className: "text-center align-middle",
                 },
                 {
-                    targets: [1, 2, 3, 4],
+                    targets: [1, 2, 3],
                     className: 'align-middle',
                 },
                 {
-                    targets: [5],
+                    targets: [4],
                     orderable: false,
                 },
             ],
@@ -259,7 +258,7 @@
         window.location.href = '/TipoComprobante/Registrar';
     }
 
-    function fct_TipoComprobanteaEditar(Id) {
+    function fct_TipoComprobanteEditar(Id) {
         window.location.href = `/TipoComprobante/Editar/${Id}`;
     }
 

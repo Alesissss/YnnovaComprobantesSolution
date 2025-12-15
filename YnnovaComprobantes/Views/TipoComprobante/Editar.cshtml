@@ -54,11 +54,10 @@
 
         $("#btn_Editar").click(function () {
             let codigo = $("#txt_Codigo").val().trim();
-            let nombre = $("#txt_Nombre").val().trim();
             let descripcion = $("#txt_Descripcion").val().trim();
             let estado = $('#cbx_Estado').val();
 
-            if (!codigo || !nombre || !descripcion || !estado) {
+            if (!codigo || !descripcion || !estado) {
                 toastr.warning("Todos los campos son obligatorios", "MENSAJE DE SISTEMA");
                 return;
             }

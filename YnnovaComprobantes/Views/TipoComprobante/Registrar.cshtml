@@ -48,12 +48,12 @@
 </div>
 <script>
     $(document).ready(function () {
-        $("#btn_TipoComprobante").click(function () {
+        $("#btn_Registrar").click(function () {
             let codigo = $("#txt_Codigo").val().trim();
             let descripcion = $("#txt_Descripcion").val().trim();
             let estado = $('#cbx_Estado').val();
 
-            if (!codigo || !nombre || !descripcion || !estado) {
+            if (!codigo || !descripcion || !estado) {
                 toastr.warning("Todos los campos son obligatorios", "MENSAJE DE SISTEMA");
                 return;
             }
