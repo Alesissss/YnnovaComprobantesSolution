@@ -1,0 +1,107 @@
+﻿@{
+    ViewData["Title"] = "Registrar Tipo de Usuario";
+}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="text-center mb-0">Registrar Tipo de Usuario</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label for="txt_Codigo">Id</label>
+                            <div class="input-group">
+                                <input type="text" id="txt_Id" class="form-control" placeholder="Id">
+                            </div>
+                        </div>
+
+                        <div class="col-md-12 mb-3">
+                            <label for="txt_Descripcion">Nombre</label>
+                            <div class="input-group">
+                                <textarea id="txt_Nombre"
+                                          class="form-control"
+                                          placeholder="Introduce la descripción aquí..."
+                                          rows="4"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label for="cbx_Estado">Estado</label>
+                            <div class="input-group">
+                                <select id="cbx_Estado" class="form-control">
+                                    <option value="" disabled selected>--SELECCIONAR--</option>
+                                    <option value="1">Activo</option>
+                                    <option value="0">Inactivo</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-12 text-center">
+                            <button id="btn_Volver" type="button" class="btn btn-danger">Volver</button>
+                            <button id="btn_Registrar" type="button" class="btn btn-primary">Registrar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $("#btn_Registrar").click(function () {
+            let codigo = $("#txt_Id").val().trim();
+            let descripcion = $("#txt_Nombre").val().trim();
+            let estado = $('#cbx_Estado').val();
+
+            if (!codigo || !dNombre || !estado) {
+                toastr.warning("Todos los campos son obligatorios", "MENSAJE DE SISTEMA");
+                return;
+            }
+
+            Swal.fire({
+                title: "¿Estás seguro?",
+                text: "Esta acción registrará el tipo de Usuario. ¿Deseas continuar?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Sí, registrar tipo de Usuario",
+                cancelButtonText: "Cancelar",
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+
+                    let formData = new FormData();
+                    formData.append("Id", Id);
+                    formData.append("Nombre", Nombre);
+                    formData.append("Estado", estado == 1 ? true : false);
+
+                    $.ajax({
+                        url: "/TipoUsuario/RegistrarTipoUsuario",
+                        type: "POST",
+                        processData: false,
+                        contentType: false,
+                        data: formData,
+                        success: function (response) {
+                            if (response.status === true) {
+                                toastr.success(response.message, "MENSAJE DE SISTEMA");
+                                window.location.href = "/TipoUsuario";
+                            } else {
+                                toastr.warning(response.message, 'MENSAJE DE SISTEMA');
+                                return;
+                            }
+                        },
+                        error: function (xhr, Status, error) {
+                            toastr.error("Error en el servidor", "MENSAJE DE SISTEMA");
+                            console.error('Error en la solicitud Ajax. Status:', Status, 'Error:', error, 'XHR:', xhr);
+                        }
+                    });
+                }
+            });
+        });
+
+        $("#btn_Volver").click(function () {
+            window.location.href = "/TipoUsuario";
+        });
+    });
+</script>
