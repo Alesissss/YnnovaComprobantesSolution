@@ -1,20 +1,20 @@
-﻿@model YnnovaComprobantes.Models.TipoComprobante
+﻿@model YnnovaComprobantes.Models.TipoGasto
 @{
-    ViewData["Title"] = "TipoComprobante";
+    ViewData["Title"] = "TipoGasto";
 }
 <div class="container-fluid">
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header bg-primary text-white">
-                    <h4 class="text-center mb-0">Ver TipoComprobante</h4>
+                    <h4 class="text-center mb-0">Ver Tipo Gasto</h4>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-12 mb-3">
-                            <label for="txt_Codigo">Código</label>
+                            <label for="txt_Nombre">Nombre</label>
                             <div class="input-group">
-                                <input disabled type="text" id="txt_Codigo" class="form-control" placeholder="Código" value="@Model.Codigo">
+                                <input disabled type="text" id="txt_Nombre" class="form-control" placeholder="Nombre" value="@Model.Nombre">
                             </div>
                         </div>
 
@@ -24,7 +24,7 @@
                                 <textarea disabled id="txt_Descripcion"
                                           class="form-control"
                                           placeholder="Introduce la descripción aquí..."
-                                          rows="4">@Model.Descripcion</textarea>
+                                          rows="4">@Model.Nombre</textarea>
                             </div>
                         </div>
                         <div class="col-md-12 mb-3">
@@ -51,7 +51,7 @@
         $('#cbx_Estado').val('@(Model.Estado ? 1 : 0)');
 
         $("#btn_Volver").click(function () {
-            window.location.href = "/TipoComprobante";
+            window.location.href = "/TipoGasto";
         });
     });
 </script>

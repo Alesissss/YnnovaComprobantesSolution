@@ -15,10 +15,7 @@
                         <div class="col-md-12 mb-3">
                             <label for="txt_nombre">Nombre</label>
                             <div class="input-group">
-                                <input id="txt_Nombre"
-                                          class="form-control"
-                                          placeholder="Introduce el nombre aquí..."
-                                          rows="4"></input>
+                                <input type="text" id="txt_Nombre" class="form-control" placeholder="Nombre">
                             </div>
                         </div>
                         <div class="col-md-12 mb-3">
@@ -44,11 +41,10 @@
 <script>
     $(document).ready(function () {
         $("#btn_Registrar").click(function () {
-            let id = $("#txt_Id").val().trim();
             let nombre = $("#txt_Nombre").val().trim();
             let estado = $('#cbx_Estado').val();
 
-            if (!id || !nombre || !estado) {
+            if (!nombre || !estado) {
                 toastr.warning("Todos los campos son obligatorios", "MENSAJE DE SISTEMA");
                 return;
             }
@@ -67,8 +63,7 @@
                 if (result.isConfirmed) {
 
                     let formData = new FormData();
-                    formData.append("Id", Id);
-                    formData.append("Nombre", Nombre);
+                    formData.append("Nombre", nombre);
                     formData.append("Estado", estado == 1 ? true : false);
 
                     $.ajax({

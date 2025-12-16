@@ -42,7 +42,7 @@ namespace YnnovaComprobantes.Controllers
             {
                 if (_context.Empresas.Any(e => e.Ruc == TipoRendicion.Codigo))
                 {
-                    return Json(new ApiResponse { data = null, message = "Ya existe un tipo rendicion registrado con el código ingresado.", status = false });
+                    return Json(new ApiResponse { data = null, message = "Ya existe un tipo Rendicion registrado con el código ingresado.", status = false });
                 }
 
                 _context.TipoRendiciones.Add(TipoRendicion);
