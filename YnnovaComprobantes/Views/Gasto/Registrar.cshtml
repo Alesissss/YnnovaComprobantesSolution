@@ -3,14 +3,14 @@
 }
 <div class="container-fluid">
     <div class="row justify-content-center">
-        <div class="col-md-6">
+        <div class="col-md-7">
             <div class="card">
                 <div class="card-header bg-primary text-white">
                     <h4 class="text-center mb-0">Registrar gasto</h4>
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-12 mb-3">
+                        <div class="col-md-6 mb-3">
                             <label for="cbx_Empresa">Empresa</label>
                             <div class="input-group">
                                 <select id="cbx_Empresa" class="form-control">
@@ -18,15 +18,15 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-12 mb-3">
-                            <label for="cbx_Empresa">Solicitante</label>
+                        <div class="col-md-6 mb-3">
+                            <label for="cbx_Usuario">Usuario</label>
                             <div class="input-group">
-                                <select id="cbx_Solicitante" class="form-control">
+                                <select id="cbx_Usuario" class="form-control">
                                     <option value="" disabled selected>--SELECCIONAR--</option>
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-12 mb-3">
+                        <div class="col-md-6 mb-3">
                             <label for="cbx_TipoGasto">Tipo de gasto</label>
                             <div class="input-group">
                                 <select id="cbx_TipoGasto" class="form-control">
@@ -34,13 +34,13 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-12 mb-3">
+                        <div class="col-md-6 mb-3">
                             <label for="txt_Fecha">Fecha</label>
                             <div class="input-group">
                                 <input type="date" id="txt_Fecha" class="form-control" placeholder="Fecha">
                             </div>
                         </div>
-                        <div class="col-md-12 mb-3">
+                        <div class="col-md-6 mb-3">
                             <label for="cbx_TipoRendicion">Tipo de rendición</label>
                             <div class="input-group">
                                 <select id="cbx_TipoRendicion" class="form-control">
@@ -48,7 +48,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-12 mb-3">
+                        <div class="col-md-6 mb-3">
                             <label for="cbx_Banco">Banco</label>
                             <div class="input-group">
                                 <select id="cbx_Banco" class="form-control">
@@ -56,7 +56,15 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-12 mb-3">
+                        <div class="col-md-6 mb-3">
+                            <label for="cbx_Moneda">Moneda</label>
+                            <div class="input-group">
+                                <select id="cbx_Moneda" class="form-control">
+                                    <option value="" disabled selected>--SELECCIONAR--</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
                             <label for="txt_Importe">Importe</label>
                             <div class="input-group">
                                 <input type="number" id="txt_Importe" class="form-control" placeholder="Importe" step="0.01" min="0">
@@ -74,18 +82,16 @@
 </div>
 <script>
     $(document).ready(function () {
-        let empresas = [];
-        let usuarios = [];
-        let tiposGastos = [];
-        let tiposRendiciones = [];
-        let bancos = [];
+        fct_GetEmpresas();
+        fct_GetTipoGasto();
+        fct_GetTipoRendicion();
+        fct_GetBancos();
+        fct_GetMonedas();
 
-    });
-
-    function fct_GetEmpresas() {
+        function fct_GetEmpresas() {
             $.getJSON('/Gasto/GetEmpresaData', function (response) {
-                let empresas = response.data;
-
+                if (response.status === true) {
+                    let empresas = response.data;
                     var dataSelect2 = empresas.map(function(empresa) {
                         return {
                             id: empresa.id,
@@ -95,7 +101,7 @@
 
                     $('#cbx_Empresa').empty().select2({
                         theme: 'bootstrap4',
-                        data: dataSelect2, // <-- Usamos los datos mapeados
+                        data: dataSelect2,
                         placeholder: "Buscar empresa...",
                         allowClear: true,
                         language: {
@@ -103,7 +109,136 @@
                                 return "No se encontraron resultados";
                             }
                         }
+                    });                    
+                    
+                    $('#cbx_Empresa').val(null).trigger('change');
+
+                    $('#cbx_Empresa').on('change', function() {
+                        $.getJSON('/Gasto/GetUsuariosData', { 'EmpresaId': $('#cbx_Empresa').val() }, function (response) {
+                            if (response.status === true) {
+                                let usuarios = response.data;
+                                var dataUsuariosSelect2 = usuarios.map(function(usuario) {
+                                    return {
+                                        id: usuario.id,
+                                        text: usuario.dni + ' - ' + usuario.nombre,
+                                    }
+                                });
+
+                                $('#cbx_Usuario').empty().select2({
+                                    theme: 'bootstrap4',
+                                    data: dataUsuariosSelect2,
+                                    placeholder: "Buscar usuario...",
+                                    allowClear: true,
+                                    language: {
+                                        noResults: function () {
+                                            return "No se encontraron resultados";
+                                        }
+                                    }
+                                });
+                            } else {
+                                toastr.error('Ocurrió un error al listar a los usuarios', 'MENSAJE DE SISTEMA');
+                                console.error('Error', response.message);
+                            }
+                        });
                     });
+                    
+                } else {
+                    toastr.error('Ocurrió un error al listar las empresas', 'MENSAJE DE SISTEMA');
+                    console.error('Error', response.message);
+                }
             });
         }
+
+        function fct_GetTipoGasto() {
+            $.getJSON('/Gasto/GetTiposGastosData', function (response) {
+                if (response.status === true) {
+                    let items = '<option disabled selected>--SELECCIONAR--</option>';
+
+                    $.each(response.data, function (index, item) {
+                        items += `<option value="${item.id}">${item.nombre}</option>`;
+                    });
+
+                    $('#cbx_TipoGasto').html(items);
+                } else {
+                    toastr.error('Ocurrió un error al listar a los usuarios', 'MENSAJE DE SISTEMA');
+                    console.error('Error', response.message);
+                }
+            });
+        }
+
+        function fct_GetTipoRendicion() {
+            $.getJSON('/Gasto/GetTiposRendicionesData', function (response) {
+                if (response.status === true) {
+                    let tiposRendiciones = response.data;
+                    var dataTR = tiposRendiciones.map(function(tipoRendicion) {
+                        return {
+                            id: tipoRendicion.id,
+                            text: tipoRendicion.codigo + ' - ' + tipoRendicion.descripcion,
+                        }
+                    });
+                    
+                    $('#cbx_TipoRendicion').empty().select2({
+                        theme: 'bootstrap4',
+                        data: dataTR,
+                        placeholder: "Buscar tipo de rendición...",
+                        allowClear: true,
+                        language: {
+                            noResults: function () {
+                                return "No se encontraron resultados";
+                            }
+                        }
+                    });
+                } else {
+                    toastr.error('Ocurrió un error al listar a los tipos de rendiciones', 'MENSAJE DE SISTEMA');
+                    console.error('Error', response.message);
+                }
+            });
+        }
+
+        function fct_GetBancos() {
+            $.getJSON('/Gasto/GetBancosData', function (response) {
+                if (response.status === true) {
+                    let bancos = response.data;
+                    var dataBancos = bancos.map(function(banco) {
+                        return {
+                            id: banco.id,
+                            text: banco.codigo + ' - ' + banco.descripcion,
+                        }
+                    });
+
+                    $('#cbx_Banco').empty().select2({
+                        theme: 'bootstrap4',
+                        data: dataBancos,
+                        placeholder: 'Buscar banco...',
+                        allowClear: true,
+                        language: {
+                            noResults: function () {
+                                return "No se encontraron resultados";
+                            }
+                        }
+                    });
+                } else {
+                    toastr.error('Ocurrió un error al listar a los bancos (entidades financieras)', 'MENSAJE DE SISTEMA');
+                    console.error('Error', response.message);
+                }
+            });
+        }
+
+        function fct_GetMonedas() {
+            $.getJSON('/Gasto/GetMonedasData', function (response) {
+                if (response.status === true) {
+                    let items = '<option disabled selected>--SELECCIONAR--</option>';
+
+                    $.each(response.data, function (index, item) {
+                        items += `<option value="${item.id}">${item.simbolo} ${item.nombre}</option>`;
+                    });
+
+                    $('#cbx_Moneda').html(items);
+                } else {
+                    toastr.error('Ocurrió un error al listar a las monedas', 'MENSAJE DE SISTEMA');
+                    console.error('Error', response.message);
+                }
+            });
+        }
+    });
 </script>

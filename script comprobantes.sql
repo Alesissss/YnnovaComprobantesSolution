@@ -115,7 +115,8 @@ CREATE TABLE tipo_comprobante (
 -- TABLA tipo_gasto
 CREATE TABLE tipo_gasto (
     id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
-    nombre VARCHAR(50) NOT NULL
+    nombre VARCHAR(50) NOT NULL,
+    estado BIT NOT NULL
 );
 
 

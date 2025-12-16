@@ -66,6 +66,7 @@ namespace YnnovaComprobantes.Controllers
                                where eu.UsuarioId == u.Id
                                where u.Dni == dni
                                where u.Password == password
+                               where u.Estado == true
                                select new
                                {
                                    u.Id,
@@ -119,8 +120,7 @@ namespace YnnovaComprobantes.Controllers
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
             // 2. Eliminar los datos de la Sesión Estándar (Lista de Empresas, etc.)
-            if (HttpContext.Session != null)
-                HttpContext.Session.Clear();
+            HttpContext.Session.Clear();
 
             // 3. Redirigir al usuario a la página de Login
             return RedirectToAction("Index", "Home");

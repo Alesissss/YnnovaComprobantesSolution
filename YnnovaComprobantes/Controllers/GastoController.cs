@@ -106,5 +106,19 @@ namespace YnnovaComprobantes.Controllers
                 return Json(new ApiResponse { data = null, message = ex.Message, status = false });
             }
         }
+        // Get monedas
+        [HttpGet]
+        public JsonResult GetMonedasData()
+        {
+            try
+            {
+                var tiposRendiciones = _context.Monedas.ToList();
+                return Json(new { data = tiposRendiciones, message = "Monedas retornadas exitosamente.", status = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new ApiResponse { data = null, message = ex.Message, status = false });
+            }
+        }
     }
 }
