@@ -1,6 +1,6 @@
 ﻿@model YnnovaComprobantes.Models.TipoGasto
 @{
-    ViewData["Title"] = "TipoGasto";
+    ViewData["Title"] = "Ver tipo de gasto";
 }
 <div class="container-fluid">
     <div class="row justify-content-center">
@@ -15,16 +15,6 @@
                             <label for="txt_Nombre">Nombre</label>
                             <div class="input-group">
                                 <input disabled type="text" id="txt_Nombre" class="form-control" placeholder="Nombre" value="@Model.Nombre">
-                            </div>
-                        </div>
-
-                        <div class="col-md-12 mb-3">
-                            <label for="txt_Descripcion">Descripción</label>
-                            <div class="input-group">
-                                <textarea disabled id="txt_Descripcion"
-                                          class="form-control"
-                                          placeholder="Introduce la descripción aquí..."
-                                          rows="4">@Model.Nombre</textarea>
                             </div>
                         </div>
                         <div class="col-md-12 mb-3">

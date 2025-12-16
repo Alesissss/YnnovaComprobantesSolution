@@ -42,10 +42,10 @@
 </div>
 <script>
     $(document).ready(function () {
+        $('#cbx_Estado').val('@(Model.Estado ? 1 : 0)');
 
         $("#btn_Editar").click(function () {
             let nombre = $("#txt_Nombre").val().trim();
-
             let estado = $('#cbx_Estado').val();
 
             if (!nombre ||!estado) {

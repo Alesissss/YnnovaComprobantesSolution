@@ -168,7 +168,7 @@
                 },
             ],
             ajax: {
-                url: "/TTipoGasto/GetTipoGastoData",
+                url: "/TipoGasto/GetTipoGastoData",
                 type: "GET",
                 datatype: "json",
                 data: function (d) {
@@ -181,7 +181,7 @@
                     }
                     return json.data;
                 },
-                error: function (xhr, error, thrown) {
+                error: function (xhr, Status, error) {
                     toastr.error('Ocurrió un error inesperado al intentar listar la tabla');
                     console.error('Error en la solicitud Ajax. Status:', Status, 'Error:', error, 'XHR:', xhr);
                 },
@@ -279,7 +279,7 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
-                    url: `/TipoGasto/TipoGastoEmpresa/${Id}`,  // Pasamos el ID en la URL
+                    url: `/TipoGasto/EliminarTipoGasto/${Id}`,  // Pasamos el ID en la URL
                     type: "POST",
                     contentType: "application/json",
                     success: function (response) {

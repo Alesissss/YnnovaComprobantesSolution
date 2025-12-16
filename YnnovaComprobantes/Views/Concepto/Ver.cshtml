@@ -1,23 +1,22 @@
-﻿@model YnnovaComprobantes.Models.TipoRendicion
+﻿@model YnnovaComprobantes.Models.Concepto
 @{
-    ViewData["Title"] = "Ver tipo de rendición";
+    ViewData["Title"] = "Ver Concepto";
 }
 <div class="container-fluid">
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header bg-primary text-white">
-                    <h4 class="text-center mb-0">Ver tipo de rendición</h4>
+                    <h4 class="text-center mb-0">Ver concepto</h4>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-12 mb-3">
-                            <label for="txt_Codigo">Código</label>
+                            <label for="txt_Nombre">Nombre</label>
                             <div class="input-group">
-                                <input disabled type="text" id="txt_Codigo" class="form-control" placeholder="Código" value="@Model.Codigo">
+                                <input disabled type="text" id="txt_Nombre" class="form-control" placeholder="Nombre" value="@Model.Nombre">
                             </div>
                         </div>
-
                         <div class="col-md-12 mb-3">
                             <label for="txt_Descripcion">Descripción</label>
                             <div class="input-group">
@@ -48,10 +47,11 @@
 </div>
 <script>
     $(document).ready(function () {
+
         $('#cbx_Estado').val('@(Model.Estado ? 1 : 0)');
 
         $("#btn_Volver").click(function () {
-            window.location.href = "/TipoRendicion";
+            window.location.href = "/Concepto";
         });
     });
 </script>

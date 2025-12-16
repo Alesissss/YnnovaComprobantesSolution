@@ -25,7 +25,7 @@ namespace YnnovaComprobantes.Controllers
                 try
                 {
                     var TipoUsuarioData = _context.TipoUsuarios.ToList();
-                    return Json(new { data = TipoUsuarioData, message = "Usuarios retornadas exitosamente.", status = true });
+                    return Json(new { data = TipoUsuarioData, message = "Tipos de usuarios retornados exitosamente.", status = true });
                 }
                 catch (Exception ex)
                 {
@@ -43,14 +43,9 @@ namespace YnnovaComprobantes.Controllers
             {
                 try
                 {
-                    if (_context.TipoUsuarios.Any(e => e.Id == TipoUsuario.Id))
-                    {
-                        return Json(new ApiResponse { data = null, message = "Ya existe una Tipo Usuario registrada con el código de Tipo Usuario ingresado.", status = false });
-                    }
-
                     _context.TipoUsuarios.Add(TipoUsuario);
                     _context.SaveChanges();
-                    return Json(new ApiResponse { data = null, message = "Tipo Usuarioregistrada exitosamente.", status = true });
+                    return Json(new ApiResponse { data = null, message = "Tipo de usuario registrado exitosamente.", status = true });
                 }
                 catch (Exception ex)
                 {
@@ -84,17 +79,12 @@ namespace YnnovaComprobantes.Controllers
                 {
                     if (!_context.TipoUsuarios.Any(e => e.Id == TipoUsuario.Id))
                     {
-                        return Json(new ApiResponse { data = null, message = "La Tipo Usuario que intenta editar no existe.", status = false });
-                    }
-
-                    if (_context.TipoUsuarios.Where(e => e.Id != TipoUsuario.Id).Any(e => e.Id == TipoUsuario.Id))
-                    {
-                        return Json(new ApiResponse { data = null, message = "Ya existe una Tipo Usuario registrada con el código de Tipo Usuario ingresado.", status = false });
+                        return Json(new ApiResponse { data = null, message = "El tipo de usuario que intenta editar no existe.", status = false });
                     }
 
                     _context.TipoUsuarios.Update(TipoUsuario);
                     _context.SaveChanges();
-                    return Json(new ApiResponse { data = TipoUsuario, message = "Tipo Usuario actualizada exitosamente.", status = true });
+                    return Json(new ApiResponse { data = TipoUsuario, message = "Tipo de usuario actualizado exitosamente.", status = true });
                 }
                 catch (Exception ex)
                 {
@@ -109,12 +99,18 @@ namespace YnnovaComprobantes.Controllers
                     var TipoUsuario = _context.TipoUsuarios.FirstOrDefault(e => e.Id == id);
                     if (TipoUsuario == null)
                     {
-                        return Json(new ApiResponse { data = null, message = "Tipo Usuario no encontrada.", status = false });
+                        return Json(new ApiResponse { data = null, message = "Tipo de usuario no encontrado.", status = false });
                     }
+
+                    if (_context.EmpresasUsuarios.Any(eu => eu.TipoUsuarioId == id))
+                    {
+                        return Json(new ApiResponse { data = null, message = "El tipo de usuario no se puede eliminar porque ya está referenciado.", status = false });
+                    }
+
                     _context.TipoUsuarios.Remove(TipoUsuario);
-                    _context.SaveChanges();
-                    return Json(new ApiResponse { data = null, message = "Tipo Usuario eliminada exitosamente.", status = true });
-                }
+                        _context.SaveChanges();
+                        return Json(new ApiResponse { data = null, message = "Tipo de usuario eliminado exitosamente.", status = true });
+                    }
                 catch (Exception ex)
                 {
                     return Json(new ApiResponse { data = null, message = ex.Message, status = false });

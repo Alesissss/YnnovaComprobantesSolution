@@ -21,7 +21,7 @@ CREATE TABLE banco (
     id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
     codigo VARCHAR(10) NOT NULL,
     descripcion VARCHAR(255) NOT NULL,
-    estado BIT NOT NULL DEFAULT 1
+    estado BIT NOT NULL
 );
 
 -- TABLA comprobante
@@ -48,7 +48,7 @@ CREATE TABLE concepto (
     id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     descripcion TEXT,
-    estado BIT NOT NULL DEFAULT 1
+    estado BIT NOT NULL
 );
 
 
@@ -58,7 +58,7 @@ CREATE TABLE empresa (
     ruc char(11) NOT NULL,
     nombre VARCHAR(255) NOT NULL,
     descripcion TEXT,
-    estado BIT NOT NULL DEFAULT 1
+    estado BIT NOT NULL
 );
 
 
@@ -73,7 +73,7 @@ CREATE TABLE estado (
 -- TABLA gasto
 CREATE TABLE gasto (
     id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
-    fecha_hora DATETIME NOT NULL,
+    fecha DATE NOT NULL,
     importe DECIMAL(12, 2) NOT NULL,
     descripcion TEXT,
     empresa_id INT NOT NULL,

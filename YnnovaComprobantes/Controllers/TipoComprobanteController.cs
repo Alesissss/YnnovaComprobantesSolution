@@ -22,7 +22,7 @@ namespace YnnovaComprobantes.Controllers
             try
             {
                 var TipoComprobanteData = _context.TipoComprobantes.ToList();
-                return Json(new { data = TipoComprobanteData, message = "Tipos de comprobante retornados exitosamente.", status = true });
+                return Json(new { data = TipoComprobanteData, message = "Tipos de comprobantes retornados exitosamente.", status = true });
             }
             catch (Exception ex)
             {
@@ -40,9 +40,9 @@ namespace YnnovaComprobantes.Controllers
         {
             try
             {
-                if (_context.Empresas.Any(e => e.Ruc == TipoComprobante.Codigo))
+                if (_context.TipoComprobantes.Any(tc => tc.Codigo == TipoComprobante.Codigo))
                 {
-                    return Json(new ApiResponse { data = null, message = "Ya existe un tipo comprobante registrado con el código ingresado.", status = false });
+                    return Json(new ApiResponse { data = null, message = "Ya existe un tipo de comprobante registrado con el código ingresado.", status = false });
                 }
 
                 _context.TipoComprobantes.Add(TipoComprobante);
@@ -84,7 +84,7 @@ namespace YnnovaComprobantes.Controllers
                     return Json(new ApiResponse { data = null, message = "El tipo de comprobante que intenta editar no existe.", status = false });
                 }
 
-                if (_context.Empresas.Where(e => e.Id != TipoComprobante.Id).Any(e => e.Ruc == TipoComprobante.Codigo))
+                if (_context.TipoComprobantes.Where(tc => tc.Id != TipoComprobante.Id).Any(tc => tc.Codigo == TipoComprobante.Codigo))
                 {
                     return Json(new ApiResponse { data = null, message = "Ya existe un tipo de comprobante registrado con el código ingresado.", status = false });
                 }
@@ -108,6 +108,12 @@ namespace YnnovaComprobantes.Controllers
                 {
                     return Json(new ApiResponse { data = null, message = "Tipo de comprobante no encontrada.", status = false });
                 }
+
+                if (_context.Comprobantes.Any(c => c.TipoComprobanteId == id))
+                {
+                    return Json(new ApiResponse { data = null, message = "El tipo de comprobante no se puede eliminar porque ya está referenciado.", status = false });
+                }
+
                 _context.TipoComprobantes.Remove(TipoComprobante);
                 _context.SaveChanges();
                 return Json(new ApiResponse { data = null, message = "Tipo de comprobante eliminada exitosamente.", status = true });

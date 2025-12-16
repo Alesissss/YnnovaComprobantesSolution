@@ -120,5 +120,24 @@ namespace YnnovaComprobantes.Controllers
                 return Json(new ApiResponse { data = null, message = ex.Message, status = false });
             }
         }
+        // Registrar gasto
+        [HttpPost]
+        public JsonResult RegistrarGasto(Gasto gasto)
+        {
+            try
+            {
+                gasto.EstadoId = _context.Estados.Where(e => e.Tabla == "GASTO" && e.Nombre == "Pendiente").Select(e => e.Id).FirstOrDefault();
+                gasto.FechaRegistro = DateTime.Now;
+
+                _context.Gastos.Add(gasto);
+                _context.SaveChanges();
+
+                return Json(new ApiResponse { data = null, message = "Gasto registrado exitosamente.", status = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new ApiResponse { data = null, message = ex.Message, status = false });
+            }
+        }
     }
 }

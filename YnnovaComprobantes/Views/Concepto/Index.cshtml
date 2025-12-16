@@ -1,5 +1,5 @@
 ﻿@{
-    ViewData["Title"] = "Gestinar Tipos de Rendicion";
+    ViewData["Title"] = "Gestionar Conceptos";
 }
 <div class="card d-none" id="efec-cargando">
     <div class="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center overlay dark">
@@ -10,18 +10,18 @@
     <div class="panel-heading">
         <div class="row">
             <div class="col-md-12">
-                <h1>Gestionar Tipos de Rendicion</h1>
+                <h1>Gestionar conceptos</h1>
             </div>
         </div>
     </div>
     <div class="panel-body">
         <div class="row">
             <div class="col-12">
-                <table id="tbl_TipoRendicion" class="table table-bordered table-hover">
+                <table id="tbl_Conceptos" class="table table-bordered table-hover">
                     <thead class="thead-dark">
                         <tr>
                             <th class="text-center">ID</th>
-                            <th class="text-center">CÓDIGO</th>
+                            <th class="text-center">NOMBRE</th>
                             <th class="text-center">DESCRIPCIÓN</th>
                             <th class="text-center">ESTADO</th>
                             <th class="text-center">ACCIÓN</th>
@@ -35,7 +35,7 @@
     </div>
 </div>
 <script>
-    var dtTipoRendicion;
+    var dtEmpresas;
 
     $(document).ready(function () {
         // $('body').addClass('sidebar-collapse');
@@ -101,12 +101,12 @@
             lengthMenu: [[100, 200, 500, -1], [100, 200, 500, 'Todos']],
         });
 
-        fct_IniciarTablaTipoRendicion('#tbl_TipoRendicion');
+        fct_IniciarTablaEmpresas('#tbl_Empresas');
     });
 
-    function fct_IniciarTablaTipoRendicion(IdTabla) {
+    function fct_IniciarTablaEmpresas(IdTabla) {
         // Inicializar DataTables con botones
-        dtTipoRendicion = $(IdTabla).DataTable({
+        dtEmpresas = $(IdTabla).DataTable({
             buttons: [
                 {
                     extend: 'copy',
@@ -119,7 +119,7 @@
                     text: '<i class="bi bi-file-earmark-excel"></i>',
                     titleAttr: 'Exportar a Excel',
                     className: 'btn btn-success',
-                    filename: 'TiposDeRendicion' + moment().format('DD-MM-YYYY HH_mm'),
+                    filename: 'Conceptos ' + moment().format('DD-MM-YYYY HH_mm'),
                     footer: true,
                     exportOptions:
                     {
@@ -132,7 +132,7 @@
                     text: '<i class="bi bi-file-earmark-pdf"></i>',
                     titleAttr: 'Exportar a PDF',
                     className: 'btn btn-danger',
-                    filename: 'TiposDeRendicion' + moment().format('DD-MM-YYYY HH_mm'),
+                    filename: 'Conceptos ' + moment().format('DD-MM-YYYY HH_mm'),
                     exportOptions:
                     {
                         stripHtml: true,
@@ -160,16 +160,16 @@
                     columns: ':not(.noVis)',
                 },
                 {
-                    text: '<i class= "bi bi-plus-circle" style="margin-right: 5px;"></i>Nuevo Tipo De Rendicion',
+                    text: '<i class= "bi bi-plus-circle" style="margin-right: 5px;"></i>Nueva empresa',
                     className: 'btn bg-success m-1',
                     titleAttr: 'Nuevo',
                     action: function (e, dt, node, config) {
-                        fct_TipoRendicionNuevo();
+                        fct_ConceptoNuevo();
                     },
                 },
             ],
             ajax: {
-                url: "/TipoRendicion/GetTipoRendicionData",
+                url: "/Concepto/GetConceptoData",
                 type: "GET",
                 datatype: "json",
                 data: function (d) {
@@ -189,7 +189,7 @@
             },
             columns: [
                 { data: "id", name: "id" },
-                { data: "codigo", name: "codigo" },
+                { data: "nombre", name: "nombre" },
                 { data: "descripcion", name: "descripcion" },
                 {
                     data: "estado",
@@ -210,9 +210,9 @@
                     name: null,
                     render: function (data, type, row) {
                         let buttons = `
-                        <button class="btn btn m-1 btn-info" onclick="fct_TipoRendicionVer('${data.id}')" title="Ver Tipo de Rendicion"><i class="bi bi-eye"></i></button>
-                        <button class="btn btn m-1 btn-primary" onclick="fct_TipoRendicionEditar('${data.id}')" title="Editar Tipo de Rendicion"><i class="bi bi-pencil-square"></i></button>
-                        <button class="btn btn m-1 btn-danger" onclick = "fct_TipoRendicionEliminar('${data.id}')" title="Eliminar Tipo de Rendicion"><i class="bi bi-trash"></i></button>`
+                        <button class="btn btn m-1 btn-info" onclick="fct_ConceptoVer('${data.id}')" title="Ver concepto"><i class="bi bi-eye"></i></button>
+                        <button class="btn btn m-1 btn-primary" onclick="fct_ConceptoEditar('${data.id}')" title="Editar concepto"><i class="bi bi-pencil-square"></i></button>
+                        <button class="btn btn m-1 btn-danger" onclick = "fct_ConceptoEliminar('${data.id}')" title="Eliminar concepto"><i class="bi bi-trash"></i></button>`
 
                         return `
                         <div class="flex-wrap btn-group">
@@ -254,22 +254,22 @@
         });
     }
 
-    function fct_TipoRendicionNuevo() {
-        window.location.href = '/TipoRendicion/Registrar';
+    function fct_ConceptoNuevo() {
+        window.location.href = '/Concepto/Registrar';
     }
 
-    function fct_TipoRendicionEditar(Id) {
-        window.location.href = `/TipoRendicion/Editar/${Id}`;
+    function fct_ConceptoEditar(Id) {
+        window.location.href = `/Concepto/Editar/${Id}`;
     }
 
-    function fct_TipoRendicionVer(Id) {
-        window.location.href = `/TipoRendicion/Ver/${Id}`;
+    function fct_ConceptoVer(Id) {
+        window.location.href = `/Concepto/Ver/${Id}`;
     }
 
-    function fct_TipoRendicionEliminar(Id) {
+    function fct_ConceptoEliminar(Id) {
         Swal.fire({
             title: "¿Estás seguro?",
-            text: "Esta acción eliminará la Rendicion. ¿Deseas continuar?",
+            text: "Esta acción eliminará al concepto. ¿Deseas continuar?",
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#3085d6",
@@ -280,13 +280,13 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
-                    url: `/TipoRendicion/EliminarTipoRendicion/${Id}`,  // Pasamos el ID en la URL
+                    url: `/Concepto/EliminarConcepto/${Id}`,  // Pasamos el ID en la URL
                     type: "POST",
                     contentType: "application/json",
                     success: function (response) {
                         if (response.status === true) {
                                 toastr.success(response.message, "MENSAJE DE SISTEMA");
-                                window.location.href = "/TipoRendicion";
+                                window.location.href = "/Concepto";
                         } else {
                             toastr.warning(response.message, 'MENSAJE DE SISTEMA');
                             return;

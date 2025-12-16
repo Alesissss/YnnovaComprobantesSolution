@@ -25,7 +25,7 @@ namespace YnnovaComprobantes.Controllers
             try
             {
                 var TipoGastoData = _context.TipoGastos.ToList();
-                return Json(new { data = TipoGastoData, message = "Gastos retornadas exitosamente.", status = true });
+                return Json(new { data = TipoGastoData, message = "Tipos de gastos retornados exitosamente.", status = true });
             }
             catch (Exception ex)
             {
@@ -43,14 +43,9 @@ namespace YnnovaComprobantes.Controllers
         {
             try
             {
-                if (_context.TipoGastos.Any(e => e.Id == TipoGasto.Id))
-                {
-                    return Json(new ApiResponse { data = null, message = "Ya existe una Tipo Gasto registrada con el código de Tipo Usuario ingresado.", status = false });
-                }
-
                 _context.TipoGastos.Add(TipoGasto);
                 _context.SaveChanges();
-                return Json(new ApiResponse { data = null, message = "Tipo Gasto registrada exitosamente.", status = true });
+                return Json(new ApiResponse { data = null, message = "Tipo de gasto registrado exitosamente.", status = true });
             }
             catch (Exception ex)
             {
@@ -84,17 +79,12 @@ namespace YnnovaComprobantes.Controllers
             {
                 if (!_context.TipoGastos.Any(e => e.Id == TipoGasto.Id))
                 {
-                    return Json(new ApiResponse { data = null, message = "La Tipo Gasto que intenta editar no existe.", status = false });
-                }
-
-                if (_context.TipoGastos.Where(e => e.Id != TipoGasto.Id).Any(e => e.Id == TipoGasto.Id))
-                {
-                    return Json(new ApiResponse { data = null, message = "Ya existe una Tipo Gasto registrada con el código de Tipo Usuario ingresado.", status = false });
+                    return Json(new ApiResponse { data = null, message = "El tipo de gasto que intenta editar no existe.", status = false });
                 }
 
                 _context.TipoGastos.Update(TipoGasto);
                 _context.SaveChanges();
-                return Json(new ApiResponse { data = TipoGasto, message = "Tipo Gasto actualizada exitosamente.", status = true });
+                return Json(new ApiResponse { data = TipoGasto, message = "Tipo de gasto actualizada exitosamente.", status = true });
             }
             catch (Exception ex)
             {
@@ -109,11 +99,17 @@ namespace YnnovaComprobantes.Controllers
                 var TipoGasto = _context.TipoGastos.FirstOrDefault(e => e.Id == id);
                 if (TipoGasto == null)
                 {
-                    return Json(new ApiResponse { data = null, message = "Tipo Gasto no encontrada.", status = false });
+                    return Json(new ApiResponse { data = null, message = "Tipo de gasto no encontrado.", status = false });
                 }
+
+                if (_context.Gastos.Any(g => g.TipoGastoId == id))
+                {
+                    return Json(new ApiResponse { data = null, message = "El tipo de gasto no se puede eliminar porque ya está referenciado.", status = false });
+                }
+
                 _context.TipoGastos.Remove(TipoGasto);
                 _context.SaveChanges();
-                return Json(new ApiResponse { data = null, message = "Tipo Gasto eliminada exitosamente.", status = true });
+                return Json(new ApiResponse { data = null, message = "Tipo de gasto eliminado exitosamente.", status = true });
             }
             catch (Exception ex)
             {

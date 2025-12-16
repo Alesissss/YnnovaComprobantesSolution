@@ -109,6 +109,12 @@ namespace YnnovaComprobantes.Controllers
                 {
                     return Json(new ApiResponse { data = null, message = "Empresa no encontrada.", status = false });
                 }
+
+                if (_context.Gastos.Any(g => g.EmpresaId == id) || _context.EmpresasUsuarios.Any(eu => eu.EmpresaId == id))
+                {
+                    return Json(new ApiResponse { data = null, message = "La empresa no se puede eliminar porque ya está referenciada.", status = false });
+                }
+
                 _context.Empresas.Remove(empresa);
                 _context.SaveChanges();
                 return Json(new ApiResponse { data = null, message = "Empresa eliminada exitosamente.", status = true });

@@ -22,7 +22,7 @@ namespace YnnovaComprobantes.Controllers
             try
             {
                 var TipoRendicionData = _context.TipoRendiciones.ToList();
-                return Json(new { data = TipoRendicionData, message = "Tipos de rendicion retornados exitosamente.", status = true });
+                return Json(new { data = TipoRendicionData, message = "Tipos de rendición retornados exitosamente.", status = true });
             }
             catch (Exception ex)
             {
@@ -40,14 +40,14 @@ namespace YnnovaComprobantes.Controllers
         {
             try
             {
-                if (_context.Empresas.Any(e => e.Ruc == TipoRendicion.Codigo))
+                if (_context.TipoRendiciones.Any(e => e.Codigo == TipoRendicion.Codigo))
                 {
-                    return Json(new ApiResponse { data = null, message = "Ya existe un tipo Rendicion registrado con el código ingresado.", status = false });
+                    return Json(new ApiResponse { data = null, message = "Ya existe un tipo de rendición registrado con el código ingresado.", status = false });
                 }
 
                 _context.TipoRendiciones.Add(TipoRendicion);
                 _context.SaveChanges();
-                return Json(new ApiResponse { data = null, message = "Tipo de rendicion registrado exitosamente.", status = true });
+                return Json(new ApiResponse { data = null, message = "Tipo de rendición registrado exitosamente.", status = true });
             }
             catch (Exception ex)
             {
@@ -81,17 +81,17 @@ namespace YnnovaComprobantes.Controllers
             {
                 if (!_context.TipoRendiciones.Any(e => e.Id == TipoRendicion.Id))
                 {
-                    return Json(new ApiResponse { data = null, message = "El tipo de rendicion que intenta editar no existe.", status = false });
+                    return Json(new ApiResponse { data = null, message = "El tipo de rendición que intenta editar no existe.", status = false });
                 }
 
-                if (_context.Empresas.Where(e => e.Id != TipoRendicion.Id).Any(e => e.Ruc == TipoRendicion.Codigo))
+                if (_context.TipoRendiciones.Where(tr=> tr.Id != TipoRendicion.Id).Any(tr => tr.Codigo == TipoRendicion.Codigo))
                 {
-                    return Json(new ApiResponse { data = null, message = "Ya existe un tipo de rendicion registrado con el código ingresado.", status = false });
+                    return Json(new ApiResponse { data = null, message = "Ya existe un tipo de rendición registrado con el código ingresado.", status = false });
                 }
 
                 _context.TipoRendiciones.Update(TipoRendicion);
                 _context.SaveChanges();
-                return Json(new ApiResponse { data = TipoRendicion, message = "Tipo de rendicion actualizado exitosamente.", status = true });
+                return Json(new ApiResponse { data = TipoRendicion, message = "Tipo de rendición actualizado exitosamente.", status = true });
             }
             catch (Exception ex)
             {
@@ -106,11 +106,17 @@ namespace YnnovaComprobantes.Controllers
                 var TipoRendicion = _context.TipoRendiciones.FirstOrDefault(e => e.Id == id);
                 if (TipoRendicion == null)
                 {
-                    return Json(new ApiResponse { data = null, message = "Tipo de rendicion no encontrada.", status = false });
+                    return Json(new ApiResponse { data = null, message = "Tipo de rendición no encontrado.", status = false });
                 }
+
+                if (_context.Gastos.Any(g => g.TipoRendicionId == id))
+                {
+                    return Json(new ApiResponse { data = null, message = "El tipo de rendición no se puede eliminar porque ya está referenciado.", status = false });
+                }
+
                 _context.TipoRendiciones.Remove(TipoRendicion);
                 _context.SaveChanges();
-                return Json(new ApiResponse { data = null, message = "Tipo de rendicion eliminada exitosamente.", status = true });
+                return Json(new ApiResponse { data = null, message = "Tipo de rendición eliminada exitosamente.", status = true });
             }
             catch (Exception ex)
             {
