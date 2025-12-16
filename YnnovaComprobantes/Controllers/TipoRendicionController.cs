@@ -40,7 +40,7 @@ namespace YnnovaComprobantes.Controllers
         {
             try
             {
-                if (_context.Empresas.Any(e => e.Ruc == TipoRendicion.Codigo))
+                if (_context.TipoRendiciones.Any(e => e.Codigo == TipoRendicion.Codigo))
                 {
                     return Json(new ApiResponse { data = null, message = "Ya existe un tipo Rendicion registrado con el código ingresado.", status = false });
                 }
@@ -84,7 +84,7 @@ namespace YnnovaComprobantes.Controllers
                     return Json(new ApiResponse { data = null, message = "El tipo de rendicion que intenta editar no existe.", status = false });
                 }
 
-                if (_context.Empresas.Where(e => e.Id != TipoRendicion.Id).Any(e => e.Ruc == TipoRendicion.Codigo))
+                if (_context.TipoRendiciones.Where(e => e.Id != TipoRendicion.Id).Any(e => e.Codigo == TipoRendicion.Codigo))
                 {
                     return Json(new ApiResponse { data = null, message = "Ya existe un tipo de rendicion registrado con el código ingresado.", status = false });
                 }

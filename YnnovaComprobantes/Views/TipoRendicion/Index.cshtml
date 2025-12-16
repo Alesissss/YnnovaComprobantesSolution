@@ -210,9 +210,9 @@
                     name: null,
                     render: function (data, type, row) {
                         let buttons = `
-                        <button class="btn btn m-1 btn-info" onclick="fct_TipoUsuarioVer('${data.id}')" title="Ver Tipo de Rendicion"><i class="bi bi-eye"></i></button>
-                        <button class="btn btn m-1 btn-primary" onclick="fct_TipoUsuarioEditar('${data.id}')" title="Editar Tipo de Rendicion"><i class="bi bi-pencil-square"></i></button>
-                        <button class="btn btn m-1 btn-danger" onclick = "fct_TipoUsuarioEliminar('${data.id}')" title="Eliminar Tipo de Rendicion"><i class="bi bi-trash"></i></button>`
+                        <button class="btn btn m-1 btn-info" onclick="fct_TipoRendicionVer('${data.id}')" title="Ver Tipo de Rendicion"><i class="bi bi-eye"></i></button>
+                        <button class="btn btn m-1 btn-primary" onclick="fct_TipoRendicionEditar('${data.id}')" title="Editar Tipo de Rendicion"><i class="bi bi-pencil-square"></i></button>
+                        <button class="btn btn m-1 btn-danger" onclick = "fct_TipoRendicionEliminar('${data.id}')" title="Eliminar Tipo de Rendicion"><i class="bi bi-trash"></i></button>`
 
                         return `
                         <div class="flex-wrap btn-group">
@@ -280,7 +280,7 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
-                    url: `/TipoRendicion/TipoRendicionEmpresa/${Id}`,  // Pasamos el ID en la URL
+                    url: `/TipoRendicion/EliminarTipoRendicion/${Id}`,  // Pasamos el ID en la URL
                     type: "POST",
                     contentType: "application/json",
                     success: function (response) {

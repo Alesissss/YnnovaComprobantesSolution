@@ -278,7 +278,7 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
-                    url: `/TipoUsuario/TipoUsuarioEmpresa/${Id}`,  // Pasamos el ID en la URL
+                    url: `/TipoUsuario/EliminarTipoUsuario/${Id}`,  // Pasamos el ID en la URL
                     type: "POST",
                     contentType: "application/json",
                     success: function (response) {
