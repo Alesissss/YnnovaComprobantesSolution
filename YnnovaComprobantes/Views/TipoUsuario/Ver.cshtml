@@ -1,5 +1,57 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model YnnovaComprobantes.Models.TipoUsuario
 @{
+    ViewData["Title"] = "TipoUsuario";
 }
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="text-center mb-0">Ver Tipo Usuario</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label for="txt_Nombre">Nombre</label>
+                            <div class="input-group">
+                                <input disabled type="text" id="txt_Nombre" class="form-control" placeholder="Nombre" value="@Model.Nombre">
+                            </div>
+                        </div>
+
+                        <div class="col-md-12 mb-3">
+                            <label for="txt_Descripcion">Descripción</label>
+                            <div class="input-group">
+                                <textarea disabled id="txt_Descripcion"
+                                          class="form-control"
+                                          placeholder="Introduce la descripción aquí..."
+                                          rows="4">@Model.Nombre</textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label for="cbx_Estado">Estado</label>
+                            <div class="input-group">
+                                <select disabled id="cbx_Estado" class="form-control">
+                                    <option value="" disabled selected>--SELECCIONAR--</option>
+                                    <option value="1">Activo</option>
+                                    <option value="0">Inactivo</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-12 text-center">
+                            <button id="btn_Volver" type="button" class="btn btn-danger">Volver</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $('#cbx_Estado').val('@(Model.Estado ? 1 : 0)');
+
+        $("#btn_Volver").click(function () {
+            window.location.href = "/TipoComprobante";
+        });
+    });
+</script>

@@ -12,20 +12,13 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-12 mb-3">
-                            <label for="txt_Codigo">Id</label>
+                            <label for="txt_Nombre">Nombre</label>
                             <div class="input-group">
-                                <input type="text" id="txt_Id" class="form-control" placeholder="Id" value="@Model.Id">
+                                <input type="text" id="txt_Nombre" class="form-control" placeholder="Nombre" value="@Model.Nombre">
                             </div>
                         </div>
 
-                        <div class="col-md-12 mb-3">
-                            <label for="txt_Descripcion">Nombre</label>
-                            <div class="input-group">
-                                <textarea id="txt_Descripcion"
-                                          class="form-control"
-                                          placeholder="Introduce la descripción aquí..."
-                                          rows="4">@Model.Nombre</textarea>
-                            </div>
+                        
                         </div>
                         <div class="col-md-12 mb-3">
                             <label for="cbx_Estado">Estado</label>
@@ -53,18 +46,18 @@
         $('#cbx_Estado').val('@(Model.Estado ? 1 : 0)');
 
         $("#btn_Editar").click(function () {
-            let codigo = $("#txt_Id").val().trim();
-            let descripcion = $("#txt_Nombre").val().trim();
+            let nombre = $("#txt_Nombre").val().trim();
+            
             let estado = $('#cbx_Estado').val();
 
-            if (!codigo || !nombre || !estado) {
+            if (!nombre ||!estado) {
                 toastr.warning("Todos los campos son obligatorios", "MENSAJE DE SISTEMA");
                 return;
             }
 
             Swal.fire({
                 title: "¿Estás seguro?",
-                text: "Esta acción editará el tipo de usuario. ¿Deseas continuar?",
+                text: "Esta acción editará el tipo de Usuario. ¿Deseas continuar?",
                 icon: "warning",
                 showCancelButton: true,
                 confirmButtonColor: "#3085d6",
@@ -77,8 +70,7 @@
 
                     let formData = new FormData();
                     formData.append("Id", @Model.Id);
-                    formData.append("Codigo", codigo);
-                    formData.append("Descripcion", descripcion);
+                    formData.append("Nombre", nombre);
                     formData.append("Estado", estado == 1 ? true : false);
 
                     $.ajax({

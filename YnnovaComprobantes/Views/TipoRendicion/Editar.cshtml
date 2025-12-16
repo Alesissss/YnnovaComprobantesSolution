@@ -1,13 +1,13 @@
-﻿@model YnnovaComprobantes.Models.TipoComprobante
+﻿@model YnnovaComprobantes.Models.TipoRendicion
 @{
-    ViewData["Title"] = "Editar Tipo de Comprobante";
+    ViewData["Title"] = "Editar Tipo de Rendicion";
 }
 <div class="container-fluid">
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header bg-primary text-white">
-                    <h4 class="text-center mb-0">Editar Tipo de Comprobante</h4>
+                    <h4 class="text-center mb-0">Editar Tipo de Rendicion</h4>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -54,11 +54,10 @@
 
         $("#btn_Editar").click(function () {
             let codigo = $("#txt_Codigo").val().trim();
-            let nombre = $("#txt_Nombre").val().trim();
             let descripcion = $("#txt_Descripcion").val().trim();
             let estado = $('#cbx_Estado').val();
 
-            if (!codigo || !nombre || !descripcion || !estado) {
+            if (!codigo ||!descripcion || !estado) {
                 toastr.warning("Todos los campos son obligatorios", "MENSAJE DE SISTEMA");
                 return;
             }
@@ -83,7 +82,7 @@
                     formData.append("Estado", estado == 1 ? true : false);
 
                     $.ajax({
-                        url: "/TipoComprobante/EditarTipoComprobante",
+                        url: "/TipoRendicion/EditarTipoRendicion",
                         type: "POST",
                         processData: false,
                         contentType: false,
@@ -91,7 +90,7 @@
                         success: function (response) {
                             if (response.status === true) {
                                 toastr.success(response.message, "MENSAJE DE SISTEMA");
-                                window.location.href = "/TipoComprobante";
+                                window.location.href = "/TipoRendicion";
                             } else {
                                 toastr.warning(response.message, 'MENSAJE DE SISTEMA');
                                 return;
@@ -107,7 +106,7 @@
         });
 
         $("#btn_Volver").click(function () {
-            window.location.href = "/TipoComprobante";
+            window.location.href = "/TipoRendicion";
         });
     });
 </script>
