@@ -19,7 +19,7 @@ DROP TABLE IF EXISTS empresa_usuario;
 -- TABLA banco
 CREATE TABLE banco (
     id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
-    codigo VARCHAR(10) NOT NULL,
+    codigo VARCHAR(50) NOT NULL,
     descripcion VARCHAR(255) NOT NULL,
     estado BIT NOT NULL
 );
@@ -34,7 +34,7 @@ CREATE TABLE comprobante (
     concepto_otro VARCHAR(255),
     serie VARCHAR(4),
     numero VARCHAR(10),
-    ruc_empresa VARCHAR(20),
+    ruc_empresa CHAR(11),
     monto DECIMAL(10, 2) NOT NULL,
     fecha DATE NOT NULL,
     detalle TEXT,
@@ -88,8 +88,8 @@ CREATE TABLE gasto (
 -- TABLA moneda
 CREATE TABLE moneda (
     id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
-    nombre VARCHAR(20) NOT NULL,
-    simbolo VARCHAR(20) NOT NULL
+    nombre VARCHAR(50) NOT NULL,
+    simbolo VARCHAR(50) NOT NULL
 );
 
 -- TABLA observaciones
@@ -106,7 +106,7 @@ CREATE TABLE observaciones (
 -- TABLA tipo_comprobante
 CREATE TABLE tipo_comprobante (
     id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
-    codigo VARCHAR(255) NOT NULL,
+    codigo VARCHAR(50) NOT NULL,
     descripcion TEXT NOT NULL,
     estado BIT NOT NULL
 );
@@ -123,7 +123,7 @@ CREATE TABLE tipo_gasto (
 -- TABLA tipo_rendicion
 CREATE TABLE tipo_rendicion (
     id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
-    codigo VARCHAR(20) NOT NULL,
+    codigo VARCHAR(50) NOT NULL,
     descripcion VARCHAR(255) NOT NULL,
     estado BIT NOT NULL DEFAULT 1
 );

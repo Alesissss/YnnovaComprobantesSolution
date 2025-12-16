@@ -23,7 +23,7 @@ namespace YnnovaComprobantes.Controllers
             try
             {
                 var bancoData = _context.Bancos.ToList();
-                return Json(new { data = bancoData, message = "Bancos retornadas exitosamente.", status = true });
+                return Json(new { data = bancoData, message = "Bancos retornados exitosamente.", status = true });
             }
             catch (Exception ex)
             {
@@ -37,18 +37,13 @@ namespace YnnovaComprobantes.Controllers
             return View();
         }
         [HttpPost]
-        public JsonResult RegistrarBancos(Banco banco)
+        public JsonResult RegistrarBanco(Banco banco)
         {
             try
             {
-                if (_context.Bancos.Any(e => e.Id == banco.Id))
-                {
-                    return Json(new ApiResponse { data = null, message = "Ya existe una Banco registrada con el código de banco ingresado.", status = false });
-                }
-
                 _context.Bancos.Add(banco);
                 _context.SaveChanges();
-                return Json(new ApiResponse { data = null, message = "Banco registrada exitosamente.", status = true });
+                return Json(new ApiResponse { data = null, message = "Banco registrado exitosamente.", status = true });
             }
             catch (Exception ex)
             {
@@ -82,17 +77,17 @@ namespace YnnovaComprobantes.Controllers
             {
                 if (!_context.Bancos.Any(e => e.Id == banco.Id))
                 {
-                    return Json(new ApiResponse { data = null, message = "La banco que intenta editar no existe.", status = false });
+                    return Json(new ApiResponse { data = null, message = "El banco que intenta editar no existe.", status = false });
                 }
 
-                if (_context.Bancos.Where(e => e.Id != banco.Id).Any(e => e.Id == banco.Id))
+                if (_context.Bancos.Where(b => b.Id != banco.Id).Any(b => b.Codigo == banco.Codigo))
                 {
-                    return Json(new ApiResponse { data = null, message = "Ya existe una banco registrada con el código de banco ingresado.", status = false });
+                    return Json(new ApiResponse { data = null, message = "Ya existe un banco registrada con el código de banco ingresado.", status = false });
                 }
 
                 _context.Bancos.Update(banco);
                 _context.SaveChanges();
-                return Json(new ApiResponse { data = banco, message = "Banco actualizada exitosamente.", status = true });
+                return Json(new ApiResponse { data = banco, message = "Banco actualizado exitosamente.", status = true });
             }
             catch (Exception ex)
             {
@@ -107,8 +102,14 @@ namespace YnnovaComprobantes.Controllers
                 var banco = _context.Bancos.FirstOrDefault(e => e.Id == id);
                 if (banco == null)
                 {
-                    return Json(new ApiResponse { data = null, message = "Banco no encontrada.", status = false });
+                    return Json(new ApiResponse { data = null, message = "Banco no encontrado.", status = false });
                 }
+
+                if (_context.Gastos.Any(g => g.BancoId == id))
+                {
+                    return Json(new ApiResponse { data = null, message = "El banco no se puede eliminar porque ya está referenciado.", status = false });
+                }
+
                 _context.Bancos.Remove(banco);
                 _context.SaveChanges();
                 return Json(new ApiResponse { data = null, message = "Banco eliminada exitosamente.", status = true });

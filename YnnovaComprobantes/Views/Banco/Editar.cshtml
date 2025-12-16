@@ -33,7 +33,7 @@
                                 <select id="cbx_Estado" class="form-control">
                                     <option value="" disabled selected>--SELECCIONAR--</option>
                                     <option value="1">Activo</option>
-                                    <option value="0">No Activo</option>
+                                    <option value="0">Inactivo</option>
                                 </select>
                             </div>
                         </div>
@@ -90,7 +90,7 @@
                         success: function (response) {
                             if (response.status === true) {
                                 toastr.success(response.message, "MENSAJE DE SISTEMA");
-                                window.location.href = "/TipoBanco";
+                                window.location.href = "/Banco";
                             } else {
                                 toastr.warning(response.message, 'MENSAJE DE SISTEMA');
                                 return;
@@ -106,7 +106,7 @@
         });
 
         $("#btn_Volver").click(function () {
-            window.location.href = "/TipoBanco";
+            window.location.href = "/Banco";
         });
     });
 </script>
