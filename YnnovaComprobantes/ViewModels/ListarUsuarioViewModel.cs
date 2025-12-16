@@ -11,8 +11,6 @@ namespace YnnovaComprobantes.ViewModels
         public string Telefono { get; set; }
         public bool Estado { get; set; }
         // Datos de empresa y tipo usuario por empresa
-        public List<Empresa> Empresas { get; set; }
         public List<EmpresaUsuario> EmpresaUsuarios { get; set; }
-        public List<TipoUsuario> TipoUsuarios { get; set; }
     }
 }

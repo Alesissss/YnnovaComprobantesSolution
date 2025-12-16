@@ -3,150 +3,259 @@
 }
 <div class="container-fluid">
     <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card">
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
                 <div class="card-header bg-primary text-white">
                     <h4 class="text-center mb-0">Registrar usuario</h4>
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-12 mb-3">
+                        <div class="col-md-6 mb-3">
                             <label for="txt_DNI">DNI</label>
-                            <div class="input-group">
-                                <input type="text" id="txt_DNI" class="form-control" placeholder="DNI">
-                            </div>
+                            <input type="text" id="txt_DNI" class="form-control" placeholder="DNI">
                         </div>
-                        <div class="col-md-12 mb-3">
+                        <div class="col-md-6 mb-3">
                             <label for="txt_Nombre">Nombre</label>
-                            <div class="input-group">
-                                <input type="text" id="txt_Nombre" class="form-control" placeholder="Nombre completo">
-                            </div>
+                            <input type="text" id="txt_Nombre" class="form-control" placeholder="Nombre completo">
                         </div>
-                        <div class="col-md-12 mb-3">
+                        <div class="col-md-6 mb-3">
                             <label for="txt_Email">Correo</label>
-                            <div class="input-group">
-                                <input type="email" id="txt_Email" class="form-control" placeholder="Correo">
-                            </div>
+                            <input type="email" id="txt_Email" class="form-control" placeholder="Correo">
                         </div>
-                        <div class="col-md-12 mb-3">
+                        <div class="col-md-6 mb-3">
                             <label for="txt_Telefono">Teléfono</label>
-                            <div class="input-group">
-                                <input type="text" id="txt_Telefono" class="form-control" placeholder="Teléfono">
-                            </div>
+                            <input type="text" id="txt_Telefono" class="form-control" placeholder="Teléfono">
                         </div>
-                        <div class="col-md-12 mb-3">
+                        <div class="col-md-6 mb-3">
                             <label for="txt_Password">Contraseña</label>
-                            <div class="input-group">
-                                <input type="password" id="txt_Password" class="form-control" placeholder="Contraseña">
-                            </div>
+                            <input type="password" id="txt_Password" class="form-control" placeholder="Contraseña">
                         </div>
-                        <div class="col-md-12 mb-3">
+                        <div class="col-md-6 mb-3">
                             <label for="txt_CPassword">Confirmar Contraseña</label>
-                            <div class="input-group">
-                                <input type="password" id="txt_CPassword" class="form-control" placeholder="Confirmar Contraseña">
-                            </div>
+                            <input type="password" id="txt_CPassword" class="form-control" placeholder="Confirmar Contraseña">
                         </div>
-                        <div class="col-md-12 mb-3">
+                        <div class="col-md-12">
                             <label for="cbx_Estado">Estado</label>
-                            <div class="input-group">
-                                <select id="cbx_Estado" class="form-control">
-                                    <option value="" disabled selected>--SELECCIONAR--</option>
-                                    <option value="1">Activo</option>
-                                    <option value="0">Inactivo</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-12 text-center">
-                            <button id="btn_Volver" type="button" class="btn btn-danger">Volver</button>
-                            <button id="btn_Registrar" type="button" class="btn btn-primary">Registrar</button>
+                            <select id="cbx_Estado" class="form-control">
+                                <option value="" disabled selected>--SELECCIONAR--</option>
+                                <option value="1">Activo</option>
+                                <option value="0">Inactivo</option>
+                            </select>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-success text-white">
+                    <h4 class="text-center mb-0">Asignación de Empresas</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-5 mb-3">
+                            <label for="cbx_Empresa">Empresa</label>
+                            <select id="cbx_Empresa" class="form-control select2">
+                                <option value="" selected disabled>--SELECCIONAR--</option>
+                            </select>
+                        </div>
+                        <div class="col-md-5 mb-3">
+                            <label for="cbx_TipoUsuario">Tipo Usuario</label>
+                            <select id="cbx_TipoUsuario" class="form-control select2">
+                                <option value="" selected disabled>--SELECCIONAR--</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <label>&nbsp;</label>
+                            <button id="btn_AgregarEmpresa" type="button" class="btn btn-success btn-block">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-sm" id="tbl_EmpresasAsignadas">
+                                    <thead class="bg-light">
+                                        <tr>
+                                            <th>Empresa</th>
+                                            <th>Tipo</th>
+                                            <th class="text-center">Acción</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-12 text-center mt-2">
+            <button id="btn_Volver" type="button" class="btn btn-danger px-4">Volver</button>
+            <button id="btn_Registrar" type="button" class="btn btn-primary px-4">Registrar</button>
+        </div>
     </div>
 </div>
 <script>
+    let empresasSeleccionadas = [];
+
     $(document).ready(function () {
-        // 1. Validación de DNI (solo dígitos y límite de 8)
-            $('#txt_DNI').on('keypress', function (e) {
-                // Obtenemos el código de la tecla presionada
-                var charCode = (e.which) ? e.which : e.keyCode;
+        fct_GetEmpresas();
+        fct_GetTiposUsuarios();
 
-                // Permitir solo dígitos (48-57) y teclas de control
-                if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+        // Array para mantener el control de IDs de empresas agregadas
+
+        $('#btn_AgregarEmpresa').on('click', function () {
+            // 1. Obtener valores y textos
+            let empresaId = $('#cbx_Empresa').val();
+            let empresaNombre = $("#cbx_Empresa option:selected").text();
+            let tipoId = $('#cbx_TipoUsuario').val();
+            let tipoNombre = $("#cbx_TipoUsuario option:selected").text();
+
+            // 2. Validaciones básicas
+            if (!empresaId || !tipoId) {
+                toastr.warning("Debe seleccionar una empresa y un tipo de usuario", 'MENSAJE DE SISTEMA');
+                return;
+            }
+
+            // 3. VALIDACIÓN: No repetir empresa
+            if (empresasSeleccionadas.includes(empresaId)) {
+                toastr.error("Esta empresa ya ha sido agregada a la lista", 'MENSAJE DE SISTEMA');
+                return;
+            }
+
+            // 4. Agregar a la tabla HTML
+            let nuevaFila = `
+                <tr data-id="${empresaId}">
+                    <td>${empresaNombre}</td>
+                    <td>${tipoNombre}</td>
+                    <td class="text-center">
+                        <button type="button" class="btn btn-danger btn-sm btn-eliminar-item">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                    <input type="hidden" class="h_EmpresaId" value="${empresaId}" />
+                    <input type="hidden" class="h_TipoId" value="${tipoId}" />
+                </tr>`;
+
+            $('#tbl_EmpresasAsignadas tbody').append(nuevaFila);
+
+            // 5. Registrar el ID en nuestro control de duplicados
+            empresasSeleccionadas.push(empresaId);
+
+            // 6. Limpiar selects
+            $('#cbx_Empresa').val('').trigger('change');
+            $('#cbx_TipoUsuario').val('').trigger('change');
+        });
+
+        // 1. Validación de DNI (solo dígitos y límite de 8)
+        $('#txt_DNI').on('keypress', function (e) {
+            // Obtenemos el código de la tecla presionada
+            var charCode = (e.which) ? e.which : e.keyCode;
+
+            // Permitir solo dígitos (48-57) y teclas de control
+            if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+                e.preventDefault();
+                return false;
+            }
+
+            // Limitar la longitud a 8 dígitos (antes de que se añada el nuevo dígito)
+            if ($(this).val().length >= 8) {
+                // Si es un dígito, prevenir la entrada
+                if (charCode > 47 && charCode < 58) {
                     e.preventDefault();
                     return false;
                 }
-
-                // Limitar la longitud a 8 dígitos (antes de que se añada el nuevo dígito)
-                if ($(this).val().length >= 8) {
-                    // Si es un dígito, prevenir la entrada
-                    if (charCode > 47 && charCode < 58) {
-                        e.preventDefault();
-                        return false;
-                    }
-                }
-            });
+            }
+        });
 
         // 1. Validación de DNI (solo dígitos y límite de 8)
-            $('#txt_Telefono').on('keypress', function (e) {
-                // Obtenemos el código de la tecla presionada
-                var charCode = (e.which) ? e.which : e.keyCode;
+        $('#txt_Telefono').on('keypress', function (e) {
+            // Obtenemos el código de la tecla presionada
+            var charCode = (e.which) ? e.which : e.keyCode;
 
-                // Permitir solo dígitos (48-57) y teclas de control
-                if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+            // Permitir solo dígitos (48-57) y teclas de control
+            if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+                e.preventDefault();
+                return false;
+            }
+
+            // Limitar la longitud a 9 dígitos (antes de que se añada el nuevo dígito)
+            if ($(this).val().length >= 9) {
+                // Si es un dígito, prevenir la entrada
+                if (charCode > 47 && charCode < 58) {
                     e.preventDefault();
                     return false;
                 }
-
-                // Limitar la longitud a 9 dígitos (antes de que se añada el nuevo dígito)
-                if ($(this).val().length >= 9) {
-                    // Si es un dígito, prevenir la entrada
-                    if (charCode > 47 && charCode < 58) {
-                        e.preventDefault();
-                        return false;
-                    }
-                }
-            });
+            }
+        });
 
         $("#btn_Registrar").click(function () {
-            let ruc = $("#txt_RUC").val().trim();
+            let dni = $("#txt_DNI").val().trim();
             let nombre = $("#txt_Nombre").val().trim();
-            let descripcion = $("#txt_Descripcion").val().trim();
+            let email = $("#txt_Email").val().trim();
+            let telefono = $("#txt_Telefono").val().trim();
+            let password = $("#txt_Password").val().trim();
+            let cpassword = $("#txt_CPassword").val().trim();
             let estado = $('#cbx_Estado').val();
+            let detalleEmpresas = [];
 
-            if (!ruc || !nombre || !descripcion || !estado) {
+            $("#tbl_EmpresasAsignadas tbody tr").each(function () {
+                detalleEmpresas.push({
+                    EmpresaId: Number($(this).find(".h_EmpresaId").val()),
+                    TipoUsuarioId: Number($(this).find(".h_TipoId").val())
+                });
+            });
+
+            if (detalleEmpresas.length === 0) {
+                toastr.error("Debe asignar al menos una empresa al usuario");
+                return;
+            }
+
+            if (!dni || !nombre || !email || !telefono || !password || !cpassword || !estado) {
                 toastr.warning("Todos los campos son obligatorios", "MENSAJE DE SISTEMA");
                 return;
             }
 
-            if (ruc.length !== 11) {
-                toastr.warning("El RUC debe tener exactamente 11 dígitos.", "MENSAJE DE SISTEMA");
+            if (dni.length !== 8) {
+                toastr.warning("El DNI debe tener exactamente 8 dígitos.", "MENSAJE DE SISTEMA");
+                return;
+            }
+
+            if (password !== cpassword) {
+                toastr.warning("Las contraseñas no coinciden", "MENSAJE DE SISTEMA");
                 return;
             }
 
             Swal.fire({
                 title: "¿Estás seguro?",
-                text: "Esta acción registrará a la empresa. ¿Deseas continuar?",
+                text: "Esta acción registrará al usuario. ¿Deseas continuar?",
                 icon: "warning",
                 showCancelButton: true,
                 confirmButtonColor: "#3085d6",
                 cancelButtonColor: "#d33",
-                confirmButtonText: "Sí, registrar empresa",
+                confirmButtonText: "Sí, registrar usuario",
                 cancelButtonText: "Cancelar",
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
 
-                    let formData = new FormData();
-                    formData.append("Ruc", ruc);
-                    formData.append("Nombre", nombre);
-                    formData.append("Descripcion", descripcion);
-                    formData.append("Estado", estado == 1 ? true : false);
+                        let formData = new FormData();
+                        formData.append("Dni", dni);
+                        formData.append("Nombre", nombre);
+                        formData.append("Email", email);
+                        formData.append("Telefono", telefono);
+                        formData.append("Password", password);
+                        formData.append("Estado", estado == "1");
+
+                        // Importante: Para enviar la lista, la serializamos como JSON
+                        formData.append("DetalleEmpresas", JSON.stringify(detalleEmpresas));
 
                     $.ajax({
-                        url: "/Empresa/RegistrarEmpresa",
+                        url: "/Usuario/RegistrarUsuario",
                         type: "POST",
                         processData: false,
                         contentType: false,
@@ -154,7 +263,7 @@
                         success: function (response) {
                             if (response.status === true) {
                                 toastr.success(response.message, "MENSAJE DE SISTEMA");
-                                window.location.href = "/Empresa";
+                                window.location.href = "/Usuario";
                             } else {
                                 toastr.warning(response.message, 'MENSAJE DE SISTEMA');
                                 return;
@@ -169,8 +278,70 @@
             });
         });
 
+        function fct_GetEmpresas() {
+            $.getJSON('/Usuario/GetEmpresaData', function (response) {
+                if (response.status === true) {
+                    let empresas = response.data;
+                    var dataSelect2 = empresas.map(function(empresa) {
+                        return {
+                            id: empresa.id,
+                            text: empresa.ruc + ' - ' + empresa.nombre
+                        };
+                    });
+
+                    $('#cbx_Empresa').empty().select2({
+                        theme: 'bootstrap4',
+                        data: dataSelect2,
+                        placeholder: "Buscar empresa...",
+                        allowClear: true,
+                        language: {
+                            noResults: function () {
+                                return "No se encontraron resultados";
+                            }
+                        }
+                    });
+
+                    $('#cbx_Empresa').val(null).trigger('change');
+                } else {
+                    toastr.error('Ocurrió un error al listar las empresas', 'MENSAJE DE SISTEMA');
+                    console.error('Error', response.message);
+                }
+            });
+        }
+
+        function fct_GetTiposUsuarios() {
+            $.getJSON('/Usuario/GetTiposUsuariosData', function (response) {
+                if (response.status === true) {
+
+                    let items = '<option disabled selected>--SELECCIONAR--</option>';
+
+                    $.each(response.data, function (index, item) {
+                        items += `<option value="${item.id}">${item.nombre}</option>`;
+                    });
+
+                    $('#cbx_TipoUsuario').html(items);
+
+                } else {
+                    toastr.error('Ocurrió un error al listar las empresas', 'MENSAJE DE SISTEMA');
+                    console.error('Error', response.message);
+                }
+            });
+        }
+
         $("#btn_Volver").click(function () {
-            window.location.href = "/Empresa";
+            window.location.href = "/Usuario";
         });
+    });
+
+    // Evento para eliminar fila
+    $(document).on('click', '.btn-eliminar-item', function () {
+        let fila = $(this).closest('tr');
+        let idEliminar = fila.attr('data-id');
+
+        // Eliminar del array de control
+        empresasSeleccionadas = empresasSeleccionadas.filter(id => id !== idEliminar);
+
+        // Eliminar visualmente
+        fila.remove();
     });
 </script>

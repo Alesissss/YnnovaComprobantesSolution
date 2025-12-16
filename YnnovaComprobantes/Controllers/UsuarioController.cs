@@ -30,6 +30,7 @@ namespace YnnovaComprobantes.Controllers
                                     e.Id,
                                     e.Ruc,
                                     e.Nombre,
+                                    e.Estado,
                                 }).ToList();
                 return Json(new { data = empresas, message = "Empresas retornadas exitosamente.", status = true });
             }
@@ -70,28 +71,55 @@ namespace YnnovaComprobantes.Controllers
                 return Json(new ApiResponse { data = null, message = ex.Message, status = false });
             }
         }
+        // Get tipos de usuarios
+        [HttpGet]
+        public JsonResult GetTiposUsuariosData()
+        {
+            try
+            {
+                var tiposUsuarios = _context.TipoUsuarios.Where(tu => tu.Estado == true).ToList();
+                return Json(new { data = tiposUsuarios, message = "Tipos de usuarios retornados exitosamente.", status = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new ApiResponse { data = null, message = ex.Message, status = false });
+            }
+        }
         // REGISTRAR
         public IActionResult Registrar()
         {
             return View();
         }
         [HttpPost]
-        public JsonResult RegistrarUsuario(Empresa empresa)
+        public JsonResult RegistrarUsuario(Usuario usuario, string DetalleEmpresas)
         {
-            try
+            using (var transaction = _context.Database.BeginTransaction())
             {
-                if (_context.Empresas.Any(e => e.Ruc == empresa.Ruc))
+                try
                 {
-                    return Json(new ApiResponse { data = null, message = "Ya existe una empresa registrada con el código de empresa ingresado.", status = false });
-                }
+                    _context.Usuarios.Add(usuario);
+                    _context.SaveChanges();
 
-                _context.Empresas.Add(empresa);
-                _context.SaveChanges();
-                return Json(new ApiResponse { data = null, message = "Empresa registrada exitosamente.", status = true });
-            }
-            catch (Exception ex)
-            {
-                return Json(new ApiResponse { data = null, message = ex.Message, status = false });
+                    var listaEmpresas = System.Text.Json.JsonSerializer.Deserialize<List<EmpresaUsuario>>(DetalleEmpresas);
+
+                    if (listaEmpresas != null)
+                    {
+                        foreach (var item in listaEmpresas)
+                        {
+                            item.UsuarioId = usuario.Id;
+                            _context.EmpresasUsuarios.Add(item);
+                        }
+                        _context.SaveChanges();
+                    }
+
+                    transaction.Commit();
+                    return Json(new ApiResponse { data = null, status = true, message = "Usuario y empresas asignadas correctamente." });
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    return Json(new ApiResponse { data = null, status = false, message = "Error: " + ex.Message });
+                }
             }
         }
         // VER
