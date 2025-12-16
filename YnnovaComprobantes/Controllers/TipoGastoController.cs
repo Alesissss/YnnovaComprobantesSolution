@@ -1,9 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using YnnovaComprobantes.Data;
 using YnnovaComprobantes.Models;
 
 namespace YnnovaComprobantes.Controllers
 {
+
+
+    //[Authorize]
     public class TipoGastoController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -16,12 +20,12 @@ namespace YnnovaComprobantes.Controllers
         {
             return View();
         }
-        public JsonResult GetTipoGasto()
+        public JsonResult GetTipoGastoData()
         {
             try
             {
-                var TipoGasto = _context.TipoGastos.ToList();
-                return Json(new { data = TipoGasto, message = "Tipos de gastos recuperados exitosamente.", status = true });
+                var TipoGastoData = _context.TipoGastos.ToList();
+                return Json(new { data = TipoGastoData, message = "Gastos retornadas exitosamente.", status = true });
             }
             catch (Exception ex)
             {
@@ -35,18 +39,18 @@ namespace YnnovaComprobantes.Controllers
             return View();
         }
         [HttpPost]
-        public JsonResult RegistrarTipoComprobante(TipoComprobante TipoComprobante)
+        public JsonResult RegistrarTipoGasto(TipoGasto TipoGasto)
         {
             try
             {
-                if (_context.Empresas.Any(e => e.Ruc == TipoComprobante.Codigo))
+                if (_context.TipoGastos.Any(e => e.Id == TipoGasto.Id))
                 {
-                    return Json(new ApiResponse { data = null, message = "Ya existe ese tipo comprobante registrada.", status = false });
+                    return Json(new ApiResponse { data = null, message = "Ya existe una Tipo Gasto registrada con el código de Tipo Usuario ingresado.", status = false });
                 }
 
-                _context.TipoComprobantes.Add(TipoComprobante);
+                _context.TipoGastos.Add(TipoGasto);
                 _context.SaveChanges();
-                return Json(new ApiResponse { data = null, message = "Comprobante registrado exitosamente.", status = true });
+                return Json(new ApiResponse { data = null, message = "Tipo Gasto registrada exitosamente.", status = true });
             }
             catch (Exception ex)
             {
@@ -56,41 +60,41 @@ namespace YnnovaComprobantes.Controllers
         // VER
         public IActionResult Ver(int id)
         {
-            var TipoComprobante = _context.TipoComprobantes.FirstOrDefault(e => e.Id == id);
-            if (TipoComprobante == null)
+            var TipoGasto = _context.TipoGastos.FirstOrDefault(e => e.Id == id);
+            if (TipoGasto == null)
             {
                 return NotFound();
             }
-            return View(TipoComprobante);
+            return View(TipoGasto);
         }
         // EDITAR
         public IActionResult Editar(int id)
         {
-            var TipoComprobante = _context.TipoComprobantes.FirstOrDefault(e => e.Id == id);
-            if (TipoComprobante == null)
+            var TipoGasto = _context.TipoGastos.FirstOrDefault(e => e.Id == id);
+            if (TipoGasto == null)
             {
                 return NotFound();
             }
-            return View(TipoComprobante);
+            return View(TipoGasto);
         }
         [HttpPost]
-        public JsonResult EditarTipoComprobante(TipoComprobante TipoComprobante)
+        public JsonResult EditarTipoGasto(TipoGasto TipoGasto)
         {
             try
             {
-                if (!_context.TipoComprobantes.Any(e => e.Id == TipoComprobante.Id))
+                if (!_context.TipoGastos.Any(e => e.Id == TipoGasto.Id))
                 {
-                    return Json(new ApiResponse { data = null, message = "El comprobante que intenta editar no existe.", status = false });
+                    return Json(new ApiResponse { data = null, message = "La Tipo Gasto que intenta editar no existe.", status = false });
                 }
 
-                if (_context.Empresas.Where(e => e.Id != TipoComprobante.Id).Any(e => e.Ruc == TipoComprobante.Codigo))
+                if (_context.TipoGastos.Where(e => e.Id != TipoGasto.Id).Any(e => e.Id == TipoGasto.Id))
                 {
-                    return Json(new ApiResponse { data = null, message = "Ya existe un comprobante registrada con el código  ingresado.", status = false });
+                    return Json(new ApiResponse { data = null, message = "Ya existe una Tipo Gasto registrada con el código de Tipo Usuario ingresado.", status = false });
                 }
 
-                _context.TipoComprobantes.Update(TipoComprobante);
+                _context.TipoGastos.Update(TipoGasto);
                 _context.SaveChanges();
-                return Json(new ApiResponse { data = TipoComprobante, message = "Comprobante actualizadO exitosamente.", status = true });
+                return Json(new ApiResponse { data = TipoGasto, message = "Tipo Gasto actualizada exitosamente.", status = true });
             }
             catch (Exception ex)
             {
@@ -98,18 +102,18 @@ namespace YnnovaComprobantes.Controllers
             }
         }
         // ELIMINAR
-        public JsonResult EliminarTipoComprobante(int id)
+        public JsonResult EliminarTipoGasto(int id)
         {
             try
             {
-                var TipoComprobante = _context.TipoComprobantes.FirstOrDefault(e => e.Id == id);
-                if (TipoComprobante == null)
+                var TipoGasto = _context.TipoGastos.FirstOrDefault(e => e.Id == id);
+                if (TipoGasto == null)
                 {
-                    return Json(new ApiResponse { data = null, message = "Comprobante no encontrada.", status = false });
+                    return Json(new ApiResponse { data = null, message = "Tipo Gasto no encontrada.", status = false });
                 }
-                _context.TipoComprobantes.Remove(TipoComprobante);
+                _context.TipoGastos.Remove(TipoGasto);
                 _context.SaveChanges();
-                return Json(new ApiResponse { data = null, message = "Comprobante eliminada exitosamente.", status = true });
+                return Json(new ApiResponse { data = null, message = "Tipo Gasto eliminada exitosamente.", status = true });
             }
             catch (Exception ex)
             {
@@ -117,4 +121,6 @@ namespace YnnovaComprobantes.Controllers
             }
         }
     }
+
 }
+
