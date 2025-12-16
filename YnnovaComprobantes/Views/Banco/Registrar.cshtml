@@ -1,30 +1,29 @@
-﻿@model YnnovaComprobantes.Models.TipoRendicion
-@{
-    ViewData["Title"] = "Editar Tipo de Rendicion";
+﻿@{
+    ViewData["Title"] = "Registrar Banco";
 }
 <div class="container-fluid">
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header bg-primary text-white">
-                    <h4 class="text-center mb-0">Editar Tipo de Rendicion</h4>
+                    <h4 class="text-center mb-0">Registrar Banco</h4>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-12 mb-3">
                             <label for="txt_Codigo">Código</label>
                             <div class="input-group">
-                                <input type="text" id="txt_Codigo" class="form-control" placeholder="Código" value="@Model.Codigo">
+                                <input type="text" id="txt_Codigo" class="form-control" placeholder="Código">
                             </div>
                         </div>
-
+                        
                         <div class="col-md-12 mb-3">
                             <label for="txt_Descripcion">Descripción</label>
                             <div class="input-group">
                                 <textarea id="txt_Descripcion"
                                           class="form-control"
                                           placeholder="Introduce la descripción aquí..."
-                                          rows="4">@Model.Descripcion</textarea>
+                                          rows="4"></textarea>
                             </div>
                         </div>
                         <div class="col-md-12 mb-3">
@@ -33,13 +32,13 @@
                                 <select id="cbx_Estado" class="form-control">
                                     <option value="" disabled selected>--SELECCIONAR--</option>
                                     <option value="1">Activo</option>
-                                    <option value="0">No Activo</option>
+                                    <option value="0">Inactivo</option>
                                 </select>
                             </div>
                         </div>
                         <div class="col-md-12 text-center">
                             <button id="btn_Volver" type="button" class="btn btn-danger">Volver</button>
-                            <button id="btn_Editar" type="button" class="btn btn-primary">Editar</button>
+                            <button id="btn_Registrar" type="button" class="btn btn-primary">Registrar</button>
                         </div>
                     </div>
                 </div>
@@ -49,40 +48,36 @@
 </div>
 <script>
     $(document).ready(function () {
-
-        $('#cbx_Estado').val('@(Model.Estado ? 1 : 0)');
-
-        $("#btn_Editar").click(function () {
+        $("#btn_Registrar").click(function () {
             let codigo = $("#txt_Codigo").val().trim();
             let descripcion = $("#txt_Descripcion").val().trim();
             let estado = $('#cbx_Estado').val();
 
-            if (!codigo ||!descripcion || !estado) {
+            if (!codigo || !descripcion || !estado) {
                 toastr.warning("Todos los campos son obligatorios", "MENSAJE DE SISTEMA");
                 return;
             }
 
             Swal.fire({
                 title: "¿Estás seguro?",
-                text: "Esta acción editará el tipo de rendicion. ¿Deseas continuar?",
+                text: "Esta acción registrará el Banco. ¿Deseas continuar?",
                 icon: "warning",
                 showCancelButton: true,
                 confirmButtonColor: "#3085d6",
                 cancelButtonColor: "#d33",
-                confirmButtonText: "Sí, editar tipo de rendicion",
+                confirmButtonText: "Sí, registrar Banco",
                 cancelButtonText: "Cancelar",
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
 
                     let formData = new FormData();
-                    formData.append("Id", @Model.Id);
                     formData.append("Codigo", codigo);
                     formData.append("Descripcion", descripcion);
                     formData.append("Estado", estado == 1 ? true : false);
 
                     $.ajax({
-                        url: "/TipoRendicion/EditarTipoRendicion",
+                        url: "/Banco/RegistrarBanco",
                         type: "POST",
                         processData: false,
                         contentType: false,
@@ -90,7 +85,7 @@
                         success: function (response) {
                             if (response.status === true) {
                                 toastr.success(response.message, "MENSAJE DE SISTEMA");
-                                window.location.href = "/TipoRendicion";
+                                window.location.href = "/Banco";
                             } else {
                                 toastr.warning(response.message, 'MENSAJE DE SISTEMA');
                                 return;
@@ -106,7 +101,7 @@
         });
 
         $("#btn_Volver").click(function () {
-            window.location.href = "/TipoRendicion";
+            window.location.href = "/Banco";
         });
     });
 </script>
