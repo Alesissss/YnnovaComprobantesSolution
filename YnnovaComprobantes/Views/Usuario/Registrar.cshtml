@@ -1,0 +1,176 @@
+﻿@{
+    ViewData["Title"] = "Registrar Usuario";
+}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="text-center mb-0">Registrar usuario</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label for="txt_DNI">DNI</label>
+                            <div class="input-group">
+                                <input type="text" id="txt_DNI" class="form-control" placeholder="DNI">
+                            </div>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label for="txt_Nombre">Nombre</label>
+                            <div class="input-group">
+                                <input type="text" id="txt_Nombre" class="form-control" placeholder="Nombre completo">
+                            </div>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label for="txt_Email">Correo</label>
+                            <div class="input-group">
+                                <input type="email" id="txt_Email" class="form-control" placeholder="Correo">
+                            </div>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label for="txt_Telefono">Teléfono</label>
+                            <div class="input-group">
+                                <input type="text" id="txt_Telefono" class="form-control" placeholder="Teléfono">
+                            </div>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label for="txt_Password">Contraseña</label>
+                            <div class="input-group">
+                                <input type="password" id="txt_Password" class="form-control" placeholder="Contraseña">
+                            </div>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label for="txt_CPassword">Confirmar Contraseña</label>
+                            <div class="input-group">
+                                <input type="password" id="txt_CPassword" class="form-control" placeholder="Confirmar Contraseña">
+                            </div>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label for="cbx_Estado">Estado</label>
+                            <div class="input-group">
+                                <select id="cbx_Estado" class="form-control">
+                                    <option value="" disabled selected>--SELECCIONAR--</option>
+                                    <option value="1">Activo</option>
+                                    <option value="0">Inactivo</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-12 text-center">
+                            <button id="btn_Volver" type="button" class="btn btn-danger">Volver</button>
+                            <button id="btn_Registrar" type="button" class="btn btn-primary">Registrar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        // 1. Validación de DNI (solo dígitos y límite de 8)
+            $('#txt_DNI').on('keypress', function (e) {
+                // Obtenemos el código de la tecla presionada
+                var charCode = (e.which) ? e.which : e.keyCode;
+
+                // Permitir solo dígitos (48-57) y teclas de control
+                if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+                    e.preventDefault();
+                    return false;
+                }
+
+                // Limitar la longitud a 8 dígitos (antes de que se añada el nuevo dígito)
+                if ($(this).val().length >= 8) {
+                    // Si es un dígito, prevenir la entrada
+                    if (charCode > 47 && charCode < 58) {
+                        e.preventDefault();
+                        return false;
+                    }
+                }
+            });
+
+        // 1. Validación de DNI (solo dígitos y límite de 8)
+            $('#txt_Telefono').on('keypress', function (e) {
+                // Obtenemos el código de la tecla presionada
+                var charCode = (e.which) ? e.which : e.keyCode;
+
+                // Permitir solo dígitos (48-57) y teclas de control
+                if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+                    e.preventDefault();
+                    return false;
+                }
+
+                // Limitar la longitud a 9 dígitos (antes de que se añada el nuevo dígito)
+                if ($(this).val().length >= 9) {
+                    // Si es un dígito, prevenir la entrada
+                    if (charCode > 47 && charCode < 58) {
+                        e.preventDefault();
+                        return false;
+                    }
+                }
+            });
+
+        $("#btn_Registrar").click(function () {
+            let ruc = $("#txt_RUC").val().trim();
+            let nombre = $("#txt_Nombre").val().trim();
+            let descripcion = $("#txt_Descripcion").val().trim();
+            let estado = $('#cbx_Estado').val();
+
+            if (!ruc || !nombre || !descripcion || !estado) {
+                toastr.warning("Todos los campos son obligatorios", "MENSAJE DE SISTEMA");
+                return;
+            }
+
+            if (ruc.length !== 11) {
+                toastr.warning("El RUC debe tener exactamente 11 dígitos.", "MENSAJE DE SISTEMA");
+                return;
+            }
+
+            Swal.fire({
+                title: "¿Estás seguro?",
+                text: "Esta acción registrará a la empresa. ¿Deseas continuar?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Sí, registrar empresa",
+                cancelButtonText: "Cancelar",
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+
+                    let formData = new FormData();
+                    formData.append("Ruc", ruc);
+                    formData.append("Nombre", nombre);
+                    formData.append("Descripcion", descripcion);
+                    formData.append("Estado", estado == 1 ? true : false);
+
+                    $.ajax({
+                        url: "/Empresa/RegistrarEmpresa",
+                        type: "POST",
+                        processData: false,
+                        contentType: false,
+                        data: formData,
+                        success: function (response) {
+                            if (response.status === true) {
+                                toastr.success(response.message, "MENSAJE DE SISTEMA");
+                                window.location.href = "/Empresa";
+                            } else {
+                                toastr.warning(response.message, 'MENSAJE DE SISTEMA');
+                                return;
+                            }
+                        },
+                        error: function (xhr, Status, error) {
+                            toastr.error("Error en el servidor", "MENSAJE DE SISTEMA");
+                            console.error('Error en la solicitud Ajax. Status:', Status, 'Error:', error, 'XHR:', xhr);
+                        }
+                    });
+                }
+            });
+        });
+
+        $("#btn_Volver").click(function () {
+            window.location.href = "/Empresa";
+        });
+    });
+</script>
