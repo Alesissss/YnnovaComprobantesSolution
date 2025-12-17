@@ -225,3 +225,20 @@ INSERT INTO banco (codigo, descripcion, estado) VALUES ('55','BANCO RIPLEY',1);
 INSERT INTO banco (codigo, descripcion, estado) VALUES ('56','BANCO SANTANDER PERU S.A.',1);
 INSERT INTO banco (codigo, descripcion, estado) VALUES ('58','BANCO AZTECA DEL PERU',1);
 INSERT INTO banco (codigo, descripcion, estado) VALUES ('99','OTROS',1);
+
+-- INSERTS DE 'tipo_usuario'
+INSERT INTO tipo_usuario (nombre, estado) VALUES ('Administrador del sistema', 1);
+INSERT INTO tipo_usuario (nombre, estado) VALUES ('Usuario', 1);
+
+-- INSERTS DE 'empresa'
+INSERT INTO empresa (ruc, nombre, descripcion, estado) VALUES ('12345678901', 'YNNOVA', 'SOMOS BUENOS', 1); 
+
+-- INSERTS DE 'usuario'
+INSERT INTO usuario (dni, nombre, email, telefono, password, estado) VALUES ('71870353', 'Sandro Bustamante Vasquez', 'furia241@gmail.com', '973702664', 'password123', 1);
+INSERT INTO usuario (dni, nombre, email, telefono, password, estado) VALUES ('75090896', 'Alexis Torres Cabrejos', 'gfake040305@gmail.com', '999796517', 'password123', 1);
+INSERT INTO usuario (dni, nombre, email, telefono, password, estado) VALUES ('77013712', 'Fernando José Dávila Ubillus', 'gerencia.tics@ynnovacorp.com', '963140425', 'password123', 1);
+
+-- INSERTS DE 'empresa_usuario'
+INSERT INTO empresa_usuario (empresa_id, usuario_id, tipo_usuario_id) VALUES (1, 1, 1);
+INSERT INTO empresa_usuario (empresa_id, usuario_id, tipo_usuario_id) VALUES (1, 2, 2);
+INSERT INTO empresa_usuario (empresa_id, usuario_id, tipo_usuario_id) VALUES (1, 3, 2);
