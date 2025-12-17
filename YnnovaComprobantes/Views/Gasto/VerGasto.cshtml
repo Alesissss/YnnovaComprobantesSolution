@@ -1,6 +1,6 @@
 ﻿@model YnnovaComprobantes.Models.Gasto
 @{
-    ViewData["Title"] = "Gestionar comprobantes";
+    ViewData["Title"] = "Ver gasto";
 }
 <div class="card d-none" id="efec-cargando">
     <div class="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center overlay dark">
@@ -11,7 +11,7 @@
     <div class="panel-heading">
         <div class="row">
             <div class="col-md-12">
-                <h1>Gestionar Comprobantes</h1>
+                <h1>Gestionar comprobantes</h1>
             </div>
         </div>
     </div>
@@ -242,11 +242,13 @@
                         let buttons = '';
 
                         if (data.estado === 'Pendiente' || data.estado === 'Observado') {
-                            buttons += `<button class="btn btn-primary btn-sm m-1" onclick="fct_EditarComprobante('${data.id}')" title="Editar comprobante"><i class="bi bi-pencil-square"></i></button>`;
+                            buttons += `<button class="btn btn-success btn-sm m-1" onclick="fct_ComprobanteAprobar('${data.id}')" title="Aprobar comprobante"><i class="bi bi-check-lg"></i></button>
+                            <button class="btn btn-danger btn-sm m-1" onclick="fct_ComprobanteRechazar('${data.id}')" title="Rechazar comprobante"><i class="bi bi-x-lg"></i></button>
+                            <button class="btn btn-primary btn-sm m-1" onclick="fct_RevisarComprobante('${data.id}')" title="Revisar comprobante"><i class="bi bi-pencil-square"></i></button>`;
                         }
 
-                        buttons += `<button class="btn btn-info btn-sm m-1" onclick="fct_VerObservaciones('${data.id}')" title="Ver observaciones"><i class="bi bi-eye"></i></button>`;
-
+                        buttons += `
+                                    <button class="btn btn-info btn-sm m-1" onclick="fct_VerRevisionComprobante('${data.id}')" title="Ver revisión"><i class="bi bi-eye"></i></button>`;
                         return `
                         <div class="flex-wrap btn-group">
                             ${buttons}
@@ -286,12 +288,20 @@
         });
     }
 
-    function fct_VerObservaciones(Id) {
-        window.location.href = `/Gasto/VerObservaciones/${Id}`;
+    function fct_RevisarComprobante(Id) {
+        window.location.href = `/Gasto/RevisarComprobante/${Id}`;
     }
 
-    function fct_EditarComprobante(Id) {
-        window.location.href = `/Gasto/EditarComprobante/${Id}`;
+    function fct_VerRevisionComprobante(Id) {
+        window.location.href = `/Gasto/VerRevisionComprobante/${Id}`;
+    }
+
+    function fct_ComprobanteAprobar(Id) {
+        toastr.success('Aprobado');
+    }
+
+    function fct_ComprobanteRechazar(Id) {
+        toastr.error('Rechazado');
     }
 
     function ShowSpinner() {

@@ -13,7 +13,7 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-12 mb-3">
-                            <h3>Anticipo del <strong id="txt_FechaGasto">@Model.Fecha</strong></h3>
+                            <h3>@Model.TipoGasto del <strong id="txt_FechaGasto">@Model.Fecha</strong></h3>
                             <h4>Importe asignado: <strong id="txt_Importe">@Model.MonedaSimbolo @Model.Importe</strong>
                             </h4>
                         </div>
@@ -324,6 +324,21 @@
 
                 if (!ruc || !serie || !numero || !tipoComprobante || !concepto || !moneda || !monto || !fecha || !archivoParaSubir) {
                     toastr.warning("Todos los campos son obligatorios", "MENSAJE DE SISTEMA");
+                    return;
+                }
+
+                if (ruc.length !== 11) {
+                    toastr.warning('El RUC debe tener exactamente 11 dígitos', 'MENSAJE DE SISTEMA');
+                    return;
+                }
+
+                if (serie.length !== 4) {
+                    toastr.warning('El número de serie debe tener exactamente 4 dígitos', 'MENSAJE DE SISTEMA');
+                    return;
+                }
+
+                if (numero.length !== 10) {
+                    toastr.warning('El número debe tener exactamente 10 dígitos', 'MENSAJE DE SISTEMA');
                     return;
                 }
 

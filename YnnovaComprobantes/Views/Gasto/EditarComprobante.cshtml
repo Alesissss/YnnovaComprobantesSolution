@@ -1,0 +1,647 @@
+﻿@model YnnovaComprobantes.ViewModels.ComprobanteViewModel
+@{
+    ViewData["Title"] = "Editar comprobante";
+}
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="text-center mb-0">Editar comprobante</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-12 mb-3 text-center">
+                            <h3>@Model.GTipoGasto del <strong id="txt_FechaGasto">@Model.Fecha</strong></h3>
+                            <h4>
+                                Importe asignado: <strong id="txt_Importe">@Model.GMoneda @Model.GImporte</strong>
+                            </h4>
+                            <h4>
+                                Monto acumulado: <strong>@Model.GMoneda @Model.MontoAcumulado</strong>
+                            </h4>
+                            <h5 class="mb-0 d-flex align-items-center justify-content-center">
+                                <span class="badge fs-5" id="txt_Estado">@Model.Estado</span>
+                            </h5>
+                        </div>
+
+                        <div class="col-md-12 mb-3">
+                            <label for="txt_RUC">RUC de la empresa</label>
+                            <input type="text" id="txt_RUC" class="form-control" value="@Model.RucEmpresa" maxlength="11">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="txt_Serie">Serie del comprobante</label>
+                            <input type="text" id="txt_Serie" class="form-control" value="@Model.Serie" maxlength="4">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="txt_Numero">Número del comprobante</label>
+                            <input type="text" id="txt_Numero" class="form-control" value="@Model.Numero">
+                        </div>
+
+                        <div class="col-md-12 mb-3">
+                            <label for="cbx_TipoComprobante">Tipo de comprobante</label>
+                            <select id="cbx_TipoComprobante" class="form-control">
+                                <option value="" disabled selected>--SELECCIONAR--</option>
+                            </select>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label for="cbx_Concepto">Concepto</label>
+                            <select id="cbx_Concepto" class="form-control">
+                                <option value="" disabled selected>--SELECCIONAR--</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="cbx_Moneda">Moneda</label>
+                            <select id="cbx_Moneda" class="form-control"></select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="txt_Monto">Monto</label>
+                            <input type="number" id="txt_Monto" class="form-control" step="0.01" value="@Model.Monto">
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label for="txt_Fecha">Fecha</label>
+                            <input type="date" id="txt_Fecha" class="form-control">
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label for="txt_Descripcion">Descripción</label>
+                            <textarea id="txt_Descripcion" class="form-control" rows="3">@Model.Descripcion</textarea>
+                        </div>
+
+                        <div class="col-md-12 mb-4">
+                            <label>Archivo de Comprobante (Imagen, PDF)</label>
+                            <input type="hidden" id="archivoModificado" value="false">
+
+                            <div id="dropZone" class="drop-zone text-center p-4 border rounded" style="border-style: dashed!important; cursor: pointer;">
+                                @if (!string.IsNullOrEmpty(Model.Archivo))
+                                {
+                                    <div id="existingFileArea" class="mb-3">
+                                        <p class="text-muted small">Archivo actual almacenado:</p>
+                                        <a href="@Model.Archivo" target="_blank" class="btn btn-outline-info btn-sm">
+                                            <i class="fas @(Model.Archivo.EndsWith(".pdf") ? "fa-file-pdf" : "fa-image")"></i> Ver archivo actual
+                                        </a>
+                                        <hr />
+                                    </div>
+                                }
+
+                                <div id="uploadArea">
+                                    <p class="text-muted mb-2">Arrastra tu archivo aquí o usa los botones</p>
+                                    <label class="btn btn-warning" id="btn_TriggerUpload">
+                                        <i class="fas fa-upload"></i> Subir archivo / Cámara
+                                    </label>
+                                </div>
+
+                                <div id="previewArea" style="display: none;">
+                                    <span id="fileNameDisplay" class="d-block mb-2 font-weight-bold text-truncate"></span>
+                                    <img id="imagePreview" class="img-thumbnail" style="max-width: 150px; display: none;">
+                                    <i id="pdfIcon" class="fas fa-file-pdf fa-3x text-danger" style="display: none;"></i>
+                                    <span class="text-success d-block mt-2 small"><i class="fas fa-check-circle"></i> Nuevo archivo cargado</span>
+                                    <button type="button" id="removeFileButton" class="btn btn-sm btn-danger mt-2">
+                                        <i class="fas fa-trash-alt"></i> Quitar selección
+                                    </button>
+                                </div>
+                            </div>
+
+                            <input type="file" class="d-none" id="file_Archivos" accept=".jpg, .jpeg, .png, .pdf">
+                            <input type="file" class="d-none" id="file_Camara" accept="image/*" capture="camera">
+                        </div>
+
+                        <div class="col-md-12 text-center">
+                            <button id="btn_Volver" type="button" class="btn btn-danger mr-2">Volver</button>
+                            <button id="btn_Editar" type="button" class="btn btn-primary">Guardar Cambios</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card card-info direct-chat shadow">
+                <div class="card-header">
+                    <h4 class="card-title w-100 text-center">Control de observaciones</h4>
+                </div>
+                <div class="card-body">
+                    <div id="chatContainer" class="direct-chat-messages" style="height: 350px;">
+                        <div id="emptyChatNote" class="text-center text-muted mt-5">
+                            <i class="fas fa-comments fa-3x"></i>
+                            <p class="mt-2">No hay observaciones registradas.</p>
+                        </div>
+                    </div>
+                </div>
+                @if (Model.Estado == "Observado")
+                {
+                    <div class="card-footer">
+                        <div class="row">
+                            <div class="col-md-4 mb-2">
+                                <select id="cbx_Prioridad" class="form-control form-control-sm">
+                                    <option value="B">Prioridad Baja</option>
+                                    <option value="M" selected>Prioridad Media</option>
+                                    <option value="A">Prioridad Alta</option>
+                                </select>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="input-group">
+                                    <textarea id="txt_Observacion" placeholder="Escriba una observación..." class="form-control" rows="2"></textarea>
+                                    <span class="input-group-append">
+                                        <button id="btn_AgregarObservacion" type="button" class="btn btn-success">
+                                            <i class="fas fa-paper-plane"></i> Enviar
+                                        </button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        // --- 1. Inicialización de Datos ---
+        fct_GetMonedas();
+        fct_GetTipoComprobante();
+        fct_GetConceptos();
+        fct_MostrarEstado();
+        fct_InitLogicaArchivos();
+        inicializarRellenoConDesplazamiento();
+
+        // Formatear fecha para el input date (HTML5 requiere YYYY-MM-DD)
+        if ('@Model.Fecha') {
+            $('#txt_Fecha').val(moment('@Model.Fecha', 'DD/MM/YYYY').format('YYYY-MM-DD'));
+        }
+
+        // --- 2. Funciones de Carga de Selects (Configuración Original Restaurada) ---
+        function fct_GetMonedas() {
+            $.getJSON('/Gasto/GetMonedasData', function (response) {
+                if (response.status === true) {
+                    let items = '<option disabled selected>--SELECCIONAR--</option>';
+                    $.each(response.data, function (index, item) {
+                        items += `<option value="${item.id}">${item.simbolo} ${item.nombre}</option>`;
+                    });
+                    $('#cbx_Moneda').html(items).val('@Model.MonedaId').trigger('change');
+                } else {
+                    toastr.error('Ocurrió un error al listar las monedas', 'MENSAJE DE SISTEMA');
+                }
+            });
+        }
+
+        function fct_GetTipoComprobante() {
+            $.getJSON('/Gasto/GetTipoComprobanteData', function (response) {
+                if (response.status === true) {
+                    var dataTC = response.data.map(function(tc) {
+                        return { id: tc.id, text: tc.codigo + ' - ' + tc.descripcion };
+                    });
+                    $('#cbx_TipoComprobante').empty().select2({
+                        theme: 'bootstrap4',
+                        data: dataTC,
+                        placeholder: 'Buscar tipo de comprobante...',
+                        allowClear: true,
+                        language: { noResults: function () { return "No se encontraron resultados"; } }
+                    });
+                    $('#cbx_TipoComprobante').val('@Model.TipoComprobanteId').trigger('change');
+                } else {
+                    toastr.error('Ocurrió un error al listar los tipos de comprobantes.', 'MENSAJE DE SISTEMA');
+                }
+            });
+        }
+
+        function fct_GetConceptos() {
+            $.getJSON('/Gasto/GetConceptoData', function (response) {
+                if (response.status === true) {
+                    var dataConcepto = response.data.map(function(c) {
+                        return { id: c.id, text: c.nombre };
+                    });
+                    $('#cbx_Concepto').empty().select2({
+                        theme: 'bootstrap4',
+                        data: dataConcepto,
+                        placeholder: 'Buscar concepto...',
+                        allowClear: true,
+                        language: { noResults: function () { return "No se encontraron resultados"; } }
+                    });
+                    $('#cbx_Concepto').val('@Model.ConceptoId').trigger('change');
+                } else {
+                    toastr.error('Ocurrió un error al listar los conceptos.', 'MENSAJE DE SISTEMA');
+                }
+            });
+        }
+
+        // --- 3. Lógica de Interfaz y Estados ---
+        function fct_MostrarEstado() {
+            let spanEstado = $('#txt_Estado');
+            let estadoActual = '@Model.Estado';
+            let badgeClass = "";
+            switch (estadoActual) {
+                case "Aprobado": case "Activo": case "Pagado": badgeClass = "badge-success"; break;
+                case "Pendiente": badgeClass = "badge-warning text-dark"; break;
+                case "Rechazado": case "Anulado": case "Inactivo": badgeClass = "badge-danger"; break;
+                default: badgeClass = "badge-secondary";
+            }
+            spanEstado.removeClass("bg-success bg-warning bg-danger bg-secondary text-dark");
+            spanEstado.addClass("badge " + badgeClass).text(estadoActual);
+        }
+
+        // --- 4. Lógica de Archivos (Cámara / Upload) ---
+        function fct_InitLogicaArchivos() {
+            const btnTrigger = $('#btn_TriggerUpload');
+            const fileArchivos = $('#file_Archivos');
+            const fileCamara = $('#file_Camara');
+            const previewArea = $('#previewArea');
+            const uploadArea = $('#uploadArea');
+            const existingFileArea = $('#existingFileArea');
+
+            btnTrigger.on('click', function() {
+                Swal.fire({
+                    title: 'Seleccionar origen',
+                    text: "¿Desea tomar una foto o buscar un archivo?",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: '<i class="fas fa-camera"></i> Cámara',
+                    cancelButtonText: '<i class="fas fa-file"></i> Archivos',
+                    confirmButtonColor: '#ffc107',
+                    cancelButtonColor: '#17a2b8'
+                }).then((result) => {
+                    if (result.isConfirmed) fileCamara.click();
+                    else if (result.dismiss === Swal.DismissReason.cancel) fileArchivos.click();
+                });
+            });
+
+            fileArchivos.add(fileCamara).on('change', function() {
+                if (this.files && this.files[0]) handleFile(this.files[0]);
+            });
+
+            function handleFile(file) {
+                $('#archivoModificado').val("true");
+                $('#fileNameDisplay').text(file.name);
+                uploadArea.hide();
+                existingFileArea.hide();
+                previewArea.show();
+
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = e => $('#imagePreview').attr('src', e.target.result).show();
+                    reader.readAsDataURL(file);
+                    $('#pdfIcon').hide();
+                } else if (file.type === 'application/pdf') {
+                    $('#imagePreview').hide();
+                    $('#pdfIcon').show();
+                }
+            }
+
+            $('#removeFileButton').on('click', function() {
+                fileArchivos.val('');
+                fileCamara.val('');
+                $('#archivoModificado').val("true");
+                previewArea.hide();
+                uploadArea.show();
+                existingFileArea.show();
+            });
+        }
+
+        // --- 5. Lógica de inputs ---
+                // 1. Validación de RUC (solo dígitos y límite de 11)
+            $('#txt_RUC').on('keypress', function (e) {
+                // Obtenemos el código de la tecla presionada
+                var charCode = (e.which) ? e.which : e.keyCode;
+
+                // Permitir solo dígitos (48-57) y teclas de control
+                if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+                    e.preventDefault();
+                    return false;
+                }
+
+                // Limitar la longitud a 11 dígitos (antes de que se añada el nuevo dígito)
+                if ($(this).val().length >= 11) {
+                    // Si es un dígito, prevenir la entrada
+                    if (charCode > 47 && charCode < 58) {
+                        e.preventDefault();
+                    return false;
+                }
+            }
+        });
+
+            $('#txt_Serie').on('keypress', function (e) {
+                if ($(this).val().length >= 4) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+
+            $('#txt_Numero').on('keypress', function (e) {
+                var charCode = (e.which) ? e.which : e.keyCode;
+
+                // Permitir solo dígitos (48-57) y teclas de control
+                if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+
+        function inicializarRellenoConDesplazamiento() {
+            if (typeof jQuery === 'undefined') {
+                console.error("jQuery no está cargado.");
+                return;
+            }
+
+            $(document).ready(function() {
+                const $input = $('#txt_Numero');
+                const MAX_LENGTH = 10;
+
+                let currentValue = ''.padStart(MAX_LENGTH, '0');
+
+                function formatValue(value) {
+                    let filteredValue = String(value).replace(/[^0-9]/g, '');
+
+                    if (filteredValue.length < MAX_LENGTH) {
+                        return filteredValue.padStart(MAX_LENGTH, '0');
+                    }
+                    return filteredValue.substring(filteredValue.length - MAX_LENGTH);
+                }
+
+                $input.val(formatValue($input.val() || ''));
+                currentValue = $input.val();
+
+                $input.on('focus', function() {
+                     if ($(this).val() === ''.padStart(MAX_LENGTH, '0')) {
+                     }
+                });
+
+                $input.on('input', function() {
+                    let newValue = $(this).val();
+
+                    let filteredValue = newValue.replace(/[^0-9]/g, '');
+
+                    if (!filteredValue || filteredValue === currentValue) {
+                        return;
+                    }
+
+                    if (filteredValue.length > currentValue.length) {
+                        let newChar = filteredValue.substring(filteredValue.length - 1);
+
+                        currentValue = currentValue.substring(1) + newChar;
+
+                    } else if (filteredValue.length < currentValue.length) {
+                         currentValue = '0' + filteredValue;
+                    } else {
+                         currentValue = filteredValue;
+                    }
+
+                    $(this).val(formatValue(currentValue));
+
+                    if (filteredValue.length > currentValue.length) {
+                         const inputElement = this;
+                         inputElement.setSelectionRange(MAX_LENGTH, MAX_LENGTH);
+                    }
+                });
+
+                $input.on('blur', function() {
+                    currentValue = formatValue($(this).val());
+                    $(this).val(currentValue);
+                });
+            });
+        }
+
+        // --- 6. Botón Guardar (Ajax) ---
+        $("#btn_Editar").click(function () {
+            let tipoGasto = '@Model.GTipoGasto'; // Restaurado de Model
+            let ruc = $('#txt_RUC').val();
+            let serie = $('#txt_Serie').val();
+            let numero = $('#txt_Numero').val();
+            let monto = $('#txt_Monto').val();
+            let fecha = $('#txt_Fecha').val();
+            let inputModificado = $('#archivoModificado').val() === "true";
+            let archivoParaSubir = $('#file_Archivos')[0].files[0] || $('#file_Camara')[0].files[0] || null;
+
+            if (!ruc || !serie || !numero || !monto || !fecha) {
+                toastr.warning("Todos los campos son obligatorios", "SISTEMA");
+                return;
+            }
+
+            if (ruc.length !== 11) {
+                toastr.warning('El RUC debe tener exactamente 11 dígitos', 'MENSAJE DE SISTEMA');
+                return;
+            }
+            
+            if (serie.length !== 4) {
+                toastr.warning('El número de serie debe tener exactamente 4 dígitos', 'MENSAJE DE SISTEMA');
+                return;
+            }
+
+            if (numero.length !== 10) {
+                toastr.warning('El número debe tener exactamente 10 dígitos', 'MENSAJE DE SISTEMA');
+                return;
+            }
+
+            Swal.fire({
+                title: "¿Estás seguro?",
+                text: "Esta acción editará el comprobante. ¿Deseas continuar?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Sí, editar",
+                cancelButtonText: "Cancelar",
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    let formData = new FormData();
+                    formData.append("Id", '@Model.Id');
+                    formData.append("RucEmpresa", ruc);
+                    formData.append("Serie", serie);
+                    formData.append("Numero", numero);
+                    formData.append("TipoComprobanteId", $('#cbx_TipoComprobante').val());
+                    formData.append("ConceptoId", $('#cbx_Concepto').val());
+                    formData.append("MonedaId", $('#cbx_Moneda').val());
+                    formData.append("Monto", monto);
+                    formData.append("Fecha", fecha);
+                    formData.append("Descripcion", $('#txt_Descripcion').val());
+                    formData.append("archivoModificado", inputModificado);
+
+                    if (archivoParaSubir) {
+                        formData.append("ArchivoComprobante", archivoParaSubir);
+                    }
+
+                    $.ajax({
+                        url: "/Gasto/EditarComprobante",
+                        type: "POST",
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: function (response) {
+                            if (response.status) {
+                                toastr.success(response.message, "MENSAJE DE SISTEMA");
+                                window.location.href = "/Gasto/VerComprobantes/@Model.GId";
+                            } else {
+                                toastr.error(response.message, 'MENSAJE DE SISTEMA');
+                            }
+                        },
+                        error: function (xhr, Status, error) {
+                                toastr.error("Error en el servidor", "MENSAJE DE SISTEMA");
+                                console.error('Error en la solicitud Ajax. Status:', Status, 'Error:', error, 'XHR:', xhr);
+                        },
+                    });
+                }
+            });
+        });
+
+        $("#btn_Volver").click(() => window.location.href = "/Gasto/VerComprobantes/@Model.GId");
+    });
+
+    // Lógica de observaciones
+        $(document).ready(function () {
+        // Configurar Moment.js en español
+        moment.locale('es');
+
+        // --- CARGA INICIAL DE OBSERVACIONES ---
+        fct_CargarHistorialObservaciones();
+
+        function fct_CargarHistorialObservaciones() {
+            $.getJSON('/Gasto/GetObservacionesData', { 'id': '@Model.Id' }, function (response) {
+                if (response.status) {
+                    let chatContainer = $("#chatContainer");
+                    chatContainer.empty();
+
+                    if (response.data && response.data.length > 0) {
+                        // Ordenamos de antiguo a nuevo para el chat
+                        let observaciones = response.data.reverse();
+
+                        observaciones.forEach(function (obs) {
+                            let esMio = obs.usuarioId == '@Model.GUsuarioId';
+                            fct_RenderizarMensajeChat(obs, esMio);
+                        });
+
+                        // Bajar el scroll al cargar todo
+                        fct_ScrollAlFinal();
+                    } else {
+                        chatContainer.html('<div id="emptyChatNote" class="text-center text-muted mt-5"><i class="fas fa-comments fa-3x"></i><p class="mt-2">No hay observaciones registradas.</p></div>');
+                    }
+                }
+            });
+        }
+
+        // --- LÓGICA DE ENVÍO ---
+        $("#btn_AgregarObservacion").click(function () {
+            let mensaje = $("#txt_Observacion").val().trim();
+            let prioridad = $("#cbx_Prioridad").val();
+            let idComprobante = '@Model.Id';
+
+            if (mensaje === "") {
+                toastr.warning("Debe escribir un mensaje", "SISTEMA");
+                return;
+            }
+
+            // Deshabilitar para evitar doble envío
+            $("#btn_AgregarObservacion").prop("disabled", true);
+
+            let formData = new FormData();
+            formData.append("ComprobanteId", idComprobante);
+            formData.append("Prioridad", prioridad);
+            formData.append("Mensaje", mensaje);
+            formData.append("UsuarioId", '@Model.GUsuarioId');
+            formData.append("actualizarEstado", false);
+
+            $.ajax({
+                url: "/Gasto/RegistrarObservacion",
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    if (response.status) {
+                        // 1. Quitar nota de vacío si es el primer mensaje
+                        $("#emptyChatNote").remove();
+
+                        // 2. Pintar el mensaje nuevo (esMio = true)
+                        let nuevaObs = {
+                            mensaje: mensaje,
+                            prioridad: prioridad,
+                            fechaCreacion: new Date(),
+                            usuarioId: '@Model.GUsuarioId'
+                        };
+                        fct_RenderizarMensajeChat(nuevaObs, true);
+
+                        // 3. LIMPIAR TEXTAREA
+                        $("#txt_Observacion").val("");
+
+                        // 4. SCROLL HASTA ABAJO
+                        fct_ScrollAlFinal();
+
+                        toastr.success("Enviado", "SISTEMA");
+                    } else {
+                        toastr.error(response.message, "ERROR");
+                    }
+                },
+                error: function () {
+                    toastr.error("Error de conexión", "SISTEMA");
+                },
+                complete: function() {
+                    $("#btn_AgregarObservacion").prop("disabled", false);
+                }
+            });
+        });
+
+        // --- FUNCIONES AUXILIARES ---
+
+        function fct_RenderizarMensajeChat(obs, esMio) {
+            let colorClase = "";
+            switch (obs.prioridad) {
+                case 'A': colorClase = "bg-danger text-white"; break;
+                case 'M': colorClase = "bg-warning text-dark"; break;
+                case 'B': colorClase = "bg-info text-white"; break;
+                default: colorClase = "bg-secondary text-white";
+            }
+
+            let alignmentClass = esMio ? "right" : "";
+            let nameFloat = esMio ? "float-right" : "float-left";
+            let dateFloat = esMio ? "float-left" : "float-right";
+            let fechaFormateada = moment(obs.fechaCreacion).format('DD MMM hh:mm A');
+
+            let html = `
+                <div class="direct-chat-msg ${alignmentClass}">
+                    <div class="direct-chat-infos clearfix">
+                        <span class="direct-chat-name ${nameFloat}">${esMio ? 'Yo' : 'Admin'}</span>
+                        <span class="direct-chat-timestamp ${dateFloat}">${fechaFormateada}</span>
+                    </div>
+                    <img class="direct-chat-img" src="/uploads/fotos/default-user.png" alt="avatar">
+                    <div class="direct-chat-text ${colorClase}">
+                        ${obs.mensaje}
+                    </div>
+                </div>`;
+
+            $("#chatContainer").append(html);
+        }
+
+        function fct_ScrollAlFinal() {
+            let container = $("#chatContainer");
+            container.animate({
+                scrollTop: container.prop("scrollHeight")
+            }, 500);
+        }
+
+        // Atajo de teclado: Ctrl + Enter para enviar
+        $("#txt_Observacion").keypress(function (e) {
+            if (e.which == 13 && !e.shiftKey) {
+                e.preventDefault();
+                $("#btn_AgregarObservacion").click();
+            }
+        });
+    });
+</script>
+
+<style>
+    .drop-zone {
+        min-height: 180px;
+        transition: all 0.3s;
+        background: #fafafa;
+    }
+
+        .drop-zone:hover {
+            background: #f0f7ff;
+            border-color: #007bff !important;
+        }
+
+    .badge {
+        padding: 0.6em 1em;
+        font-weight: 500;
+    }
+</style>

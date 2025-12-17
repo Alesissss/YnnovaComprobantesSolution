@@ -9,7 +9,7 @@ DROP TABLE IF EXISTS empresa;
 DROP TABLE IF EXISTS estado;
 DROP TABLE IF EXISTS gasto;
 DROP TABLE IF EXISTS moneda;
-DROP TABLE IF EXISTS observaciones;
+DROP TABLE IF EXISTS observacion;
 DROP TABLE IF EXISTS tipo_comprobante;
 DROP TABLE IF EXISTS tipo_gasto;
 DROP TABLE IF EXISTS tipo_rendicion;
@@ -96,15 +96,14 @@ CREATE TABLE moneda (
     simbolo VARCHAR(50) NOT NULL
 );
 
--- TABLA observaciones
-CREATE TABLE observaciones (
+-- TABLA observacion
+CREATE TABLE observacion (
     id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
     comprobante_id INT NOT NULL,
-    user_id INT NOT NULL,
+    usuario_id INT NOT NULL,
     prioridad CHAR(1) NOT NULL, -- 'A' Alta, 'M' Media, 'B' Baja
     mensaje TEXT NOT NULL,
-    fecha_creacion DATETIME NOT NULL DEFAULT GETDATE(),
-    archivo VARCHAR(255)
+    fecha_creacion DATETIME NOT NULL DEFAULT GETDATE()
 );
 
 -- TABLA tipo_comprobante
@@ -175,13 +174,13 @@ INSERT INTO tipo_rendicion (codigo, descripcion, estado) VALUES ('3', 'GASTOS OP
 INSERT INTO estado (nombre, tabla) VALUES ('Pendiente', 'GASTO');
 INSERT INTO estado (nombre, tabla) VALUES ('Aprobado', 'GASTO');
 INSERT INTO estado (nombre, tabla) VALUES ('Rechazado', 'GASTO');
-INSERT INTO estado (nombre, tabla) VALUES ('En observación', 'GASTO');
+INSERT INTO estado (nombre, tabla) VALUES ('Observado', 'GASTO');
 
 -- INSERTS DE 'estado' PARA LA TABLA 'comprobante'
 INSERT INTO estado (nombre, tabla) VALUES ('Pendiente', 'COMPROBANTE');
 INSERT INTO estado (nombre, tabla) VALUES ('Aprobado', 'COMPROBANTE');
 INSERT INTO estado (nombre, tabla) VALUES ('Rechazado', 'COMPROBANTE');
-INSERT INTO estado (nombre, tabla) VALUES ('En observación', 'COMPROBANTE');
+INSERT INTO estado (nombre, tabla) VALUES ('Observado', 'COMPROBANTE');
 
 -- INSERTS DE 'moneda'
 INSERT INTO moneda (nombre, simbolo) VALUES ('Soles', 'S/.');

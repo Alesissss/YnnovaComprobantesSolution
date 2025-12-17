@@ -226,7 +226,7 @@
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
                                     <a href="/Gasto/Index"
-                                       class="nav-link @(controllerName == "Gasto" && new[] { "Index", "Registrar" }.Contains(actionName) ? "active" : "")">
+                                       class="nav-link @(controllerName == "Gasto" && new[] { "Index", "Registrar", "VerGasto", "RevisarComprobante", "VerRevisionComprobante" }.Contains(actionName) ? "active" : "")">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Gestionar gastos</p>
                                     </a>
@@ -234,7 +234,7 @@
 
                                 <li class="nav-item">
                                     <a href="/Gasto/MisGastos"
-                                       class="nav-link @(controllerName == "Gasto" && new[] { "MisGastos" }.Contains(actionName) ? "active" : "")">
+                                       class="nav-link @(controllerName == "Gasto" && new[] { "MisGastos", "SubirComprobante", "VerComprobantes", "EditarComprobante", "VerObservaciones"}.Contains(actionName) ? "active" : "")">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Mis gastos</p>
                                     </a>

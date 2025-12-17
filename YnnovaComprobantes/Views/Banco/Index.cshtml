@@ -280,7 +280,7 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
-                    url: `/Banco/Banco/${Id}`,  // Pasamos el ID en la URL
+                    url: `/Banco/EliminarBanco/${Id}`,  // Pasamos el ID en la URL
                     type: "POST",
                     contentType: "application/json",
                     success: function (response) {

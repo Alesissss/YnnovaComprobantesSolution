@@ -198,6 +198,92 @@ namespace YnnovaComprobantes.Controllers
         {
             return View();
         }
+        // VER COMPROBANTES POR GASTO (VISTA DEL ADMIN)
+        public IActionResult VerGasto(int id)
+        {
+            var gasto = _context.Gastos.FirstOrDefault(g => g.Id == id);
+            if (gasto == null)
+            {
+                return NotFound();
+            }
+            return View(gasto);
+        }
+        public IActionResult RevisarComprobante(int id)
+        {
+            var comprobante = (from c in _context.Comprobantes
+                               join g in _context.Gastos on c.GastoId equals g.Id
+                               join mo in _context.Monedas on c.MonedaId equals mo.Id
+                               join tc in _context.TipoComprobantes on c.TipoComprobanteId equals tc.Id
+                               join co in _context.Conceptos on c.ConceptoId equals co.Id
+                               join est in _context.Estados on c.EstadoId equals est.Id
+                               where c.Id == id
+                               select new ComprobanteViewModel
+                               {
+                                   GId = g.Id,
+                                   GUsuarioId = g.UsuarioId,
+                                   GTipoGasto = _context.TipoGastos.Where(tg => tg.Id == g.TipoGastoId).Select(tg => tg.Nombre).FirstOrDefault(),
+                                   GFecha = g.Fecha,
+                                   GMoneda = _context.Monedas.Where(m => m.Id == g.MonedaId).Select(m => m.Simbolo).FirstOrDefault(),
+                                   GImporte = g.Importe,
+                                   Id = c.Id,
+                                   RucEmpresa = c.RucEmpresa,
+                                   Serie = c.Serie,
+                                   Numero = c.Numero,
+                                   TipoComprobanteId = c.TipoComprobanteId,
+                                   ConceptoId = c.ConceptoId,
+                                   MonedaId = c.MonedaId,
+                                   Monto = c.Monto,
+                                   Fecha = c.Fecha,
+                                   Estado = est.Nombre,
+                                   Descripcion = c.Descripcion,
+                                   Archivo = c.Archivo,
+                                   MontoAcumulado = _context.Comprobantes.Where(com => com.GastoId == c.GastoId && com.EstadoId == _context.Estados.Where(e => e.Tabla == "COMPROBANTE" && e.Nombre == "Aprobado").Select(e => e.Id).FirstOrDefault()).Select(com => com.Monto).Sum()
+                               }).FirstOrDefault();
+
+            if (comprobante == null)
+            {
+                return NotFound();
+            }
+            return View(comprobante);
+        }
+        public IActionResult VerRevisionComprobante(int id)
+        {
+            var comprobante = (from c in _context.Comprobantes
+                               join g in _context.Gastos on c.GastoId equals g.Id
+                               join mo in _context.Monedas on c.MonedaId equals mo.Id
+                               join tc in _context.TipoComprobantes on c.TipoComprobanteId equals tc.Id
+                               join co in _context.Conceptos on c.ConceptoId equals co.Id
+                               join est in _context.Estados on c.EstadoId equals est.Id
+                               where c.Id == id
+                               select new ComprobanteViewModel
+                               {
+                                   GId = g.Id,
+                                   GUsuarioId = g.UsuarioId,
+                                   GTipoGasto = _context.TipoGastos.Where(tg => tg.Id == g.TipoGastoId).Select(tg => tg.Nombre).FirstOrDefault(),
+                                   GFecha = g.Fecha,
+                                   GMoneda = _context.Monedas.Where(m => m.Id == g.MonedaId).Select(m => m.Simbolo).FirstOrDefault(),
+                                   GImporte = g.Importe,
+                                   Id = c.Id,
+                                   RucEmpresa = c.RucEmpresa,
+                                   Serie = c.Serie,
+                                   Numero = c.Numero,
+                                   TipoComprobanteId = c.TipoComprobanteId,
+                                   ConceptoId = c.ConceptoId,
+                                   MonedaId = c.MonedaId,
+                                   Monto = c.Monto,
+                                   Fecha = c.Fecha,
+                                   Estado = est.Nombre,
+                                   Descripcion = c.Descripcion,
+                                   Archivo = c.Archivo,
+                                   MontoAcumulado = _context.Comprobantes.Where(com => com.GastoId == c.GastoId && com.EstadoId == _context.Estados.Where(e => e.Tabla == "COMPROBANTE" && e.Nombre == "Aprobado").Select(e => e.Id).FirstOrDefault()).Select(com => com.Monto).Sum()
+                               }).FirstOrDefault();
+
+            if (comprobante == null)
+            {
+                return NotFound();
+            }
+            return View(comprobante);
+        }
         public JsonResult GetMisGastosData()
         {
             try
@@ -375,6 +461,7 @@ namespace YnnovaComprobantes.Controllers
                                     join mo in _context.Monedas on c.MonedaId equals mo.Id
                                     join co in _context.Conceptos on c.ConceptoId equals co.Id
                                     join est in _context.Estados on c.EstadoId equals est.Id
+                                    where c.GastoId == id
                                     select new
                                     {
                                         c.Id,
@@ -386,8 +473,8 @@ namespace YnnovaComprobantes.Controllers
                                         Concepto = co.Nombre,
                                         Moneda = mo.Nombre + " (" + mo.Simbolo + ")",
                                         c.Monto,
-                                        c.Descripcion,
-                                        est.Nombre,
+                                        Descripcion = c.Descripcion ?? "Sin descripción",
+                                        Estado = est.Nombre,
                                     }).ToList();
 
 
@@ -398,6 +485,208 @@ namespace YnnovaComprobantes.Controllers
                 return Json(new ApiResponse { data = null, message = ex.Message, status = false });
             }
         }
+        // EDITAR COMPROBANTE
+        public IActionResult EditarComprobante(int id)
+        {
+            var comprobante = (from c in _context.Comprobantes
+                               join g in _context.Gastos on c.GastoId equals g.Id
+                               join mo in _context.Monedas on c.MonedaId equals mo.Id
+                               join tc in _context.TipoComprobantes on c.TipoComprobanteId equals tc.Id
+                               join co in _context.Conceptos on c.ConceptoId equals co.Id
+                               join est in _context.Estados on c.EstadoId equals est.Id
+                               where c.Id == id
+                               select new ComprobanteViewModel
+                               {
+                                   GId = g.Id,
+                                   GUsuarioId = g.UsuarioId,
+                                   GTipoGasto = _context.TipoGastos.Where(tg => tg.Id == g.TipoGastoId).Select(tg => tg.Nombre).FirstOrDefault(),
+                                   GFecha = g.Fecha,
+                                   GMoneda = _context.Monedas.Where(m => m.Id == g.MonedaId).Select(m => m.Simbolo).FirstOrDefault(),
+                                   GImporte = g.Importe,
+                                   Id = c.Id,
+                                   RucEmpresa = c.RucEmpresa,
+                                   Serie = c.Serie,
+                                   Numero = c.Numero,
+                                   TipoComprobanteId = c.TipoComprobanteId,
+                                   ConceptoId = c.ConceptoId,
+                                   MonedaId = c.MonedaId,
+                                   Monto = c.Monto,
+                                   Fecha = c.Fecha,
+                                   Estado = est.Nombre,
+                                   Descripcion = c.Descripcion,
+                                   Archivo = c.Archivo,
+                                   MontoAcumulado = _context.Comprobantes.Where(com => com.GastoId == c.GastoId && com.EstadoId == _context.Estados.Where(e => e.Tabla == "COMPROBANTE" && e.Nombre == "Aprobado").Select(e => e.Id).FirstOrDefault()).Select(com => com.Monto).Sum()
+                               }).FirstOrDefault();
 
+            if (comprobante == null)
+            {
+                return NotFound();
+            }
+            return View(comprobante);
+        }
+        [HttpPost]
+        public async Task<JsonResult> EditarComprobante(Comprobante comprobante, IFormFile ArchivoComprobante, bool archivoModificado)
+        {
+            var comprobanteDb = await _context.Comprobantes.FindAsync(comprobante.Id);
+            if (comprobanteDb == null) return Json(new ApiResponse { status = false, message = "No existe el comprobante a editar." });
+            if (_context.Estados.Any(e => e.Id == comprobanteDb.EstadoId && !new[] { "Pendiente", "Observado" }.Contains(e.Nombre))) return Json(new ApiResponse { status = false, message = "El comprobante no se puede editar porque no tiene estado Observado o Pendiente." });
+
+            string? rutaNuevoArchivoParaLimpiar = null;
+            string? rutaViejoArchivoParaEliminar = null;
+
+            try
+            {
+                comprobanteDb.RucEmpresa = comprobante.RucEmpresa;
+                comprobanteDb.Serie = comprobante.Serie;
+                comprobanteDb.Numero = comprobante.Numero;
+                comprobanteDb.TipoComprobanteId = comprobante.TipoComprobanteId;
+                comprobanteDb.ConceptoId = comprobante.ConceptoId;
+                comprobanteDb.MonedaId = comprobante.MonedaId;
+                comprobanteDb.Monto = comprobante.Monto;
+                comprobanteDb.Fecha = comprobante.Fecha;
+                comprobanteDb.Descripcion = comprobante.Descripcion;
+
+                if (archivoModificado && ArchivoComprobante != null)
+                {
+                    var carpetaUploads = Path.Combine(_hostingEnvironment.WebRootPath, "uploads", "comprobantes");
+                    if (!Directory.Exists(carpetaUploads)) Directory.CreateDirectory(carpetaUploads);
+
+                    var nombreUnico = $"{Guid.NewGuid()}{Path.GetExtension(ArchivoComprobante.FileName)}";
+                    var rutaCompletaNuevo = Path.Combine(carpetaUploads, nombreUnico);
+
+                    using (var stream = new FileStream(rutaCompletaNuevo, FileMode.Create))
+                    {
+                        await ArchivoComprobante.CopyToAsync(stream);
+                    }
+
+                    rutaNuevoArchivoParaLimpiar = rutaCompletaNuevo;
+
+                    if (!string.IsNullOrEmpty(comprobanteDb.Archivo))
+                    {
+                        rutaViejoArchivoParaEliminar = Path.Combine(_hostingEnvironment.WebRootPath, comprobanteDb.Archivo.TrimStart('/'));
+                    }
+
+                    comprobanteDb.Archivo = $"/uploads/comprobantes/{nombreUnico}";
+                }
+
+                await _context.SaveChangesAsync();
+
+                if (archivoModificado && !string.IsNullOrEmpty(rutaViejoArchivoParaEliminar))
+                {
+                    EliminarArchivoFisico(rutaViejoArchivoParaEliminar);
+                }
+
+                return Json(new ApiResponse { status = true, message = "Comprobante actualizado correctamente." });
+            }
+            catch (Exception ex)
+            {
+                if (!string.IsNullOrEmpty(rutaNuevoArchivoParaLimpiar))
+                {
+                    EliminarArchivoFisico(rutaNuevoArchivoParaLimpiar);
+                }
+
+                return Json(new ApiResponse { status = false, message = $"Error: {ex.Message}" });
+            }
+        }
+        // Método auxiliar para evitar que un error de borrado rompa la respuesta al usuario
+        private void EliminarArchivoFisico(string ruta)
+        {
+            try
+            {
+                if (System.IO.File.Exists(ruta))
+                {
+                    System.IO.File.Delete(ruta);
+                }
+            }
+            catch (Exception)
+            {
+                // Loguear el error, pero no interrumpir el flujo del usuario
+                // El archivo se borrará manualmente o mediante una tarea programada luego
+            }
+        }
+        // LISTAR OBSERVACIONES
+        [HttpGet]
+        public JsonResult GetObservacionesData(int id)
+        {
+            try
+            {
+                var observaciones = _context.Observaciones.Where(o => o.ComprobanteId == id).OrderByDescending(o => o.FechaCreacion);
+                return Json(new ApiResponse { data = observaciones, message = "Observaciones recuperadas exitosamente.", status = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new ApiResponse { data = null, message = ex.Message, status = false });
+            }
+        }
+        // REGISTRAR OBSERVACION
+        [HttpPost]
+        public JsonResult RegistrarObservacion(Observacion observacion, bool actualizarEstado)
+        {
+            try
+            {
+                observacion.FechaCreacion = DateTime.Now;
+
+                if (actualizarEstado)
+                {
+                    var comprobante = _context.Comprobantes.Where(c => c.Id == observacion.ComprobanteId).FirstOrDefault();
+                    if (comprobante == null)
+                    {
+                        return Json(new ApiResponse { data = null, message = "El comprobante no existe.", status = false });
+                    }
+                    else
+                    {
+                        comprobante.EstadoId = _context.Estados.Where(e => e.Tabla == "COMPROBANTE" && e.Nombre == "Observado").Select(e => e.Id).FirstOrDefault();
+                        _context.Update(comprobante);
+                    }
+                }
+
+                _context.Observaciones.Add(observacion);
+                _context.SaveChanges();
+
+                return Json(new ApiResponse { data = null, message = "Observación registrada exitosamente.", status = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new ApiResponse { data = null, message = ex.Message, status = false });
+            }
+        }
+        // VER OBSERVACIONES
+        public IActionResult VerObservaciones(int id)
+        {
+            var comprobante = (from c in _context.Comprobantes
+                               join g in _context.Gastos on c.GastoId equals g.Id
+                               join mo in _context.Monedas on c.MonedaId equals mo.Id
+                               join tc in _context.TipoComprobantes on c.TipoComprobanteId equals tc.Id
+                               join co in _context.Conceptos on c.ConceptoId equals co.Id
+                               join est in _context.Estados on c.EstadoId equals est.Id
+                               where c.Id == id
+                               select new ComprobanteViewModel
+                               {
+                                   GId = g.Id,
+                                   GUsuarioId = g.UsuarioId,
+                                   GTipoGasto = _context.TipoGastos.Where(tg => tg.Id == g.TipoGastoId).Select(tg => tg.Nombre).FirstOrDefault(),
+                                   GFecha = g.Fecha,
+                                   GMoneda = _context.Monedas.Where(m => m.Id == g.MonedaId).Select(m => m.Simbolo).FirstOrDefault(),
+                                   GImporte = g.Importe,
+                                   Id = c.Id,
+                                   RucEmpresa = c.RucEmpresa,
+                                   Serie = c.Serie,
+                                   Numero = c.Numero,
+                                   TipoComprobanteId = c.TipoComprobanteId,
+                                   ConceptoId = c.ConceptoId,
+                                   MonedaId = c.MonedaId,
+                                   Monto = c.Monto,
+                                   Fecha = c.Fecha,
+                                   Estado = est.Nombre,
+                                   Descripcion = c.Descripcion,
+                                   Archivo = c.Archivo
+                               }).FirstOrDefault();
+
+            if (comprobante == null)
+            {
+                return NotFound();
+            }
+            return View(comprobante);
+        }
     }
 }
