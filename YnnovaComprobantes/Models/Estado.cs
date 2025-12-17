@@ -1,5 +1,8 @@
-﻿namespace YnnovaComprobantes.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace YnnovaComprobantes.Models
 {
+    [Table("Estado")]
     public class Estado
     {
         public int Id { get; set; }

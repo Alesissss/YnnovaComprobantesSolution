@@ -1,3 +1,4 @@
+-- USE DB
 use ynnovaco_corpsaf_comprobantes;
 
 -- DROPS TABLES
@@ -16,6 +17,7 @@ DROP TABLE IF EXISTS tipo_usuario;
 DROP TABLE IF EXISTS usuario;
 DROP TABLE IF EXISTS empresa_usuario;
 
+-- CREATE TABLE
 -- TABLA banco
 CREATE TABLE banco (
     id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
@@ -27,8 +29,8 @@ CREATE TABLE banco (
 -- TABLA comprobante
 CREATE TABLE comprobante (
     id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
-    user_id INT NOT NULL,
-    anticipo_id INT,
+    usuario_id INT NOT NULL,
+    gasto_id INT,
     tipo_comprobante_id INT NOT NULL,
     concepto_id INT,
     concepto_otro VARCHAR(255),
@@ -37,10 +39,11 @@ CREATE TABLE comprobante (
     ruc_empresa CHAR(11),
     monto DECIMAL(10, 2) NOT NULL,
     fecha DATE NOT NULL,
-    detalle TEXT,
-    archivo VARCHAR(255),
+    descripcion TEXT,
+    archivo TEXT,
     estado_id INT NOT NULL,
-    moneda_id INT NOT NULL
+    moneda_id INT NOT NULL,
+    fecha_registro DATETIME DEFAULT GETDATE()
 );
 
 -- TABLA concepto
@@ -74,13 +77,14 @@ CREATE TABLE estado (
 CREATE TABLE gasto (
     id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
     fecha DATE NOT NULL,
-    importe DECIMAL(12, 2) NOT NULL,
-    descripcion TEXT,
+    importe DECIMAL(12, 2) NULL,
+    descripcion TEXT NULL,
     empresa_id INT NOT NULL,
-    banco_id INT NOT NULL,
-    tipo_rendicion_id INT NOT NULL,
+    banco_id INT NULL,
+    tipo_rendicion_id INT NULL,
     usuario_id INT NOT NULL,
     tipo_gasto_id INT NOT NULL,
+    moneda_id INT NULL,
     estado_id INT NOT NULL,
     fecha_registro DATETIME NOT NULL DEFAULT GETDATE(),
 );
@@ -155,3 +159,70 @@ CREATE TABLE empresa_usuario (
     usuario_id INT NOT NULL,
     tipo_usuario_id INT NOT NULL
 );
+
+-- INSERTS
+-- INSERTS DE 'tipo_gasto'
+INSERT INTO tipo_gasto (nombre, estado) VALUES ('ANTICIPO', 1);
+INSERT INTO tipo_gasto (nombre, estado) VALUES ('REEMBOLSO', 1);
+
+-- INSERTS DE 'tipo_rendicion'
+INSERT INTO tipo_rendicion (codigo, descripcion, estado) VALUES ('1', 'VIÁTICOS', 1);
+INSERT INTO tipo_rendicion (codigo, descripcion, estado) VALUES ('2', 'COMISIÓN DE SERVICIOS', 1);
+INSERT INTO tipo_rendicion (codigo, descripcion, estado) VALUES ('3', 'GASTOS DE REPRESENTACIÓN', 1);
+INSERT INTO tipo_rendicion (codigo, descripcion, estado) VALUES ('3', 'GASTOS OPERACIÓN  ', 1);
+
+-- INSERTS DE 'estado' PARA LA TABLA 'gasto'
+INSERT INTO estado (nombre, tabla) VALUES ('Pendiente', 'GASTO');
+INSERT INTO estado (nombre, tabla) VALUES ('Aprobado', 'GASTO');
+INSERT INTO estado (nombre, tabla) VALUES ('Rechazado', 'GASTO');
+INSERT INTO estado (nombre, tabla) VALUES ('En observación', 'GASTO');
+
+-- INSERTS DE 'estado' PARA LA TABLA 'comprobante'
+INSERT INTO estado (nombre, tabla) VALUES ('Pendiente', 'COMPROBANTE');
+INSERT INTO estado (nombre, tabla) VALUES ('Aprobado', 'COMPROBANTE');
+INSERT INTO estado (nombre, tabla) VALUES ('Rechazado', 'COMPROBANTE');
+INSERT INTO estado (nombre, tabla) VALUES ('En observación', 'COMPROBANTE');
+
+-- INSERTS DE 'moneda'
+INSERT INTO moneda (nombre, simbolo) VALUES ('Soles', 'S/.');
+INSERT INTO moneda (nombre, simbolo) VALUES ('Dólares', '$');
+
+-- INSERTS DE 'banco'
+INSERT INTO banco (codigo, descripcion, estado) VALUES ('1','CENTRAL RESERVA DEL PERU',1);
+INSERT INTO banco (codigo, descripcion, estado) VALUES ('2','DE CREDITO DEL PERU',1);
+INSERT INTO banco (codigo, descripcion, estado) VALUES ('3','INTERNACIONAL DEL PERU',1);
+INSERT INTO banco (codigo, descripcion, estado) VALUES ('5','LATINO',1);
+INSERT INTO banco (codigo, descripcion, estado) VALUES ('7','CITIBANK DEL PERU S.A.',1);
+INSERT INTO banco (codigo, descripcion, estado) VALUES ('8','STANDARD CHARTERED',1);
+INSERT INTO banco (codigo, descripcion, estado) VALUES ('9','SCOTIABANK PERU',1);
+INSERT INTO banco (codigo, descripcion, estado) VALUES ('11','CONTINENTAL',1);
+INSERT INTO banco (codigo, descripcion, estado) VALUES ('12','DE LIMA',1);
+INSERT INTO banco (codigo, descripcion, estado) VALUES ('16','MERCANTIL',1);
+INSERT INTO banco (codigo, descripcion, estado) VALUES ('18','NACION',1);
+INSERT INTO banco (codigo, descripcion, estado) VALUES ('22','SANTANDER CENTRAL HISPANO',1);
+INSERT INTO banco (codigo, descripcion, estado) VALUES ('23','DE COMERCIO',1);
+INSERT INTO banco (codigo, descripcion, estado) VALUES ('25','REPUBLICA',1);
+INSERT INTO banco (codigo, descripcion, estado) VALUES ('26','NBK BANK',1);
+INSERT INTO banco (codigo, descripcion, estado) VALUES ('29','BANCOSUR',1);
+INSERT INTO banco (codigo, descripcion, estado) VALUES ('35','FINANCIERO DEL PERU',1);
+INSERT INTO banco (codigo, descripcion, estado) VALUES ('37','DEL PROGRESO',1);
+INSERT INTO banco (codigo, descripcion, estado) VALUES ('38','INTERAMERICANO FINANZAS',1);
+INSERT INTO banco (codigo, descripcion, estado) VALUES ('39','BANEX',1);
+INSERT INTO banco (codigo, descripcion, estado) VALUES ('40','NUEVO MUNDO',1);
+INSERT INTO banco (codigo, descripcion, estado) VALUES ('41','SUDAMERICANO',1);
+INSERT INTO banco (codigo, descripcion, estado) VALUES ('42','DEL LIBERTADOR',1);
+INSERT INTO banco (codigo, descripcion, estado) VALUES ('43','DEL TRABAJO',1);
+INSERT INTO banco (codigo, descripcion, estado) VALUES ('44','SOLVENTA',1);
+INSERT INTO banco (codigo, descripcion, estado) VALUES ('45','SERBANCO SA.',1);
+INSERT INTO banco (codigo, descripcion, estado) VALUES ('46','BANK OF BOSTON',1);
+INSERT INTO banco (codigo, descripcion, estado) VALUES ('47','ORION',1);
+INSERT INTO banco (codigo, descripcion, estado) VALUES ('48','DEL PAIS',1);
+INSERT INTO banco (codigo, descripcion, estado) VALUES ('49','MI BANCO',1);
+INSERT INTO banco (codigo, descripcion, estado) VALUES ('50','BNP PARIBAS',1);
+INSERT INTO banco (codigo, descripcion, estado) VALUES ('51','AGROBANCO',1);
+INSERT INTO banco (codigo, descripcion, estado) VALUES ('53','HSBC BANK PERU S.A.',1);
+INSERT INTO banco (codigo, descripcion, estado) VALUES ('54','BANCO FALABELLA S.A.',1);
+INSERT INTO banco (codigo, descripcion, estado) VALUES ('55','BANCO RIPLEY',1);
+INSERT INTO banco (codigo, descripcion, estado) VALUES ('56','BANCO SANTANDER PERU S.A.',1);
+INSERT INTO banco (codigo, descripcion, estado) VALUES ('58','BANCO AZTECA DEL PERU',1);
+INSERT INTO banco (codigo, descripcion, estado) VALUES ('99','OTROS',1);

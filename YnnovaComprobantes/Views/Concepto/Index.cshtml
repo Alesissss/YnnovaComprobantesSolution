@@ -35,7 +35,7 @@
     </div>
 </div>
 <script>
-    var dtEmpresas;
+    var dtConceptos;
 
     $(document).ready(function () {
         // $('body').addClass('sidebar-collapse');
@@ -101,12 +101,12 @@
             lengthMenu: [[100, 200, 500, -1], [100, 200, 500, 'Todos']],
         });
 
-        fct_IniciarTablaEmpresas('#tbl_Empresas');
+        fct_IniciarTablaConceptos('#tbl_Conceptos');
     });
 
-    function fct_IniciarTablaEmpresas(IdTabla) {
+    function fct_IniciarTablaConceptos(IdTabla) {
         // Inicializar DataTables con botones
-        dtEmpresas = $(IdTabla).DataTable({
+        dtConceptos = $(IdTabla).DataTable({
             buttons: [
                 {
                     extend: 'copy',
@@ -160,7 +160,7 @@
                     columns: ':not(.noVis)',
                 },
                 {
-                    text: '<i class= "bi bi-plus-circle" style="margin-right: 5px;"></i>Nueva empresa',
+                    text: '<i class= "bi bi-plus-circle" style="margin-right: 5px;"></i>Nuevo concepto',
                     className: 'btn bg-success m-1',
                     titleAttr: 'Nuevo',
                     action: function (e, dt, node, config) {

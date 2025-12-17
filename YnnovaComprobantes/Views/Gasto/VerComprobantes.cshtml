@@ -1,5 +1,5 @@
 ﻿@{
-    ViewData["Title"] = "Gestionar Usuarios";
+    ViewData["Title"] = "Ver comprobantes";
 }
 <div class="card d-none" id="efec-cargando">
     <div class="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center overlay dark">
@@ -10,28 +10,26 @@
     <div class="panel-heading">
         <div class="row">
             <div class="col-md-12">
-                <h1>Gestionar usuarios</h1>
+                <h1>Ver Comprobantes</h1>
             </div>
         </div>
     </div>
     <div class="panel-body">
         <div class="row">
-            <div class="col-md-4 mb-3">
-                <label for="cbx_Empresa">Empresa</label>
-                <select id="cbx_Empresa" class="form-control"></select>
-            </div>
-            <div class="col-md-8"></div>
             <div class="col-12">
-                <table id="tbl_Usuarios" class="table table-bordered table-hover">
+                <table id="tbl_Comprobantes" class="table table-bordered table-hover">
                     <thead class="thead-dark">
                         <tr>
                             <th class="text-center">ID</th>
-                            <th class="text-center">DNI</th>
-                            <th class="text-center">NOMBRE</th>
-                            <th class="text-center">EMAIL</th>
-                            <th class="text-center">TELÉFONO</th>
-                            <th class="text-center">TIPO USUARIO</th>
-                            <th class="text-center">EMPRESA</th>
+                            <th class="text-center">FECHA</th>
+                            <th class="text-center">RUC</th>
+                            <th class="text-center">SERIE</th>
+                            <th class="text-center">NÚMERO</th>
+                            <th class="text-center">TIPO</th>
+                            <th class="text-center">CONCEPTO</th>
+                            <th class="text-center">MONEDA</th>
+                            <th class="text-center">MONTO</th>
+                            <th class="text-center">DESCRIPCIÓN</th>
                             <th class="text-center">ESTADO</th>
                             <th class="text-center">ACCIÓN</th>
                         </tr>
@@ -44,9 +42,10 @@
     </div>
 </div>
 <script>
-    var dtUsuarios;
+    var dtGastos;
 
     $(document).ready(function () {
+
         // $('body').addClass('sidebar-collapse');
         var windowHeight = $('body > div.wrapper > div.content-wrapper').height() / 2;
         //CONFIGURACION POR DEFECTO DATATABLES
@@ -60,7 +59,7 @@
             scroller: false,
             deferRender: true,
             scrollY: windowHeight,
-            scrollX: false,
+            scrollX: true,
             fixedHeader: true,
             ordering: true,
             destroy: true,
@@ -110,12 +109,12 @@
             lengthMenu: [[100, 200, 500, -1], [100, 200, 500, 'Todos']],
         });
 
-        fct_GetEmpresas();
+        fct_IniciarTablaComprobantes('#tbl_Comprobantes');
     });
 
-    function fct_IniciarTablaUsuarios(IdTabla) {
+    function fct_IniciarTablaComprobantes(IdTabla) {
         // Inicializar DataTables con botones
-        dtEmpresas = $(IdTabla).DataTable({
+        dtGastos = $(IdTabla).DataTable({
             buttons: [
                 {
                     extend: 'copy',
@@ -128,7 +127,7 @@
                     text: '<i class="bi bi-file-earmark-excel"></i>',
                     titleAttr: 'Exportar a Excel',
                     className: 'btn btn-success',
-                    filename: 'Usuarios ' + moment().format('DD-MM-YYYY HH_mm'),
+                    filename: 'Mis comprobantes ' + moment().format('DD-MM-YYYY HH_mm'),
                     footer: true,
                     exportOptions:
                     {
@@ -141,7 +140,7 @@
                     text: '<i class="bi bi-file-earmark-pdf"></i>',
                     titleAttr: 'Exportar a PDF',
                     className: 'btn btn-danger',
-                    filename: 'Usuarios ' + moment().format('DD-MM-YYYY HH_mm'),
+                    filename: 'Mis comprobantes ' + moment().format('DD-MM-YYYY HH_mm'),
                     exportOptions:
                     {
                         stripHtml: true,
@@ -168,76 +167,82 @@
                     className: 'btn btn-warning',
                     columns: ':not(.noVis)',
                 },
-                {
-                    text: '<i class= "bi bi-plus-circle" style="margin-right: 5px;"></i>Nuevo usuario',
-                    className: 'btn bg-success m-1',
-                    titleAttr: 'Nuevo',
-                    action: function (e, dt, node, config) {
-                        fct_UsuarioNuevo();
-                    },
-                },
             ],
             ajax: {
-                url: "/Usuario/GetUsuariosData",
+                url: "/Gasto/GetComprobantesData",
                 type: "GET",
-                dataType: "json",
+                datatype: "json",
                 data: function (d) {
-                    return {
-                        'EmpresaId': $('#cbx_Empresa').val(),
-                    }
                 },
                 dataSrc: function (json) {
                     if (json.status === false) {
                         toastr.error('Ocurrió un error inesperado al intentar listar la tabla');
                         console.error(json.message);
-                        HideSpinner();
                         return [];
                     }
-                    HideSpinner();
                     return json.data;
                 },
                 error: function (xhr, Status, error) {
-                    HideSpinner();
                     toastr.error('Ocurrió un error inesperado al intentar listar la tabla');
                     console.error('Error en la solicitud Ajax. Status:', Status, 'Error:', error, 'XHR:', xhr);
                 },
             },
-            columns: [
+                columns: [
                 { data: "id", name: "id" },
-                { data: "dni", name: "dni" },
-                { data: "nombre", name: "nombre" },
-                { data: "email", name: "email" },
-                { data: "telefono", name: "telefono" },
-                { data: "tipoUsuario", name: "tipoUsuario" },
-                { data: "empresaNombre", name: "empresaNombre" },
+                {
+                    data: "fecha",
+                    name: "fecha",
+                    render: function (data) {
+                        return data ? moment(data).format('DD/MM/YYYY') : "";
+                    }
+                },
+                { data: "rucEmpresa", name: "rucEmpresa" },
+                { data: "serie", name: "serie" },
+                { data: "numero", name: "numero" },
+                { data: "tipoComprobante", name: "tipoComprobante" },
+                { data: "concepto", name: "concepto" },
+                { data: "moneda", name: "moneda" },
+                {
+                    data: "monto",
+                    name: "monto",
+                    render: function (data) {
+                        if (!data) {
+                            return 'Sin monto';
+                        }
+                        return parseFloat(data).toFixed(2);
+                    }
+                },
+                { data: "descripcion", name: "descripcion" },
                 {
                     data: "estado",
                     name: "estado",
-                    render: function (data, type, row) {
-                        let estado = data === true ? 'Activo' : 'Inactivo';
-                        if (estado === "Activo") {
-                            return `<h5 class="mb-0 d-flex align-items-center justify-content-center"><span class="badge badge-success fs-5">${estado}</span></h5>`;
-                        } else if (estado === "Inactivo") {
-                            return `<h5 class="mb-0 d-flex align-items-center justify-content-center"><span class="badge badge-danger fs-5">${estado}</span></h5>`;
-                        } else {
-                            return `<h5 class="mb-0 d-flex align-items-center justify-content-center"><span class="badge fs-5" style="background-color: #800080; color: white;">${estado}</span></h5>`;
+                    render: function (data) {
+                        let badgeClass = "";
+                        // Evaluamos el texto que viene de est.Nombre
+                        switch (data) {
+                            case "Aprobado": case "Activo": case "Pagado":
+                                badgeClass = "badge-success";
+                                break;
+                            case "Pendiente":
+                                badgeClass = "badge-warning text-dark";
+                                break;
+                            case "Rechazado": case "Anulado": case "Inactivo":
+                                badgeClass = "badge-danger";
+                                break;
+                            default:
+                                badgeClass = "badge-secondary";
                         }
+                        return `<h5 class="mb-0 d-flex align-items-center justify-content-center"><span class="badge ${badgeClass} fs-5">${data}</span></h5>`;
                     },
                 },
                 {
                     data: null,
-                    name: null,
-                    render: function (data, type, row) {
-                        let buttons = `
-                            <button class="btn btn-info m-1" onclick="fct_UsuarioVer('${data.id}')" title="Ver usuario"><i class="bi bi-eye"></i></button>
-                            <button class="btn btn-primary m-1" onclick="fct_UsuarioEditar('${data.id}')" title="Editar usuario"><i class="bi bi-pencil-square"></i></button>
-                            <button class="btn btn-danger m-1" onclick="fct_UsuarioEliminar('${data.id}')" title="Eliminar usuario"><i class="bi bi-trash"></i></button>`
-
+                    render: function (data) {
                         return `
                         <div class="flex-wrap btn-group">
-                            ${buttons}
-                        </div>
-                        `;
+                            <button class="btn btn-primary btn-sm m-1" onclick="fct_SubirComprobante('${data.id}')" title="Subir comprobante"><i class="bi bi-upload"></i></button>
+                            <button class="btn btn-info btn-sm m-1" onclick="fct_VerComprobantes('${data.id}')" title="Ver comprobantes"><i class="bi bi-eye"></i></button>
+                        </div>`;
                     },
                     className: 'text-center align-middle',
                 }
@@ -248,11 +253,11 @@
                     className: "text-center align-middle",
                 },
                 {
-                    targets: [1, 2, 3, 4, 5, 6, 7],
+                    targets: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
                     className: 'align-middle',
                 },
                 {
-                    targets: [8],
+                    targets: [11],
                     orderable: false,
                 },
             ],
@@ -273,94 +278,12 @@
         });
     }
 
-    function fct_UsuarioNuevo() {
-        window.location.href = '/Usuario/Registrar';
+    function fct_SubirComprobante(Id) {
+        window.location.href = `/Gasto/SubirComprobante/${Id}`;
     }
 
-    function fct_UsuarioEditar(Id) {
-        window.location.href = `/Usuario/Editar/${Id}`;
-    }
-
-    function fct_UsuarioVer(Id) {
-        window.location.href = `/Usuario/Ver/${Id}`;
-    }
-
-    function fct_UsuarioEliminar(Id) {
-        Swal.fire({
-            title: "¿Estás seguro?",
-            text: "Esta acción eliminará al usuario. ¿Deseas continuar?",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Sí, eliminar",
-            cancelButtonText: "Cancelar",
-            reverseButtons: true // Invertir el orden de los botones
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $.ajax({
-                    url: `/Usuario/EliminarUsuario/${Id}`,  // Pasamos el ID en la URL
-                    type: "POST",
-                    contentType: "application/json",
-                    success: function (response) {
-                        if (response.status === true) {
-                                toastr.success(response.message, "MENSAJE DE SISTEMA");
-                                window.location.href = "/Usuario";
-                        } else {
-                            toastr.warning(response.message, 'MENSAJE DE SISTEMA');
-                            return;
-                        }
-                    },
-                    error: function (xhr, Status, error) {
-                        toastr.error("Error en el servidor", "MENSAJE DE SISTEMA");
-                        console.error('Error en la solicitud Ajax. Status:', Status, 'Error:', error, 'XHR:', xhr);
-                    }
-                });
-            }
-        });
-    }
-
-    function fct_GetEmpresas() {
-        $.getJSON('/Usuario/GetEmpresaData', function (response) {
-                if (response.status === true) {
-                    let empresas = response.data;
-                    var dataSelect2 = empresas.map(function(empresa) {
-                        return {
-                            id: empresa.id,
-                            text: empresa.ruc + ' - ' + empresa.nombre
-                        };
-                    });
-
-                    $('#cbx_Empresa').empty().select2({
-                        theme: 'bootstrap4',
-                        data: dataSelect2,
-                        placeholder: "Buscar empresa...",
-                        allowClear: true,
-                        language: {
-                            noResults: function () {
-                                return "No se encontraron resultados";
-                            }
-                        }
-                    });
-
-                    $('#cbx_Empresa').val(null).trigger('change');
-
-                    $('#cbx_Empresa').on('change', function() {
-
-                        if ($('#cbx_Empresa').val() === null || $('#cbx_Empresa').val() === undefined){
-                            toastr.warning('Debe seleccionar una empresa para listar a sus usuarios', 'WARNING');
-                            return;
-                        }
-
-                        ShowSpinner();
-                        fct_IniciarTablaUsuarios('#tbl_Usuarios');
-                    });
-
-                } else {
-                    toastr.error('Ocurrió un error al listar las empresas', 'MENSAJE DE SISTEMA');
-                    console.error('Error', response.message);
-                }
-            });
+    function fct_VerComprobantes(Id) {
+        window.location.href = `/Gasto/VerComprobantes/${Id}`;
     }
 
     function ShowSpinner() {

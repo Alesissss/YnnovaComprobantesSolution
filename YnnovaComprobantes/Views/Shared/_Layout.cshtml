@@ -197,6 +197,15 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a href="/Concepto/"
+                               class="nav-link @(controllerName == "Concepto" ? "active" : "")">
+                                <i class="nav-icon fas fa-receipt"></i>
+                                <p>
+                                    Concepto
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a href="/TipoGasto/"
                                class="nav-link @(controllerName == "TipoGasto" ? "active" : "")">
                                 <i class="nav-icon fas fa-tags"></i>
@@ -205,14 +214,33 @@
                                 </p>
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a href="/Gasto/"
-                               class="nav-link @(controllerName == "Gasto" ? "active" : "")">
+                        <li class="nav-item @(controllerName == "Gasto" ? "menu-open" : "")">
+                            <a href="#" class="nav-link @(controllerName == "Gasto" ? "active" : "")">
                                 <i class="nav-icon fas fa-file-invoice-dollar"></i>
                                 <p>
                                     Gasto
+                                    <i class="right fas fa-angle-left"></i>
                                 </p>
                             </a>
+
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="/Gasto/Index"
+                                       class="nav-link @(controllerName == "Gasto" && new[] { "Index", "Registrar" }.Contains(actionName) ? "active" : "")">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Gestionar gastos</p>
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a href="/Gasto/MisGastos"
+                                       class="nav-link @(controllerName == "Gasto" && new[] { "MisGastos" }.Contains(actionName) ? "active" : "")">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Mis gastos</p>
+                                    </a>
+                                </li>
+
+                            </ul>
                         </li>
                     </ul>
                 </nav>

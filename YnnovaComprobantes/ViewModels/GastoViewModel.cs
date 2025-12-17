@@ -1,29 +1,26 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-
-namespace YnnovaComprobantes.Models
+﻿namespace YnnovaComprobantes.ViewModels
 {
-    [Table("Gasto")]
-    public class Gasto
+    public class GastoViewModel
     {
         public int Id { get; set; }
         public DateOnly Fecha { get; set; }
+        public string? Empresa { get; set; }
+        public string? Banco { get; set; }
+        public string? TipoRendicion { get; set; }
+        public string Usuario { get; set; }
+        public string TipoGasto { get; set; }
+        public string? MonedaNombre { get; set; }
+        public string? MonedaSimbolo { get; set; }
+        public string Estado { get; set; }
         public decimal? Importe { get; set; }
         public string? Descripcion { get; set; }
-        [Column("empresa_id")]
         public int EmpresaId { get; set; }
-        [Column("banco_id")]
         public int? BancoId { get; set; }
-        [Column("tipo_rendicion_id")]
         public int? TipoRendicionId { get; set; }
-        [Column("usuario_id")]
         public int UsuarioId { get; set; }
-        [Column("tipo_gasto_id")]
         public int TipoGastoId { get; set; }
-        [Column("moneda_id")]
         public int? MonedaId { get; set; }
-        [Column("estado_id")]
         public int EstadoId { get; set; }
-        [Column("fecha_registro")]
         public DateTime FechaRegistro { get; set; }
     }
 }
