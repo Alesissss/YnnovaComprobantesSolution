@@ -14,11 +14,20 @@
                     <div class="row">
                         <div class="col-md-12 mb-3 text-center">
                             <h3>@Model.GTipoGasto del <strong id="txt_FechaGasto">@Model.Fecha</strong></h3>
-                            <h4>
-                                Importe asignado: <strong id="txt_Importe">@Model.GMoneda @Model.GImporte</strong>
+                            <h4 class="mb-2">
+                                Importe asignado: <strong id="txt_Importe" class="text-primary">@Model.GMoneda @Model.GImporte</strong>
                             </h4>
-                            <h4>
-                                Monto acumulado: <strong>@Model.GMoneda @Model.MontoAcumulado</strong>
+                            <h4 class="mb-2">
+                                Monto acumulado: <strong class="text-info">@Model.GMoneda @Model.MontoAcumulado</strong>
+                            </h4>
+                            <h4 class="mb-2">
+                                @{
+                                var excedente = Model.GImporte - Model.MontoAcumulado;
+                                // Si el excedente es negativo, significa que gastó de más (Rojo)
+                                // Si es positivo, todavía tiene saldo a favor (Verde)
+                                var claseColor = excedente < 0 ? "text-danger" : "text-success";
+                                }
+                                Excedente: <strong class="@claseColor">@Model.GMoneda @excedente</strong>
                             </h4>
                             <h5 class="mb-0 d-flex align-items-center justify-content-center">
                                 <span class="badge fs-5" id="txt_Estado">@Model.Estado</span>

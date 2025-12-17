@@ -12,6 +12,7 @@
         <div class="row">
             <div class="col-md-12">
                 <h1>Gestionar comprobantes</h1>
+                <a href="/Gasto/Index">Volver al listado de gastos</a>
             </div>
         </div>
     </div>
@@ -297,11 +298,73 @@
     }
 
     function fct_ComprobanteAprobar(Id) {
-        toastr.success('Aprobado');
+        Swal.fire({
+            title: "¿Estás seguro?",
+            text: "Esta acción aprobará al comprobante. ¿Deseas continuar?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Sí, aprobar comprobante",
+            cancelButtonText: "Cancelar",
+            reverseButtons: true // Invertir el orden de los botones
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: `/Gasto/AprobarComprobante/${Id}`,  // Pasamos el ID en la URL
+                    type: "POST",
+                    contentType: "application/json",
+                    success: function (response) {
+                        if (response.status === true) {
+                                toastr.success(response.message, "MENSAJE DE SISTEMA");
+                                window.location.href = `/Gasto/VerGasto/${@Model.Id}`;
+                        } else {
+                            toastr.warning(response.message, 'MENSAJE DE SISTEMA');
+                            return;
+                        }
+                    },
+                    error: function (xhr, Status, error) {
+                        toastr.error("Error en el servidor", "MENSAJE DE SISTEMA");
+                        console.error('Error en la solicitud Ajax. Status:', Status, 'Error:', error, 'XHR:', xhr);
+                    }
+                });
+            }
+        });
     }
 
     function fct_ComprobanteRechazar(Id) {
-        toastr.error('Rechazado');
+        Swal.fire({
+            title: "¿Estás seguro?",
+            text: "Esta acción rechazará al comprobante. ¿Deseas continuar?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Sí, rechazar comprobante",
+            cancelButtonText: "Cancelar",
+            reverseButtons: true // Invertir el orden de los botones
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: `/Gasto/RechazarComprobante/${Id}`,  // Pasamos el ID en la URL
+                    type: "POST",
+                    contentType: "application/json",
+                    success: function (response) {
+                        if (response.status === true) {
+                                toastr.success(response.message, "MENSAJE DE SISTEMA");
+                                window.location.href = `/Gasto/VerGasto/${@Model.Id}`;
+                        } else {
+                            toastr.warning(response.message, 'MENSAJE DE SISTEMA');
+                            return;
+                        }
+                    },
+                    error: function (xhr, Status, error) {
+                        toastr.error("Error en el servidor", "MENSAJE DE SISTEMA");
+                        console.error('Error en la solicitud Ajax. Status:', Status, 'Error:', error, 'XHR:', xhr);
+                    }
+                });
+            }
+        });
     }
 
     function ShowSpinner() {

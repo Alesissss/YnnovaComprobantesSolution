@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using YnnovaComprobantes.Data;
 using YnnovaComprobantes.Models;
 using YnnovaComprobantes.ViewModels;
@@ -679,7 +680,8 @@ namespace YnnovaComprobantes.Controllers
                                    Fecha = c.Fecha,
                                    Estado = est.Nombre,
                                    Descripcion = c.Descripcion,
-                                   Archivo = c.Archivo
+                                   Archivo = c.Archivo,
+                                   MontoAcumulado = _context.Comprobantes.Where(com => com.GastoId == c.GastoId && com.EstadoId == _context.Estados.Where(e => e.Tabla == "COMPROBANTE" && e.Nombre == "Aprobado").Select(e => e.Id).FirstOrDefault()).Select(com => com.Monto).Sum()
                                }).FirstOrDefault();
 
             if (comprobante == null)
@@ -687,6 +689,121 @@ namespace YnnovaComprobantes.Controllers
                 return NotFound();
             }
             return View(comprobante);
+        }
+        // APROBACIONES DE COMPROBANTES
+        // Aprobar comprobante
+        [HttpPost]
+        public JsonResult AprobarComprobante(int id)
+        {
+            try
+            {
+                var comprobante = _context.Comprobantes.Where(c => c.Id == id).FirstOrDefault();
+                if (comprobante == null)
+                {
+                    return Json(new ApiResponse { data = null, message = "El comprobante no existe", status = false });
+                }
+
+                comprobante.EstadoId = _context.Estados.Where(e => e.Tabla == "COMPROBANTE" && e.Nombre == "Aprobado").Select(e => e.Id).FirstOrDefault();
+                _context.Comprobantes.Update(comprobante);
+                _context.SaveChanges();
+
+                return Json(new ApiResponse { data = null, message = "Comprobante aprobado exitosamente.", status = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new ApiResponse { data = null, message = ex.Message, status = false });
+            }
+        }
+        // Rechazar comprobante
+        [HttpPost]
+        public JsonResult RechazarComprobante(int id)
+        {
+            try
+            {
+                var comprobante = _context.Comprobantes.Where(c => c.Id == id).FirstOrDefault();
+                if (comprobante == null)
+                {
+                    return Json(new ApiResponse { data = null, message = "El comprobante no existe", status = false });
+                }
+
+                comprobante.EstadoId = _context.Estados.Where(e => e.Tabla == "COMPROBANTE" && e.Nombre == "Rechazado").Select(e => e.Id).FirstOrDefault();
+                _context.Comprobantes.Update(comprobante);
+                _context.SaveChanges();
+
+                return Json(new ApiResponse { data = null, message = "Comprobante aprobado exitosamente.", status = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new ApiResponse { data = null, message = ex.Message, status = false });
+            }
+        }
+        // APROBACIONES DE GASTOS
+        // Aprobar gasto
+        [HttpPost]
+        public JsonResult AprobarGasto(int id)
+        {
+            try
+            {
+                var gasto = _context.Gastos.Where(g => g.Id == id).FirstOrDefault();
+                if (gasto == null)
+                {
+                    return Json(new ApiResponse { data = null, message = "El gasto no existe", status = false });
+                }
+
+                gasto.EstadoId = _context.Estados.Where(e => e.Tabla == "GASTO" && e.Nombre == "Aprobado").Select(e => e.Id).FirstOrDefault();
+                _context.Gastos.Update(gasto);
+                _context.SaveChanges();
+
+                return Json(new ApiResponse { data = null, message = "Gasto aprobado exitosamente.", status = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new ApiResponse { data = null, message = ex.Message, status = false });
+            }
+        }
+        [HttpPost]
+        public async Task<JsonResult> RechazarGasto(int id)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                var gasto = await _context.Gastos.FindAsync(id);
+                if (gasto == null)
+                    return Json(new ApiResponse { status = false, message = "El gasto no existe." });
+
+                var estadoGastoRechazado = await _context.Estados
+                    .Where(e => e.Tabla == "GASTO" && e.Nombre == "Rechazado")
+                    .Select(e => e.Id).FirstOrDefaultAsync();
+
+                var estadoComprobanteRechazado = await _context.Estados
+                    .Where(e => e.Tabla == "COMPROBANTE" && e.Nombre == "Rechazado")
+                    .Select(e => e.Id).FirstOrDefaultAsync();
+
+                if (estadoGastoRechazado == 0 || estadoComprobanteRechazado == 0)
+                    return Json(new ApiResponse { status = false, message = "Error: Configuración de estados no encontrada." });
+
+                gasto.EstadoId = estadoGastoRechazado;
+                _context.Gastos.Update(gasto);
+
+                var comprobantes = await _context.Comprobantes.Where(c => c.GastoId == id).ToListAsync();
+                foreach (var c in comprobantes)
+                {
+                    c.EstadoId = estadoComprobanteRechazado;
+                }
+
+                _context.Comprobantes.UpdateRange(comprobantes);
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return Json(new ApiResponse { status = true, message = "Gasto y comprobantes rechazados correctamente." });
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return Json(new ApiResponse { status = false, message = $"Error técnico: {ex.Message}" });
+            }
         }
     }
 }
