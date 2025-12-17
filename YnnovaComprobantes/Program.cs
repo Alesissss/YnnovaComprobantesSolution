@@ -34,17 +34,24 @@ builder.Services.AddControllersWithViews()
         options.JsonSerializerOptions.NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowReadingFromString;
     });
 
-// --- CONFIGURACIÓN DE CULTURA EN ESPAÑOL ---
-var supportedCultures = new[] { "es-PE", "es-ES", "es-MX" }; // Puedes agregar los que necesites
+// --- CONFIGURACIÓN DE CULTURA HÍBRIDA ---
+var cultureInfo = new System.Globalization.CultureInfo("es-PE");
+
+// Forzamos que los números siempre usen PUNTO, sin importar que sea español
+cultureInfo.NumberFormat.NumberDecimalSeparator = ".";
+cultureInfo.NumberFormat.CurrencyDecimalSeparator = ".";
+
+var supportedCultures = new[] { cultureInfo };
+
 var localizationOptions = new RequestLocalizationOptions()
-    .SetDefaultCulture(supportedCultures[0]) // Español Perú por defecto
-    .AddSupportedCultures(supportedCultures)
-    .AddSupportedUICultures(supportedCultures);
+    .SetDefaultCulture(supportedCultures[0].Name)
+    .AddSupportedCultures(supportedCultures.Select(c => c.Name).ToArray())
+    .AddSupportedUICultures(supportedCultures.Select(c => c.Name).ToArray());
+
+// Esto es lo que realmente hará que el JSON ignore la coma
+localizationOptions.DefaultRequestCulture = new Microsoft.AspNetCore.Localization.RequestCulture(cultureInfo);
 
 var app = builder.Build();
-
-// Aplicar la configuración
-app.UseRequestLocalization(localizationOptions);
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -54,6 +61,8 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+// Aplicar la configuración
+app.UseRequestLocalization(localizationOptions);
 app.UseStaticFiles();
 app.UseHttpsRedirection();
 app.UseRouting();
