@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <system.webServer>
+    <staticContent>
+      <remove fileExtension=".png" />
+      <mimeMap fileExtension=".png" mimeType="image/png" />
+    </staticContent>
+    <modules runAllManagedModulesForAllRequests="true" />
+  </system.webServer>
+</configuration>

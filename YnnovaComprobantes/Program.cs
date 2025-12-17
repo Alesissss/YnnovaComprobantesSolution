@@ -27,7 +27,17 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
+// --- CONFIGURACIÓN DE CULTURA EN ESPAÑOL ---
+var supportedCultures = new[] { "es-PE", "es-ES", "es-MX" }; // Puedes agregar los que necesites
+var localizationOptions = new RequestLocalizationOptions()
+    .SetDefaultCulture(supportedCultures[0]) // Español Perú por defecto
+    .AddSupportedCultures(supportedCultures)
+    .AddSupportedUICultures(supportedCultures);
+
 var app = builder.Build();
+
+// Aplicar la configuración
+app.UseRequestLocalization(localizationOptions);
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -37,6 +47,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+app.UseStaticFiles();
 app.UseHttpsRedirection();
 app.UseRouting();
 app.UseAuthentication();
