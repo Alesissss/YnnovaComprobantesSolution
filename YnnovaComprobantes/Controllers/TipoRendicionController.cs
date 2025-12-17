@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using YnnovaComprobantes.Data;
 using YnnovaComprobantes.Models;
 
 namespace YnnovaComprobantes.Controllers
 {
+    [Authorize]
     public class TipoRendicionController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -84,7 +86,7 @@ namespace YnnovaComprobantes.Controllers
                     return Json(new ApiResponse { data = null, message = "El tipo de rendición que intenta editar no existe.", status = false });
                 }
 
-                if (_context.TipoRendiciones.Where(tr=> tr.Id != TipoRendicion.Id).Any(tr => tr.Codigo == TipoRendicion.Codigo))
+                if (_context.TipoRendiciones.Where(tr => tr.Id != TipoRendicion.Id).Any(tr => tr.Codigo == TipoRendicion.Codigo))
                 {
                     return Json(new ApiResponse { data = null, message = "Ya existe un tipo de rendición registrado con el código ingresado.", status = false });
                 }

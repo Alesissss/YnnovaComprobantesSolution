@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using YnnovaComprobantes.Data;
 using YnnovaComprobantes.Models;
 
 namespace YnnovaComprobantes.Controllers
 {
+    [Authorize]
     public class ConceptoController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -108,7 +110,7 @@ namespace YnnovaComprobantes.Controllers
                     return Json(new ApiResponse { data = null, message = "Concepto no encontrado.", status = false });
                 }
 
-                if (_context.Comprobantes.Any(c => c.ConceptoId == id)) 
+                if (_context.Comprobantes.Any(c => c.ConceptoId == id))
                 {
                     return Json(new ApiResponse { data = null, message = "El concepto no se puede eliminar porque ya está referenciado.", status = false });
                 }

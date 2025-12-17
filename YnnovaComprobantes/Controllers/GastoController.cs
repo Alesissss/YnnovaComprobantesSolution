@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using YnnovaComprobantes.Data;
 using YnnovaComprobantes.Models;
@@ -6,6 +7,7 @@ using YnnovaComprobantes.ViewModels;
 
 namespace YnnovaComprobantes.Controllers
 {
+    [Authorize]
     public class GastoController : Controller
     {
         private readonly ApplicationDbContext _context;

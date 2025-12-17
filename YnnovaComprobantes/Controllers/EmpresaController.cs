@@ -5,7 +5,7 @@ using YnnovaComprobantes.Models;
 
 namespace YnnovaComprobantes.Controllers
 {
-    //[Authorize]
+    [Authorize]
     public class EmpresaController : Controller
     {
         private readonly ApplicationDbContext _context;

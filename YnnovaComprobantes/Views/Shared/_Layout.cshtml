@@ -133,87 +133,90 @@
                         data-accordion="false">
                         <!-- Add icons to the links using the .nav-icon class
                         with font-awesome or any other icon font library -->
-                        <li class="nav-item">
-                            <a href="/Home/"
-                               class="nav-link @(controllerName == "Home" && actionName == "Index" ? "active" : "")">
-                                <i class="nav-icon fas fa-home"></i>
-                                <p>
-                                    Inicio
-                                </p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="/Empresa/"
-                               class="nav-link @(controllerName == "Empresa" ? "active" : "")">
-                                <i class="nav-icon fas fa-building"></i>
-                                <p>
-                                    Empresa
-                                </p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="/Banco/"
-                               class="nav-link @(controllerName == "Banco" ? "active" : "")">
-                                <i class="nav-icon fas fa-university"></i>
-                                <p>
-                                    Banco
-                                </p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="/TipoComprobante/"
-                               class="nav-link @(controllerName == "TipoComprobante" ? "active" : "")">
-                                <i class="nav-icon fas fa-receipt"></i>
-                                <p>
-                                    Tipo Comprobante
-                                </p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="/TipoRendicion/"
-                               class="nav-link @(controllerName == "TipoRendicion" ? "active" : "")">
-                                <i class="nav-icon fas fa-clipboard-check"></i>
-                                <p>
-                                    Tipo Rendición
-                                </p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="/TipoUsuario/"
-                               class="nav-link @(controllerName == "TipoUsuario" ? "active" : "")">
-                                <i class="nav-icon fas fa-user-shield"></i>
-                                <p>
-                                    Tipo Usuario
-                                </p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="/Usuario/"
-                               class="nav-link @(controllerName == "Usuario" ? "active" : "")">
-                                <i class="nav-icon fas fa-user"></i>
-                                <p>
-                                    Usuario
-                                </p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="/Concepto/"
-                               class="nav-link @(controllerName == "Concepto" ? "active" : "")">
-                                <i class="nav-icon fas fa-receipt"></i>
-                                <p>
-                                    Concepto
-                                </p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="/TipoGasto/"
-                               class="nav-link @(controllerName == "TipoGasto" ? "active" : "")">
-                                <i class="nav-icon fas fa-tags"></i>
-                                <p>
-                                    Tipo Gasto
-                                </p>
-                            </a>
-                        </li>
+                        @if (User.FindFirst("TipoUsuario")?.Value == "Administrador del sistema")
+                        {
+                            <li class="nav-item">
+                                <a href="/Home/"
+                                   class="nav-link @(controllerName == "Home" && actionName == "Index" ? "active" : "")">
+                                    <i class="nav-icon fas fa-home"></i>
+                                    <p>
+                                        Inicio
+                                    </p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="/Empresa/"
+                                   class="nav-link @(controllerName == "Empresa" ? "active" : "")">
+                                    <i class="nav-icon fas fa-building"></i>
+                                    <p>
+                                        Empresa
+                                    </p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="/Banco/"
+                                   class="nav-link @(controllerName == "Banco" ? "active" : "")">
+                                    <i class="nav-icon fas fa-university"></i>
+                                    <p>
+                                        Banco
+                                    </p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="/TipoComprobante/"
+                                   class="nav-link @(controllerName == "TipoComprobante" ? "active" : "")">
+                                    <i class="nav-icon fas fa-receipt"></i>
+                                    <p>
+                                        Tipo Comprobante
+                                    </p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="/TipoRendicion/"
+                                   class="nav-link @(controllerName == "TipoRendicion" ? "active" : "")">
+                                    <i class="nav-icon fas fa-clipboard-check"></i>
+                                    <p>
+                                        Tipo Rendición
+                                    </p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="/Concepto/"
+                                   class="nav-link @(controllerName == "Concepto" ? "active" : "")">
+                                    <i class="nav-icon fas fa-receipt"></i>
+                                    <p>
+                                        Concepto
+                                    </p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="/TipoUsuario/"
+                                   class="nav-link @(controllerName == "TipoUsuario" ? "active" : "")">
+                                    <i class="nav-icon fas fa-user-shield"></i>
+                                    <p>
+                                        Tipo Usuario
+                                    </p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="/Usuario/"
+                                   class="nav-link @(controllerName == "Usuario" ? "active" : "")">
+                                    <i class="nav-icon fas fa-user"></i>
+                                    <p>
+                                        Usuario
+                                    </p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="/TipoGasto/"
+                                   class="nav-link @(controllerName == "TipoGasto" ? "active" : "")">
+                                    <i class="nav-icon fas fa-tags"></i>
+                                    <p>
+                                        Tipo Gasto
+                                    </p>
+                                </a>
+                            </li>
+                        }    
                         <li class="nav-item @(controllerName == "Gasto" ? "menu-open" : "")">
                             <a href="#" class="nav-link @(controllerName == "Gasto" ? "active" : "")">
                                 <i class="nav-icon fas fa-file-invoice-dollar"></i>
@@ -222,16 +225,17 @@
                                     <i class="right fas fa-angle-left"></i>
                                 </p>
                             </a>
-
                             <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="/Gasto/Index"
-                                       class="nav-link @(controllerName == "Gasto" && new[] { "Index", "Registrar", "VerGasto", "RevisarComprobante", "VerRevisionComprobante" }.Contains(actionName) ? "active" : "")">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Gestionar gastos</p>
-                                    </a>
-                                </li>
-
+                                @if (User.FindFirst("TipoUsuario")?.Value == "Administrador del sistema")
+                                {
+                                    <li class="nav-item">
+                                        <a href="/Gasto/Index"
+                                           class="nav-link @(controllerName == "Gasto" && new[] { "Index", "Registrar", "VerGasto", "RevisarComprobante", "VerRevisionComprobante" }.Contains(actionName) ? "active" : "")">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>Gestionar gastos</p>
+                                        </a>
+                                    </li>
+                                }
                                 <li class="nav-item">
                                     <a href="/Gasto/MisGastos"
                                        class="nav-link @(controllerName == "Gasto" && new[] { "MisGastos", "SubirComprobante", "VerComprobantes", "EditarComprobante", "VerObservaciones"}.Contains(actionName) ? "active" : "")">

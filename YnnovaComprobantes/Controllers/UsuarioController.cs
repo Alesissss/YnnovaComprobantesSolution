@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using YnnovaComprobantes.Data;
 using YnnovaComprobantes.Models;
 
 namespace YnnovaComprobantes.Controllers
 {
+    [Authorize]
     public class UsuarioController : Controller
     {
         private readonly ApplicationDbContext _context;

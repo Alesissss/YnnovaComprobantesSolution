@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using YnnovaComprobantes.Data;
 using YnnovaComprobantes.Models;
 
 namespace YnnovaComprobantes.Controllers
 {
+    [Authorize]
     public class TipoComprobanteController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -11,7 +13,7 @@ namespace YnnovaComprobantes.Controllers
         {
             _context = context;
         }
-    
+
         // LISTAR
         public IActionResult Index()
         {
@@ -123,7 +125,7 @@ namespace YnnovaComprobantes.Controllers
                 return Json(new ApiResponse { data = null, message = ex.Message, status = false });
             }
         }
-    
-        
+
+
     }
 }

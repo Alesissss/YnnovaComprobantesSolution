@@ -10,7 +10,7 @@ using YnnovaComprobantes.Models;
 
 namespace YnnovaComprobantes.Controllers
 {
-    //[Authorize]
+    [Authorize]
     public class HomeController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -81,7 +81,7 @@ namespace YnnovaComprobantes.Controllers
                 }
                 else
                 {
-                        var claims = new List<Claim>
+                    var claims = new List<Claim>
                     {
                         new Claim(ClaimTypes.Name, usuario.Nombre),
                         new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
@@ -89,22 +89,22 @@ namespace YnnovaComprobantes.Controllers
                         new Claim("TipoUsuario", usuario.tipoUsuario)
                     };
 
-                        var claimsIdentity = new ClaimsIdentity(
-                            claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                    var claimsIdentity = new ClaimsIdentity(
+                        claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
-                        var authProperties = new AuthenticationProperties
-                        {
-                            // Puedes configurar la duración de la cookie si lo deseas
-                            IsPersistent = true,
-                            ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(60)
-                        };
+                    var authProperties = new AuthenticationProperties
+                    {
+                        // Puedes configurar la duración de la cookie si lo deseas
+                        IsPersistent = true,
+                        ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(60)
+                    };
 
-                        await HttpContext.SignInAsync(
-                            CookieAuthenticationDefaults.AuthenticationScheme,
-                            new ClaimsPrincipal(claimsIdentity),
-                            authProperties);
+                    await HttpContext.SignInAsync(
+                        CookieAuthenticationDefaults.AuthenticationScheme,
+                        new ClaimsPrincipal(claimsIdentity),
+                        authProperties);
 
-                        return Json(new ApiResponse { data = null, message = "Login satisfactorio.", status = true });
+                    return Json(new ApiResponse { data = null, message = "Login satisfactorio.", status = true });
                 }
             }
             catch (Exception ex)

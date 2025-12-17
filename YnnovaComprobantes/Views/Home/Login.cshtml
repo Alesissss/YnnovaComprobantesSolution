@@ -152,7 +152,7 @@
         };
 
         $(document).ready(function () {
-            $.getJSON('/Gasto/GetEmpresaData', function (response) {
+            $.getJSON('/Home/GetEmpresaData', function (response) {
                 let empresas = response.data;
 
                     var empresasMap = empresas.map(function(empresa) {

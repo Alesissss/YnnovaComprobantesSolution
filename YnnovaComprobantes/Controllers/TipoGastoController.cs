@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using YnnovaComprobantes.Data;
 using YnnovaComprobantes.Models;
@@ -7,7 +7,7 @@ namespace YnnovaComprobantes.Controllers
 {
 
 
-    //[Authorize]
+    [Authorize]
     public class TipoGastoController : Controller
     {
         private readonly ApplicationDbContext _context;
