@@ -27,6 +27,13 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
+builder.Services.AddControllersWithViews()
+    .AddJsonOptions(options =>
+    {
+        // Esto obliga a que los decimales en el JSON siempre usen punto (.)
+        options.JsonSerializerOptions.NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowReadingFromString;
+    });
+
 // --- CONFIGURACIÓN DE CULTURA EN ESPAÑOL ---
 var supportedCultures = new[] { "es-PE", "es-ES", "es-MX" }; // Puedes agregar los que necesites
 var localizationOptions = new RequestLocalizationOptions()
