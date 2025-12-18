@@ -54,14 +54,14 @@ namespace YnnovaComprobantes.Controllers
         }
         [AllowAnonymous]
         [HttpPost]
-        public async Task<JsonResult> IniciarSesion(string dni, string password, int EmpresaId)
+        public async Task<JsonResult> IniciarSesion(string dni, string password, string ruc)
         {
             try
             {
                 var usuario = (from eu in _context.EmpresasUsuarios
                                from tu in _context.TipoUsuarios
                                where eu.TipoUsuarioId == tu.Id
-                               where eu.EmpresaId == EmpresaId
+                               where eu.EmpresaId == (_context.Empresas.Where(e => e.Ruc == ruc).Select(e => e.Id)).FirstOrDefault()
                                from u in _context.Usuarios
                                where eu.UsuarioId == u.Id
                                where u.Dni == dni
@@ -85,6 +85,7 @@ namespace YnnovaComprobantes.Controllers
                     {
                         new Claim(ClaimTypes.Name, usuario.Nombre),
                         new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
+                        new Claim("RUC", ruc),
                         new Claim("DNI", usuario.Dni),
                         new Claim("TipoUsuario", usuario.tipoUsuario)
                     };

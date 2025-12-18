@@ -1,5 +1,5 @@
 ﻿@{
-    ViewData["Title"] = "Gestionar Gastos";
+    ViewData["Title"] = "Gestionar entregas a rendir";
 }
 <div class="card d-none" id="efec-cargando">
     <div class="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center overlay dark">
@@ -10,7 +10,7 @@
     <div class="panel-heading">
         <div class="row">
             <div class="col-md-12">
-                <h1>Gestionar gastos</h1>
+                <h1>Gestionar entregas a rendir</h1>
             </div>
         </div>
     </div>
@@ -24,7 +24,7 @@
                             <th class="text-center">FECHA</th>
                             <th class="text-center">EMPRESA</th>
                             <th class="text-center">USUARIO</th>
-                            <th class="text-center">T. GASTO</th>
+                            <th class="text-center">T. ENTREGA</th>
                             <th class="text-center">BANCO</th>
                             <th class="text-center">T. RENDICIÓN</th>
                             <th class="text-center">MONEDA</th>
@@ -167,7 +167,7 @@
                     columns: ':not(.noVis)',
                 },
                 {
-                    text: '<i class= "bi bi-plus-circle" style="margin-right: 5px;"></i>Nuevo gasto',
+                    text: '<i class= "bi bi-plus-circle" style="margin-right: 5px;"></i>Nueva entrega',
                     className: 'btn bg-success m-1',
                     titleAttr: 'Nuevo',
                     action: function (e, dt, node, config) {
@@ -253,9 +253,9 @@
                             <button class="btn btn-danger btn-sm m-1" onclick="fct_GastoRechazar('${data.id}')" title="Rechazar gasto"><i class="bi bi-x-lg"></i></button>`
                         }
 
-                        // Por ahora sin funcionalidad de editar
-                        // <button class="btn btn-primary btn-sm m-1" onclick="fct_GastoEditar('${data.id}')" title="Editar gasto"><i class="bi bi-pencil-square"></i></button>
-                        buttons += `<button class="btn btn-info btn-sm m-1" onclick="fct_GastoVer('${data.id}')" title="Ver gasto"><i class="bi bi-eye"></i></button>`;
+                        buttons += `
+                        <button class="btn btn-primary btn-sm m-1" onclick="fct_GastoEditar('${data.id}')" title="Editar gasto"><i class="bi bi-pencil-square"></i></button>
+                        <button class="btn btn-info btn-sm m-1" onclick="fct_GastoVer('${data.id}')" title="Ver gasto"><i class="bi bi-eye"></i></button>`;
                         
                         return `
                         <div class="flex-wrap btn-group">
@@ -301,7 +301,7 @@
     }
 
     function fct_GastoEditar(Id) {
-        window.location.href = `/Gasto/EditarGasto/${Id}`;
+        window.location.href = `/Gasto/Editar/${Id}`;
     }
 
     function fct_GastoVer(Id) {

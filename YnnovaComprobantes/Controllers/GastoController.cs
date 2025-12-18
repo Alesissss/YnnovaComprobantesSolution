@@ -64,6 +64,82 @@ namespace YnnovaComprobantes.Controllers
         {
             return View();
         }
+        public IActionResult Editar(int id)
+        {
+            var gasto = (from g in _context.Gastos
+                         join tg in _context.TipoGastos on g.TipoGastoId equals tg.Id
+                         join e in _context.Empresas on g.EmpresaId equals e.Id
+                         join u in _context.Usuarios on g.UsuarioId equals u.Id
+                         join est in _context.Estados on g.EstadoId equals est.Id
+                         join bLeft in _context.Bancos on g.BancoId equals bLeft.Id into BancoGroup
+                         from b in BancoGroup.DefaultIfEmpty()
+                         join trLeft in _context.TipoRendiciones on g.TipoRendicionId equals trLeft.Id into TipoRendicionGroup
+                         from tr in TipoRendicionGroup.DefaultIfEmpty()
+                         join moLeft in _context.Monedas on g.MonedaId equals moLeft.Id into MonedaGroup
+                         from mo in MonedaGroup.DefaultIfEmpty()
+                         where g.Id == id
+                         select new GastoViewModel
+                         {
+                             Id = g.Id,
+                             Fecha = g.Fecha,
+                             Empresa = e.Ruc + " - " + e.Nombre,
+                             Banco = b == null ? "Sin banco" : b.Descripcion,
+                             TipoRendicion = tr == null ? "Sin tipo rendición" : tr.Descripcion,
+                             Usuario = u.Nombre,
+                             TipoGasto = tg.Nombre,
+                             MonedaNombre = mo == null ? "Sin moneda" : mo.Nombre,
+                             MonedaSimbolo = mo == null ? "Sin moneda" : mo.Simbolo,
+                             Importe = g.Importe,
+                             Estado = est.Nombre,
+                             Descripcion = g.Descripcion ?? "Sin descripción",
+                             EmpresaId = g.EmpresaId,
+                             BancoId = g.BancoId,
+                             TipoRendicionId = g.TipoRendicionId,
+                             UsuarioId = g.UsuarioId,
+                             TipoGastoId = g.TipoGastoId,
+                             MonedaId = g.MonedaId,
+                             EstadoId = g.EstadoId,
+                             FechaRegistro = g.FechaRegistro,
+                         }).FirstOrDefault();
+            if (gasto == null)
+            {
+                return NotFound();
+            }
+            return View(gasto);
+        }
+        // Editar gasto
+        [HttpPost]
+        public JsonResult EditarGasto(Gasto gasto)
+        {
+            try
+            {
+                var gastoDb = _context.Gastos.FirstOrDefault(g => g.Id == gasto.Id);
+
+                if (gastoDb == null)
+                {
+                    return Json(new ApiResponse { data = null, message = "El gasto a editar no existe.", status = false });
+                }
+
+                gastoDb.Fecha = gasto.Fecha;
+                gastoDb.Importe = gasto.Importe;
+                gastoDb.Descripcion = gasto.Descripcion;
+                gastoDb.EmpresaId = gasto.EmpresaId;
+                gastoDb.BancoId = gasto.BancoId;
+                gastoDb.TipoRendicionId = gasto.TipoRendicionId;
+                gastoDb.UsuarioId = gasto.UsuarioId;
+                gastoDb.TipoGastoId = gasto.TipoGastoId;
+                gastoDb.MonedaId = gasto.MonedaId;
+
+                _context.Gastos.Update(gastoDb);
+                _context.SaveChanges();
+
+                return Json(new ApiResponse { data = null, message = "Gasto editado exitosamente.", status = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new ApiResponse { data = null, message = ex.Message, status = false });
+            }
+        }
         // Get empresas
         [HttpGet]
         public JsonResult GetEmpresaData()
@@ -157,8 +233,8 @@ namespace YnnovaComprobantes.Controllers
         {
             try
             {
-                var tiposRendiciones = _context.Monedas.ToList();
-                return Json(new { data = tiposRendiciones, message = "Monedas retornadas exitosamente.", status = true });
+                var monedas = _context.Monedas.ToList();
+                return Json(new { data = monedas, message = "Monedas retornadas exitosamente.", status = true });
             }
             catch (Exception ex)
             {

@@ -86,23 +86,21 @@
                 <div class="card-body login-card-body">
                     <p class="login-box-msg">Inicia sesión para acceder al sistema</p>
                     <form>
-                        <div class="input-group mb-3">
-                            <label for="cbx_Empresa">Empresa</label>
-                            <div class="input-group">
-                                <select id="cbx_Empresa" class="form-control">
-                                    <option value="" disabled selected>--SELECCIONAR--</option>
-                                </select>
+                    <div class="input-group mb-3 form-input">
+                        <input id="txt_RUC" type="text" class="form-control" placeholder="RUC">
+                        <div class="input-group-append">
+                            <div class="input-group-text">
                             </div>
                         </div>
-                        <div class="input-group mb-3">
+                    </div>
+                    <div class="input-group mb-3 form-input">
                             <input id="txt_DNI" type="text" class="form-control" placeholder="DNI">
                             <div class="input-group-append">
                                 <div class="input-group-text">
-                                    <span class="fas fa-envelope"></span>
                                 </div>
                             </div>
                         </div>
-                        <div class="input-group mb-3">
+                    <div class="input-group mb-3 form-input">
                             <input id="txt_Password" type="password" class="form-control" placeholder="Contraseña">
                             <div class="input-group-append">
                                 <div class="input-group-text">
@@ -152,29 +150,25 @@
         };
 
         $(document).ready(function () {
-            $.getJSON('/Home/GetEmpresaData', function (response) {
-                let empresas = response.data;
+            // 1. Validación de RUC (solo dígitos y límite de 11)
+            $('#txt_RUC').on('keypress', function (e) {
+                // Obtenemos el código de la tecla presionada
+                var charCode = (e.which) ? e.which : e.keyCode;
 
-                    var empresasMap = empresas.map(function(empresa) {
-                        return {
-                            id: empresa.id,
-                            text: empresa.ruc + ' - ' + empresa.nombre
-                        };
-                    });
+                // Permitir solo dígitos (48-57) y teclas de control
+                if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+                    e.preventDefault();
+                    return false;
+                }
 
-                    $('#cbx_Empresa').empty().select2({
-                        theme: 'bootstrap4',
-                        data: empresasMap,
-                        placeholder: "Buscar empresa...",
-                        allowClear: true,
-                        language: {
-                            noResults: function () {
-                                return "No se encontraron resultados";
-                            }
-                        }
-                    });
-
-                    $('#cbx_Empresa').val(null).trigger('change');
+                // Limitar la longitud a 11 dígitos (antes de que se añada el nuevo dígito)
+                if ($(this).val().length >= 11) {
+                    // Si es un dígito, prevenir la entrada
+                    if (charCode > 47 && charCode < 58) {
+                        e.preventDefault();
+                        return false;
+                    }
+                }
             });
 
             // 1. Validación de DNI (solo dígitos y límite de 8)
@@ -218,16 +212,21 @@
             $('#btn_Login').on('click', function () {
                 const dni = $('#txt_DNI').val().trim();
                 const password = $('#txt_Password').val().trim();
-                const empresa = $('#cbx_Empresa').val();
+                const ruc = $('#txt_RUC').val();
 
                 // Validar campos vacíos
-                if (dni === '' || password === '' || !empresa) {
+                if (dni === '' || password === '' || !ruc) {
                     toastr.warning('Debe ingresar sus credenciales de acceso', 'MENSAJE DE SISTEMA');
                     return;
                 }
 
                 if (dni.length !== 8) {
                     toastr.warning('El DNI debe tener exactamente 8 dígitos', 'MENSAJE DE SISTEMA');
+                    return;
+                }
+
+                if (ruc.length !== 11) {
+                    toastr.warning('El RUC debe tener exactamente 11 dígitos', 'MENSAJE DE SISTEMA');
                     return;
                 }
 
@@ -238,7 +237,7 @@
                 let formData = new FormData();
                 formData.append("dni", dni);
                 formData.append("password", password);
-                formData.append("EmpresaId", empresa);
+                formData.append("ruc", ruc);
 
                 $.ajax({
                     url: "/Home/IniciarSesion",

@@ -2,6 +2,7 @@
 use ynnovaco_corpsaf_comprobantes;
 
 -- DROPS TABLES
+DROP TABLE IF EXISTS devolucion_gasto;
 DROP TABLE IF EXISTS banco;
 DROP TABLE IF EXISTS comprobante;
 DROP TABLE IF EXISTS concepto;
@@ -87,6 +88,18 @@ CREATE TABLE gasto (
     moneda_id INT NULL,
     estado_id INT NOT NULL,
     fecha_registro DATETIME NOT NULL DEFAULT GETDATE(),
+);
+
+-- TABLA devolucion_gasto
+CREATE TABLE devolucion_gasto (
+    id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
+    fecha DATE NOT NULL,
+    importe DECIMAL(12, 2) NULL,
+    descripcion TEXT NULL,
+    empresa_id INT NOT NULL,
+    banco_id INT NULL,
+    estado_id INT NOT NULL,
+    fecha_registro DATETIME NOT NULL DEFAULT GETDATE()
 );
 
 -- TABLA moneda
