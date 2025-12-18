@@ -44,6 +44,7 @@ CREATE TABLE comprobante (
     archivo TEXT,
     estado_id INT NOT NULL,
     moneda_id INT NOT NULL,
+    usuario_aprobador INT NULL,
     fecha_registro DATETIME DEFAULT GETDATE()
 );
 
@@ -87,6 +88,7 @@ CREATE TABLE gasto (
     tipo_gasto_id INT NOT NULL,
     moneda_id INT NULL,
     estado_id INT NOT NULL,
+    usuario_aprobador INT NULL,
     fecha_registro DATETIME NOT NULL DEFAULT GETDATE(),
 );
 
@@ -99,6 +101,7 @@ CREATE TABLE devolucion_gasto (
     empresa_id INT NOT NULL,
     banco_id INT NULL,
     estado_id INT NOT NULL,
+    usuario_aprobador INT NULL,
     fecha_registro DATETIME NOT NULL DEFAULT GETDATE()
 );
 
@@ -309,5 +312,5 @@ INSERT INTO usuario (dni, nombre, email, telefono, password, estado) VALUES ('77
 
 -- INSERTS DE 'empresa_usuario'
 INSERT INTO empresa_usuario (empresa_id, usuario_id, tipo_usuario_id) VALUES (1, 1, 1);
-INSERT INTO empresa_usuario (empresa_id, usuario_id, tipo_usuario_id) VALUES (1, 2, 2);
+INSERT INTO empresa_usuario (empresa_id, usuario_id, tipo_usuario_id) VALUES (1, 2, 1);
 INSERT INTO empresa_usuario (empresa_id, usuario_id, tipo_usuario_id) VALUES (1, 3, 2);

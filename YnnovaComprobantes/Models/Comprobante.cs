@@ -28,6 +28,8 @@ namespace YnnovaComprobantes.Models
         public int EstadoId { get; set; }
         [Column("moneda_id")]
         public int MonedaId { get; set; }
+        [Column("usuario_aprobador")]
+        public int? UsuarioAprobador { get; set; }
         [Column("fecha_registro")]
         public DateTime FechaRegistro { get; set; }
     }

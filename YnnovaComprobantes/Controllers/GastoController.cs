@@ -783,6 +783,14 @@ namespace YnnovaComprobantes.Controllers
                 }
 
                 comprobante.EstadoId = _context.Estados.Where(e => e.Tabla == "COMPROBANTE" && e.Nombre == "Aprobado").Select(e => e.Id).FirstOrDefault();
+
+                string? usuarioId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (usuarioId == null)
+                {
+                    return Json(new ApiResponse { data = null, message = "El usuario que intenta aprobar el comprobante no está logueado, vuelva a iniciar sesión.", status = false });
+                }
+
+                comprobante.UsuarioAprobador = int.Parse(usuarioId);
                 _context.Comprobantes.Update(comprobante);
                 _context.SaveChanges();
 
@@ -806,6 +814,14 @@ namespace YnnovaComprobantes.Controllers
                 }
 
                 comprobante.EstadoId = _context.Estados.Where(e => e.Tabla == "COMPROBANTE" && e.Nombre == "Rechazado").Select(e => e.Id).FirstOrDefault();
+
+                string? usuarioId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (usuarioId == null)
+                {
+                    return Json(new ApiResponse { data = null, message = "El usuario que intenta aprobar el comprobante no está logueado, vuelva a iniciar sesión.", status = false });
+                }
+
+                comprobante.UsuarioAprobador = int.Parse(usuarioId);
                 _context.Comprobantes.Update(comprobante);
                 _context.SaveChanges();
 
@@ -830,6 +846,13 @@ namespace YnnovaComprobantes.Controllers
                 }
 
                 gasto.EstadoId = _context.Estados.Where(e => e.Tabla == "GASTO" && e.Nombre == "Aprobado").Select(e => e.Id).FirstOrDefault();
+                string? usuarioId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (usuarioId == null)
+                {
+                    return Json(new ApiResponse { data = null, message = "El usuario que intenta aprobar el comprobante no está logueado, vuelva a iniciar sesión.", status = false });
+                }
+
+                gasto.UsuarioAprobador = int.Parse(usuarioId);
                 _context.Gastos.Update(gasto);
                 _context.SaveChanges();
 
@@ -847,6 +870,12 @@ namespace YnnovaComprobantes.Controllers
 
             try
             {
+                string? usuarioId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (usuarioId == null)
+                {
+                    return Json(new ApiResponse { data = null, message = "El usuario que intenta aprobar el comprobante no está logueado, vuelva a iniciar sesión.", status = false });
+                }
+
                 var gasto = await _context.Gastos.FindAsync(id);
                 if (gasto == null)
                     return Json(new ApiResponse { status = false, message = "El gasto no existe." });
@@ -863,12 +892,14 @@ namespace YnnovaComprobantes.Controllers
                     return Json(new ApiResponse { status = false, message = "Error: Configuración de estados no encontrada." });
 
                 gasto.EstadoId = estadoGastoRechazado;
+                gasto.UsuarioAprobador = int.Parse(usuarioId);
                 _context.Gastos.Update(gasto);
 
                 var comprobantes = await _context.Comprobantes.Where(c => c.GastoId == id).ToListAsync();
                 foreach (var c in comprobantes)
                 {
                     c.EstadoId = estadoComprobanteRechazado;
+                    c.UsuarioAprobador = int.Parse(usuarioId);
                 }
 
                 _context.Comprobantes.UpdateRange(comprobantes);

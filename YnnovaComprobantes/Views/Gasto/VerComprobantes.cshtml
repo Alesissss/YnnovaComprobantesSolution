@@ -8,38 +8,77 @@
     </div>
 </div>
 <div class="container-fluid p-4">
-    <div class="panel-heading">
-        <div class="row">
-            <div class="col-md-12">
-                <h1>Gestionar Comprobantes</h1>
-                <a href="/Gasto/MisGastos/">Volver al listado de mis gastos</a>
-            </div>
-        </div>
-    </div>
-    <div class="panel-body">
-        <div class="row">
-            <div class="col-12">
-                <table id="tbl_Comprobantes" class="table table-bordered table-hover">
-                    <thead class="thead-dark">
-                        <tr>
-                            <th class="text-center">ID</th>
-                            <th class="text-center">FECHA</th>
-                            <th class="text-center">RUC</th>
-                            <th class="text-center">SERIE</th>
-                            <th class="text-center">NÚMERO</th>
-                            <th class="text-center">TIPO</th>
-                            <th class="text-center">CONCEPTO</th>
-                            <th class="text-center">MONEDA</th>
-                            <th class="text-center">MONTO</th>
-                            <th class="text-center">DESCRIPCIÓN</th>
-                            <th class="text-center">ESTADO</th>
-                            <th class="text-center">ACCIÓN</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
-            </div>
+    <div class="row">
+        <div class="col-md-12 col-sm-6">
+            <div class="card card-primary card-tabs">
+                <div class="card-header p-0 pt-1">
+                    <ul class="nav nav-tabs" id="custom-tabs-one-tab" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="tab01-tab" data-toggle="pill" href="#tab-01" role="tab"
+                               aria-controls="tab-01" aria-selected="true">Gestionar comprobantes</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="tab02-tab" data-toggle="pill" href="#tab-02" role="tab"
+                               aria-controls="tab-02" aria-selected="false">Gestionar devolución</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <div class="tab-content" id="custom-tabs-one-tabContent">
+
+                        <!-- Tab 1 -->
+                        <div class="tab-pane fade show active" id="tab-01" role="tabpanel" aria-labelledby="tab01-tab">
+                            <div class="panel-heading">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <h1>Gestionar Comprobantes</h1> 
+                                        <a href="/Gasto/MisGastos/">Volver al listado de mis entregas a rendir</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <table id="tbl_Comprobantes" class="table table-bordered table-hover">
+                                            <thead class="thead-dark">
+                                                <tr>
+                                                    <th class="text-center">ID</th>
+                                                    <th class="text-center">FECHA</th>
+                                                    <th class="text-center">RUC</th>
+                                                    <th class="text-center">SERIE</th>
+                                                    <th class="text-center">NÚMERO</th>
+                                                    <th class="text-center">TIPO</th>
+                                                    <th class="text-center">CONCEPTO</th>
+                                                    <th class="text-center">MONEDA</th>
+                                                    <th class="text-center">MONTO</th>
+                                                    <th class="text-center">DESCRIPCIÓN</th>
+                                                    <th class="text-center">ESTADO</th>
+                                                    <th class="text-center">ACCIÓN</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Tab 2 -->
+                        <div class="tab-pane fade" id="tab-02" role="tabpanel" aria-labelledby="tab02-tab">
+                            <div class="panel-heading">
+                                <!-- <div class="row">
+                                    <div class="col-md-12">
+                                        <h1>Programar un nuevo viaje</h1>
+                                    </div>
+                                </div> -->
+                            </div>
+                            <div class="panel-body">
+
+                            </div>
+                        </div>
+                    </div> <!-- /.tab-content -->
+                </div> <!-- /.card-body -->
+            </div> <!-- /.card -->
         </div>
     </div>
 </div>
