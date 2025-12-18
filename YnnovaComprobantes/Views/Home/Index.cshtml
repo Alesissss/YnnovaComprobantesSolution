@@ -1,8 +1,360 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Dashboard de rendiciones";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.css"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+
+<style>
+    /* Estilos personalizados para un look "Premium" */
+    .dashboard-card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        transition: transform 0.3s;
+        margin-bottom: 20px;
+        overflow: hidden;
+    }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+        }
+
+    .card-header-custom {
+        background-color: #fff;
+        border-bottom: 1px solid #f0f0f0;
+        padding: 15px 20px;
+        font-weight: 700;
+        color: #495057;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    /* InfoBoxes con degradados modernos */
+    .info-box-custom {
+        color: white;
+        border-radius: 12px;
+        padding: 20px;
+        position: relative;
+        overflow: hidden;
+        min-height: 120px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .bg-gradient-primary {
+        background: linear-gradient(45deg, #4099ff, #73b4ff);
+    }
+
+    .bg-gradient-success {
+        background: linear-gradient(45deg, #2ed8b6, #59e0c5);
+    }
+
+    .bg-gradient-warning {
+        background: linear-gradient(45deg, #FFB64D, #ffcb80);
+    }
+
+    .bg-gradient-danger {
+        background: linear-gradient(45deg, #FF5370, #ff869a);
+    }
+
+    .info-box-icon {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 3rem;
+        opacity: 0.3;
+    }
+
+    .info-box-value {
+        font-size: 2rem;
+        font-weight: bold;
+        margin: 0;
+    }
+
+    .info-box-label {
+        font-size: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    /* Altura de los gráficos */
+    .chart-container {
+        height: 350px;
+        width: 100%;
+    }
+</style>
+
+<div class="container-fluid mt-3">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="font-weight-bold text-dark mb-0">Resumen Financiero</h2>
+            <p class="text-muted">Panorama general de gastos y rendiciones</p>
+        </div>
+        <div>
+            <button class="btn btn-white shadow-sm"><i class="fas fa-calendar-alt mr-2"></i> Este Mes</button>
+            <button class="btn btn-primary shadow-sm"><i class="fas fa-download mr-2"></i> Reporte</button>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="dashboard-card info-box-custom bg-gradient-primary">
+                <div class="info-box-label">Gasto Total (Mes)</div>
+                <h3 class="info-box-value" id="lblTotalGasto">S/. 0.00</h3>
+                <i class="fas fa-wallet info-box-icon"></i>
+                <small class="mt-2"><i class="fas fa-arrow-up"></i> 12% vs mes anterior</small>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="dashboard-card info-box-custom bg-gradient-warning">
+                <div class="info-box-label">Pendientes Aprobación</div>
+                <h3 class="info-box-value" id="lblPendientes">0</h3>
+                <i class="fas fa-clock info-box-icon"></i>
+                <small class="mt-2">Solicitudes en cola</small>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="dashboard-card info-box-custom bg-gradient-success">
+                <div class="info-box-label">Comprobantes Aprobados</div>
+                <h3 class="info-box-value" id="lblAprobados">0</h3>
+                <i class="fas fa-check-circle info-box-icon"></i>
+                <small class="mt-2">95% de efectividad</small>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="dashboard-card info-box-custom bg-gradient-danger">
+                <div class="info-box-label">Observados / Rech.</div>
+                <h3 class="info-box-value" id="lblObservados">0</h3>
+                <i class="fas fa-exclamation-triangle info-box-icon"></i>
+                <small class="mt-2">Atención requerida</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card dashboard-card">
+                <div class="card-header-custom">
+                    <span><i class="fas fa-chart-line text-primary mr-2"></i> Evolución de Gastos (Últimos 6 meses)</span>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool btn-sm"><i class="fas fa-ellipsis-v"></i></button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="chartTrend" class="chart-container"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card dashboard-card">
+                <div class="card-header-custom">
+                    <span><i class="fas fa-chart-pie text-warning mr-2"></i> Distribución (Anticipo vs Reembolso)</span>
+                </div>
+                <div class="card-body">
+                    <div id="chartType" class="chart-container"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card dashboard-card">
+                <div class="card-header-custom">
+                    <span><i class="fas fa-shopping-cart text-success mr-2"></i> Gastos por Concepto</span>
+                </div>
+                <div class="card-body">
+                    <div id="chartConceptos" class="chart-container"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card dashboard-card">
+                <div class="card-header-custom">
+                    <span><i class="fas fa-file-invoice-dollar text-info mr-2"></i> Estado de Comprobantes</span>
+                </div>
+                <div class="card-body">
+                    <div id="chartStatus" class="chart-container"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+@section Scripts {
+    <script>
+        // ==========================================
+        // 1. ESTRUCTURA DE DATOS (MOCK DATA)
+        // ==========================================
+        // Esta variable simula la respuesta que traerías de tu Backend (Controller).
+        // Tiene exactamente la estructura que necesitas mapear de tus tablas:
+        // Gasto, TipoGasto, Concepto, Comprobante.
+
+        var serverResponse = {
+            kpis: {
+                totalGastoMes: 15420.50,
+                pendientes: 8,
+                aprobados: 145,
+                observados: 3
+            },
+            graficoEvolucion: {
+                meses: ['Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+                valores: [8500, 9200, 11000, 10500, 14000, 15420]
+            },
+            graficoTipo: [
+                // Basado en tabla 'tipo_gasto'
+                { value: 8500, name: 'Anticipos' },
+                { value: 6920, name: 'Reembolsos' }
+            ],
+            graficoConceptos: {
+                // Basado en tabla 'concepto' sumando los 'comprobantes'
+                nombres: ['Alimentación', 'Hospedaje', 'Combustible', 'Transporte', 'Otros'],
+                valores: [4500, 3200, 5100, 1200, 800]
+            },
+            graficoEstadoComprobantes: {
+                // Basado en tabla 'estado' unida a 'comprobante'
+                estados: ['Aprobado', 'Pendiente', 'Observado', 'Rechazado'],
+                cantidades: [120, 15, 5, 2]
+            }
+        };
+
+        // ==========================================
+        // 2. FUNCIÓN DE CARGA (SIMULACIÓN AJAX)
+        // ==========================================
+        $(document).ready(function () {
+            // AQUÍ HARÍAS TU PETICIÓN AJAX REAL:
+            /*
+            $.getJSON('/Dashboard/GetData', function(data) {
+                renderDashboard(data);
+            });
+            */
+
+            // Por ahora, usamos los datos mockeados directos:
+            renderDashboard(serverResponse);
+        });
+
+        function renderDashboard(data) {
+            // A. Llenar KPIs (InfoBoxes)
+            $('#lblTotalGasto').text('S/. ' + data.kpis.totalGastoMes.toLocaleString('es-PE', { minimumFractionDigits: 2 }));
+            $('#lblPendientes').text(data.kpis.pendientes);
+            $('#lblAprobados').text(data.kpis.aprobados);
+            $('#lblObservados').text(data.kpis.observados);
+
+            // B. Inicializar Gráficos
+            initChartTrend(data.graficoEvolucion);
+            initChartType(data.graficoTipo);
+            initChartConceptos(data.graficoConceptos);
+            initChartStatus(data.graficoEstadoComprobantes);
+        }
+
+        // ==========================================
+        // 3. CONFIGURACIÓN ECHARTS
+        // ==========================================
+
+        // --- Gráfico 1: Evolución (Línea Suave) ---
+        function initChartTrend(data) {
+            var chart = echarts.init(document.getElementById('chartTrend'));
+            var option = {
+                tooltip: { trigger: 'axis' },
+                grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+                xAxis: { type: 'category', boundaryGap: false, data: data.meses },
+                yAxis: { type: 'value' },
+                series: [{
+                    name: 'Gasto Total',
+                    type: 'line',
+                    smooth: true, // Curva suave
+                    lineStyle: { width: 4, color: '#4099ff' },
+                    areaStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: 'rgba(64, 153, 255, 0.5)' },
+                            { offset: 1, color: 'rgba(64, 153, 255, 0.1)' }
+                        ])
+                    },
+                    data: data.valores
+                }]
+            };
+            chart.setOption(option);
+            window.addEventListener('resize', function() { chart.resize(); });
+        }
+
+        // --- Gráfico 2: Tipos (Donut) ---
+        function initChartType(data) {
+            var chart = echarts.init(document.getElementById('chartType'));
+            var option = {
+                tooltip: { trigger: 'item' },
+                legend: { top: '5%', left: 'center' },
+                series: [{
+                    name: 'Tipo de Gasto',
+                    type: 'pie',
+                    radius: ['40%', '70%'], // Efecto Donut
+                    avoidLabelOverlap: false,
+                    itemStyle: { borderRadius: 10, borderColor: '#fff', borderWidth: 2 },
+                    label: { show: false, position: 'center' },
+                    emphasis: { label: { show: true, fontSize: 20, fontWeight: 'bold' } },
+                    labelLine: { show: false },
+                    data: data,
+                    color: ['#4099ff', '#2ed8b6'] // Colores personalizados
+                }]
+            };
+            chart.setOption(option);
+            window.addEventListener('resize', function() { chart.resize(); });
+        }
+
+        // --- Gráfico 3: Conceptos (Barras Horizontales) ---
+        function initChartConceptos(data) {
+            var chart = echarts.init(document.getElementById('chartConceptos'));
+            var option = {
+                tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+                grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+                xAxis: { type: 'value' },
+                yAxis: { type: 'category', data: data.nombres },
+                series: [{
+                    name: 'Monto',
+                    type: 'bar',
+                    barWidth: '60%',
+                    data: data.valores,
+                    itemStyle: {
+                        color: new echarts.graphic.LinearGradient(1, 0, 0, 0, [
+                            { offset: 0, color: '#83a4d4' }, // Degradado
+                            { offset: 1, color: '#b6fbff' }
+                        ]),
+                        borderRadius: [0, 5, 5, 0]
+                    }
+                }]
+            };
+            chart.setOption(option);
+            window.addEventListener('resize', function() { chart.resize(); });
+        }
+
+        // --- Gráfico 4: Estado (Barras Simples o Radar) ---
+        function initChartStatus(data) {
+            var chart = echarts.init(document.getElementById('chartStatus'));
+            var option = {
+                tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+                grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+                xAxis: { type: 'category', data: data.estados },
+                yAxis: { type: 'value' },
+                series: [{
+                    data: [
+                        { value: data.cantidades[0], itemStyle: { color: '#2ed8b6' } }, // Aprobado
+                        { value: data.cantidades[1], itemStyle: { color: '#FFB64D' } }, // Pendiente
+                        { value: data.cantidades[2], itemStyle: { color: '#FF5370' } }, // Observado
+                        { value: data.cantidades[3], itemStyle: { color: '#a0a0a0' } }  // Rechazado
+                    ],
+                    type: 'bar',
+                    showBackground: true,
+                    backgroundStyle: { color: 'rgba(180, 180, 180, 0.2)' }
+                }]
+            };
+            chart.setOption(option);
+            window.addEventListener('resize', function() { chart.resize(); });
+        }
+
+    </script>
+}
