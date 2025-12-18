@@ -250,10 +250,11 @@
                         if (data.estado === "Pendiente") {
                             buttons += `
                             <button class="btn btn-success btn-sm m-1" onclick="fct_GastoAprobar('${data.id}')" title="Aprobar gasto"><i class="bi bi-check-lg"></i></button>
-                            <button class="btn btn-danger btn-sm m-1" onclick="fct_GastoRechazar('${data.id}')" title="Rechazar gasto"><i class="bi bi-x-lg"></i></button>
-                            <button class="btn btn-primary btn-sm m-1" onclick="fct_GastoEditar('${data.id}')" title="Editar gasto"><i class="bi bi-pencil-square"></i></button>`
+                            <button class="btn btn-danger btn-sm m-1" onclick="fct_GastoRechazar('${data.id}')" title="Rechazar gasto"><i class="bi bi-x-lg"></i></button>`
                         }
 
+                        // Por ahora sin funcionalidad de editar
+                        // <button class="btn btn-primary btn-sm m-1" onclick="fct_GastoEditar('${data.id}')" title="Editar gasto"><i class="bi bi-pencil-square"></i></button>
                         buttons += `<button class="btn btn-info btn-sm m-1" onclick="fct_GastoVer('${data.id}')" title="Ver gasto"><i class="bi bi-eye"></i></button>`;
                         
                         return `

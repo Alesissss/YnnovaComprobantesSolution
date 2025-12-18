@@ -329,6 +329,7 @@
                         formData.append("EmpresaId", empresa);
                         formData.append("UsuarioId", usuario);
                         formData.append("TipoGastoId", tipoGasto);
+                        formData.append("Importe", 0);
 
                         $.ajax({
                             url: "/Gasto/RegistrarGasto",

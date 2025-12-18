@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using YnnovaComprobantes.Data;
 using YnnovaComprobantes.Models;
 using YnnovaComprobantes.ViewModels;
@@ -291,14 +292,14 @@ namespace YnnovaComprobantes.Controllers
         {
             try
             {
-                //string? userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                string? userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-                //if (userIdString == null)
-                //{
-                //    return Json(new ApiResponse { data = null, message = "El usuario no se encuentra logueado.", status = false });
-                //}
+                if (userIdString == null)
+                {
+                    return Json(new ApiResponse { data = null, message = "El usuario no se encuentra logueado.", status = false });
+                }
 
-                //int userId = int.Parse(userIdString.Trim());
+                int userId = int.Parse(userIdString.Trim());
 
                 var gastos = (from g in _context.Gastos
                               join tg in _context.TipoGastos on g.TipoGastoId equals tg.Id
@@ -312,7 +313,7 @@ namespace YnnovaComprobantes.Controllers
                               join moLeft in _context.Monedas on g.MonedaId equals moLeft.Id into MonedaGroup
                               from mo in MonedaGroup.DefaultIfEmpty()
                               orderby g.FechaRegistro descending
-                              //where g.UsuarioId == userId
+                              where g.UsuarioId == userId
                               select new
                               {
                                   g.Id,
