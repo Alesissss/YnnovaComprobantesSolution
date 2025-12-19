@@ -99,6 +99,8 @@ CREATE TABLE devolucion_gasto (
     importe DECIMAL(12, 2) NULL,
     descripcion TEXT NULL,
     empresa_id INT NOT NULL,
+    usuario_id INT NOT NULL,
+    nro_operacion VARCHAR(255),
     banco_id INT NULL,
     estado_id INT NOT NULL,
     usuario_aprobador INT NULL,
