@@ -598,6 +598,8 @@ namespace YnnovaComprobantes.Controllers
                                    MontoAcumulado = _context.Comprobantes.Where(com => com.GastoId == c.GastoId && com.EstadoId == _context.Estados.Where(e => e.Tabla == "COMPROBANTE" && e.Nombre == "Aprobado").Select(e => e.Id).FirstOrDefault()).Select(com => com.Monto).Sum()
                                }).FirstOrDefault();
 
+
+
             if (comprobante == null)
             {
                 return NotFound();
@@ -915,5 +917,31 @@ namespace YnnovaComprobantes.Controllers
                 return Json(new ApiResponse { status = false, message = $"Error técnico: {ex.Message}" });
             }
         }
+        #region DEVOLUCION GASTO
+        public JsonResult GetDevolucionesData()
+        {
+            try
+            {
+                var devoluciones = (from d in _context.DevolucionGastos
+                                    join g in _context.Gastos on d.GastoId equals g.Id
+                                    join e in _context.Empresas on d.EmpresaId equals e.Id
+                                    join u in _context.Usuarios on d.UsuarioId equals u.Id
+                                    join uap in _context.Usuarios on d.UsuarioAprobador equals uap.Id
+                                    join b in _context.Bancos on d.BancoId equals b.Id
+                                    join est in _context.Estados on d.EstadoId equals est.Id
+                                    select new DevolucionViewModel
+                                    {
+
+                                    });
+
+
+                return Json(new ApiResponse { data = devoluciones, status = true, message = "Devoluciones retornadas exitosamente." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new ApiResponse { data = null, status = false, message = ex.Message });
+            }
+        }
+        #endregion
     }
 }

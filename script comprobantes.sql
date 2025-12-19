@@ -95,6 +95,7 @@ CREATE TABLE gasto (
 -- TABLA devolucion_gasto
 CREATE TABLE devolucion_gasto (
     id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
+    gasto_id INT NOT NULL,
     fecha DATE NOT NULL,
     importe DECIMAL(12, 2) NULL,
     descripcion TEXT NULL,

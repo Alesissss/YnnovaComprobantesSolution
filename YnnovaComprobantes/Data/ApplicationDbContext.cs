@@ -23,5 +23,6 @@ namespace YnnovaComprobantes.Data
         public DbSet<Gasto> Gastos { get; set; }
         public DbSet<Estado> Estados { get; set; }
         public DbSet<Observacion> Observaciones { get; set; }
+        public DbSet<DevolucionGasto> DevolucionGastos { get; set; }
     }
 }
