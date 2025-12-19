@@ -18,6 +18,7 @@ namespace YnnovaComprobantes.Controllers
             _hostingEnvironment = hostingEnvironment;
             _context = context;
         }
+        #region GASTO
         // Listar
         public IActionResult Index()
         {
@@ -917,8 +918,9 @@ namespace YnnovaComprobantes.Controllers
                 return Json(new ApiResponse { status = false, message = $"Error técnico: {ex.Message}" });
             }
         }
+        #endregion
         #region DEVOLUCION GASTO
-        public JsonResult GetDevolucionesData()
+        public JsonResult GetDevolucionesData(int id)
         {
             try
             {
@@ -929,11 +931,26 @@ namespace YnnovaComprobantes.Controllers
                                     join uap in _context.Usuarios on d.UsuarioAprobador equals uap.Id
                                     join b in _context.Bancos on d.BancoId equals b.Id
                                     join est in _context.Estados on d.EstadoId equals est.Id
+                                    where g.Id == id
                                     select new DevolucionViewModel
                                     {
-
-                                    });
-
+                                        Id = d.Id,
+                                        GastoId = g.Id,
+                                        Fecha = d.Fecha,
+                                        Importe = d.Importe,
+                                        Descripcion = d.Descripcion,
+                                        EmpresaId = e.Id,
+                                        Empresa = e.Ruc + " - " + e.Nombre,
+                                        UsuarioId = u.Id,
+                                        Usuario = u.Nombre,
+                                        NroOperacion = d.NroOperacion,
+                                        BancoId = b.Id,
+                                        Banco = b.Descripcion,
+                                        EstadoId = e.Id,
+                                        Estado = e.Nombre,
+                                        UsuarioAprobador = uap.Id,
+                                        UsuarioAprobadorNombre = uap.Nombre,
+                                    }).ToList();
 
                 return Json(new ApiResponse { data = devoluciones, status = true, message = "Devoluciones retornadas exitosamente." });
             }

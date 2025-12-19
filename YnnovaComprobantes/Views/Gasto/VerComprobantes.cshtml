@@ -76,7 +76,7 @@
                             <div class="panel-body">
                                 <div class="row">
                                     <div class="col-12">
-                                        <table id="tbl_Devoluciones" class="table table-bordered table-hover">
+                                        <table id="tbl_Devoluciones" class="table table-bordered table-hover w-100">
                                             <thead class="thead-dark">
                                                 <tr>
                                                     <th class="text-center">ID</th>
@@ -109,6 +109,12 @@
     var dtDevoluciones;
 
     $(document).ready(function () {
+        // Escuchar el evento cuando se muestra el tab de "Gestionar devolución"
+        $('#tab02-tab').on('shown.bs.tab', function (e) {
+            // Forzar el ajuste de columnas de la tabla específica
+            fct_IniciarTablaDevoluciones('#tbl_Devoluciones');
+        });
+
 
         // $('body').addClass('sidebar-collapse');
         var windowHeight = $('body > div.wrapper > div.content-wrapper').height() / 2;
@@ -176,9 +182,9 @@
         fct_IniciarTablaComprobantes('#tbl_Comprobantes');
     });
 
-    function fct_IniciarTablaComprobantes(IdTabla) {
+    function fct_IniciarTablaDevoluciones(IdTabla) {
         // Inicializar DataTables con botones
-        dtGastos = $(IdTabla).DataTable({
+        dtDevoluciones = $(IdTabla).DataTable({
             buttons: [
                 {
                     extend: 'copy',
@@ -191,7 +197,7 @@
                     text: '<i class="bi bi-file-earmark-excel"></i>',
                     titleAttr: 'Exportar a Excel',
                     className: 'btn btn-success',
-                    filename: 'Mis comprobantes ' + moment().format('DD-MM-YYYY HH_mm'),
+                    filename: 'Mis devoluciones ' + moment().format('DD-MM-YYYY HH_mm'),
                     footer: true,
                     exportOptions:
                     {
@@ -204,7 +210,7 @@
                     text: '<i class="bi bi-file-earmark-pdf"></i>',
                     titleAttr: 'Exportar a PDF',
                     className: 'btn btn-danger',
-                    filename: 'Mis comprobantes ' + moment().format('DD-MM-YYYY HH_mm'),
+                    filename: 'Mis devoluciones ' + moment().format('DD-MM-YYYY HH_mm'),
                     exportOptions:
                     {
                         stripHtml: true,
@@ -233,7 +239,7 @@
                 },
             ],
             ajax: {
-                url: `/Gasto/GetComprobantesData/${@Model.Id}`,
+                url: `/Gasto/GetDevolucionesData/${@Model.Id}`,
                 type: "GET",
                 datatype: "json",
                 data: function (d) {
@@ -251,72 +257,66 @@
                     console.error('Error en la solicitud Ajax. Status:', Status, 'Error:', error, 'XHR:', xhr);
                 },
             },
-                columns: [
-                { data: "id", name: "id" },
-                {
-                    data: "fecha",
-                    name: "fecha",
-                    render: function (data) {
-                        return data ? moment(data).format('DD/MM/YYYY') : "";
-                    }
-                },
-                { data: "rucEmpresa", name: "rucEmpresa" },
-                { data: "serie", name: "serie" },
-                { data: "numero", name: "numero" },
-                { data: "tipoComprobante", name: "tipoComprobante" },
-                { data: "concepto", name: "concepto" },
-                { data: "moneda", name: "moneda" },
-                {
-                    data: "monto",
-                    name: "monto",
-                    render: function (data) {
-                        if (!data) {
-                            return 'Sin monto';
-                        }
-                        return parseFloat(data).toFixed(2);
-                    }
-                },
-                { data: "descripcion", name: "descripcion" },
-                {
-                    data: "estado",
-                    name: "estado",
-                    render: function (data) {
-                        let badgeClass = "";
-                        // Evaluamos el texto que viene de est.Nombre
-                        switch (data) {
-                            case "Aprobado": case "Activo": case "Pagado":
-                                badgeClass = "badge-success";
-                                break;
-                            case "Pendiente":
-                                badgeClass = "badge-warning text-dark";
-                                break;
-                            case "Rechazado": case "Anulado": case "Inactivo":
-                                badgeClass = "badge-danger";
-                                break;
-                            default:
-                                badgeClass = "badge-secondary";
-                        }
-                        return `<h5 class="mb-0 d-flex align-items-center justify-content-center"><span class="badge ${badgeClass} fs-5">${data}</span></h5>`;
-                    },
-                },
-                {
-                    data: null,
-                    render: function (data) {
-                        let buttons = '';
+            columns: [
+                        { data: "Id", name: "Id", className: "text-center" },
+                        { data: "Empresa", name: "Empresa" },
+                        { data: "Usuario", name: "Usuario" },
+                        {
+                            data: "Fecha",
+                            name: "Fecha",
+                            className: "text-center",
+                            render: function (data) {
+                                return data ? moment(data).format('DD/MM/YYYY') : "";
+                            }
+                        },
+                        {
+                            data: "Importe",
+                            name: "Importe",
+                            className: "text-right",
+                            render: function (data) {
+                                if (!data) return '0.00';
+                                return parseFloat(data).toFixed(2);
+                            }
+                        },
+                        { data: "Banco", name: "Banco" },
+                        { data: "NroOperacion", name: "NroOperacion", className: "text-center" },
+                        { data: "Descripcion", name: "Descripcion" },
+                        {
+                            data: "Estado",
+                            name: "Estado",
+                            className: "text-center",
+                            render: function (data) {
+                                let badgeClass = "";
+                                switch (data) {
+                                    case "Aprobado": case "Activo": case "Pagado":
+                                        badgeClass = "badge-success";
+                                        break;
+                                    case "Pendiente":
+                                        badgeClass = "badge-warning text-dark";
+                                        break;
+                                    case "Rechazado": case "Anulado": case "Inactivo": case "Observado":
+                                        badgeClass = "badge-danger";
+                                        break;
+                                    default:
+                                        badgeClass = "badge-secondary";
+                                }
+                                return `<h5 class="mb-0 d-flex align-items-center justify-content-center"><span class="badge ${badgeClass} fs-5">${data}</span></h5>`;
+                            },
+                        },
+                        {
+                            data: null,
+                            render: function (data) {
+                                let buttons = '';
+                                if (data.Estado === 'Pendiente' || data.Estado === 'Observado') {
+                                    buttons += `<button class="btn btn-primary btn-sm m-1" onclick="fct_EditarComprobante('${data.Id}')" title="Editar comprobante"><i class="bi bi-pencil-square"></i></button>`;
+                                }
+                                buttons += `<button class="btn btn-info btn-sm m-1" onclick="fct_VerObservaciones('${data.Id}')" title="Ver observaciones"><i class="bi bi-eye"></i></button>`;
 
-                        if (data.estado === 'Pendiente' || data.estado === 'Observado') {
-                            buttons += `<button class="btn btn-primary btn-sm m-1" onclick="fct_EditarComprobante('${data.id}')" title="Editar comprobante"><i class="bi bi-pencil-square"></i></button>`;
+                                return `<div class="flex-wrap btn-group d-flex justify-content-center">${buttons}</div>`;
+                            },
+                            className: 'text-center align-middle',
+                            orderable: false
                         }
-
-                        buttons += `<button class="btn btn-info btn-sm m-1" onclick="fct_VerObservaciones('${data.id}')" title="Ver observaciones"><i class="bi bi-eye"></i></button>`;
-
-                        return `
-                        <div class="flex-wrap btn-group">
-                            ${buttons}
-                        </div>`;
-                    },
-                    className: 'text-center align-middle',
-                }
             ],
             columnDefs: [
                 {
@@ -324,11 +324,11 @@
                     className: "text-center align-middle",
                 },
                 {
-                    targets: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                    targets: [1, 2, 3, 4, 5, 6, 7, 8],
                     className: 'align-middle',
                 },
                 {
-                    targets: [11],
+                    targets: [9],
                     orderable: false,
                 },
             ],
@@ -365,9 +365,9 @@
         $('#efec-cargando').addClass('d-none');
     }
 
-    function fct_IniciarTablaDevoluciones(IdTabla) {
+    function fct_IniciarTablaComprobantes(IdTabla) {
         // Inicializar DataTables con botones
-        dtDevoluciones = $(IdTabla).DataTable({
+        dtGastos = $(IdTabla).DataTable({
             buttons: [
                 {
                     extend: 'copy',
@@ -380,7 +380,7 @@
                     text: '<i class="bi bi-file-earmark-excel"></i>',
                     titleAttr: 'Exportar a Excel',
                     className: 'btn btn-success',
-                    filename: 'Mis devoluciones ' + moment().format('DD-MM-YYYY HH_mm'),
+                    filename: 'Mis gastos ' + moment().format('DD-MM-YYYY HH_mm'),
                     footer: true,
                     exportOptions:
                     {
@@ -393,7 +393,7 @@
                     text: '<i class="bi bi-file-earmark-pdf"></i>',
                     titleAttr: 'Exportar a PDF',
                     className: 'btn btn-danger',
-                    filename: 'Mis devoluciones ' + moment().format('DD-MM-YYYY HH_mm'),
+                    filename: 'Mis gastos ' + moment().format('DD-MM-YYYY HH_mm'),
                     exportOptions:
                     {
                         stripHtml: true,
