@@ -18,12 +18,13 @@ namespace YnnovaComprobantes.Controllers
             _hostingEnvironment = hostingEnvironment;
             _context = context;
         }
-        #region GASTO
-        // Listar
         public IActionResult Index()
         {
             return View();
         }
+        #region GASTO
+        // Listar
+        
         public JsonResult GetGastosData()
         {
             try
@@ -918,7 +919,7 @@ namespace YnnovaComprobantes.Controllers
                 return Json(new ApiResponse { status = false, message = $"Error técnico: {ex.Message}" });
             }
         }
-        #endregion
+        #endregion    
         #region DEVOLUCION GASTO
         public JsonResult GetDevolucionesData(int id)
         {
@@ -959,6 +960,6 @@ namespace YnnovaComprobantes.Controllers
                 return Json(new ApiResponse { data = null, status = false, message = ex.Message });
             }
         }
-        #endregion
+        #endregion  
     }
 }
