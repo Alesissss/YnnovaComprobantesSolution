@@ -111,7 +111,7 @@ namespace YnnovaComprobantes.Controllers
                     return Json(new ApiResponse { data = null, message = "Tipo de rendición no encontrado.", status = false });
                 }
 
-                if (_context.Gastos.Any(g => g.TipoRendicionId == id))
+                if (_context.Anticipos.Any(g => g.TipoRendicionId == id))
                 {
                     return Json(new ApiResponse { data = null, message = "El tipo de rendición no se puede eliminar porque ya está referenciado.", status = false });
                 }

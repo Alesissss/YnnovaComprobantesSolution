@@ -1,18 +1,33 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace YnnovaComprobantes.Models
 {
-    [Table("Observacion")]
+    [Table("observacion")]
     public class Observacion
     {
+        [Key]
+        [Column("id")]
         public int Id { get; set; }
-        [Column("comprobante_id")]
-        public int ComprobanteId { get; set; }
+
+        [Column("anticipo_id")]
+        public int AnticipoId { get; set; } // Nuevo FK
+
         [Column("usuario_id")]
         public int UsuarioId { get; set; }
-        public string? Prioridad { get; set; }
-        public string? Mensaje { get; set; }
+
+        [Column("prioridad")]
+        public string Prioridad { get; set; } // "A", "M", "B"
+
+        [Column("mensaje")]
+        public string Mensaje { get; set; }
+
         [Column("fecha_creacion")]
-        public DateTime? FechaCreacion { get; set; }
+        public DateTime FechaCreacion { get; set; } = DateTime.Now;
+
+        // Propiedad extra para mostrar el nombre en el chat (no mapeada a BD si usas DTO, 
+        // pero si usas el modelo directo, la llenaremos con LINQ)
+        [NotMapped]
+        public string? NombreUsuario { get; set; }
     }
 }

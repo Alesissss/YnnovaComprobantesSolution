@@ -105,7 +105,7 @@ namespace YnnovaComprobantes.Controllers
                     return Json(new ApiResponse { data = null, message = "Banco no encontrado.", status = false });
                 }
 
-                if (_context.Gastos.Any(g => g.BancoId == id))
+                if (_context.Anticipos.Any(g => g.BancoId == id))
                 {
                     return Json(new ApiResponse { data = null, message = "El banco no se puede eliminar porque ya está referenciado.", status = false });
                 }
