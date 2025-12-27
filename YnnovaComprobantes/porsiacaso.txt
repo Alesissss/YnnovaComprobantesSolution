@@ -1,0 +1,573 @@
+@model YnnovaComprobantes.ViewModels.EditarAnticipoViewModel
+@{
+    ViewData["Title"] = "Detalle del Anticipo #" + Model.Anticipo.Id;
+}
+
+<style>
+    /* ... (Tus estilos se mantienen igual) ... */
+    .chat-box {
+        max-height: 350px;
+        overflow-y: auto;
+        padding: 10px;
+        background: #f4f6f9;
+        border-radius: 5px;
+    }
+
+    .direct-chat-msg {
+        margin-bottom: 10px;
+    }
+
+    .direct-chat-text {
+        border-radius: .3rem;
+        background: #d2d6de;
+        border: 1px solid #d2d6de;
+        color: #444;
+        margin: 5px 0 0 50px;
+        padding: 5px 10px;
+        position: relative;
+    }
+
+    .right .direct-chat-text {
+        background: #3b8bba;
+        border-color: #3b8bba;
+        color: #fff;
+        margin-left: 0;
+        margin-right: 50px;
+    }
+
+    .drag-over {
+        background-color: #e8f0fe;
+        border-color: #007bff !important;
+    }
+
+    .drop-zone {
+        border: 2px dashed #ccc;
+        transition: all 0.3s;
+    }
+
+    /* Indicador de carga para selects */
+    select.loading {
+        background-color: #f0f0f0;
+        color: #888;
+    }
+</style>
+
+<div class="container-fluid pt-3">
+    <div class="row">
+
+        <div class="col-md-4">
+
+            <div class="card card-primary shadow-sm mb-3">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-edit"></i> Datos del Anticipo</h3>
+                    <div class="card-tools">
+                        <span class="badge badge-warning">@Model.Estado?.Nombre</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form id="frm_EditarAnticipo">
+                        <input type="hidden" id="hdn_AnticipoId" value="@Model.Anticipo.Id">
+
+                        <div class="row">
+                            <div class="col-md-12 mb-2">
+                                <label>Empresa</label>
+                                <select id="cbx_Ant_Empresa" class="form-control form-control-sm loading"></select>
+                            </div>
+                            <div class="col-md-12 mb-2">
+                                <label>Usuario Solicitante</label>
+                                <select id="cbx_Ant_Usuario" class="form-control form-control-sm loading" disabled>
+                                    <option value="">-- Seleccione Empresa primero --</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6 mb-2">
+                                <label>Banco (Depósito)</label>
+                                <select id="cbx_Ant_Banco" class="form-control form-control-sm loading"></select>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label>Tipo Rendición</label>
+                                <select id="cbx_Ant_TipoRendicion" class="form-control form-control-sm loading"></select>
+                            </div>
+
+                            <div class="col-md-6 mb-2">
+                                <label>Moneda</label>
+                                <select id="cbx_Ant_Moneda" class="form-control form-control-sm loading"></select>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label>Monto</label>
+                                <input type="number" id="txt_Ant_Monto" class="form-control form-control-sm" value="@Model.Anticipo.Monto" step="0.01">
+                            </div>
+
+                            <div class="col-md-6 mb-2">
+                                <label>Fecha Solicitud</label>
+                                <input type="date" id="txt_Ant_Fecha" class="form-control form-control-sm" value="@(Model.Anticipo.FechaSolicitud?.ToString("yyyy-MM-dd"))">
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label>Fecha Límite</label>
+                                <input type="date" id="txt_Ant_FechaLimite" class="form-control form-control-sm" value="@(Model.Anticipo.FechaLimiteRendicion?.ToString("yyyy-MM-dd"))">
+                            </div>
+
+                            <div class="col-12 mb-2">
+                                <label>Descripción</label>
+                                <textarea id="txt_Ant_Descripcion" class="form-control form-control-sm" rows="2">@Model.Anticipo.Descripcion</textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer text-right">
+                    <button type="button" class="btn btn-danger btn-sm" onclick="fct_Volver()">Volver</button>
+                    <button type="button" class="btn btn-primary btn-sm" onclick="fct_ActualizarAnticipo()">
+                        <i class="fas fa-save"></i> Guardar Cambios
+                    </button>
+                </div>
+            </div>
+
+            <div class="card card-warning shadow-sm">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-comments"></i> Observaciones</h3>
+                </div>
+                <div class="card-body p-0">
+                    <div class="chat-box" id="div_ChatBox">
+                        <div class="text-center text-muted mt-5">Cargando comentarios...</div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="input-group mb-2">
+                        <select id="sel_Prioridad" class="form-control form-control-sm" style="max-width: 100px;">
+                            <option value="B">Baja</option>
+                            <option value="M">Media</option>
+                            <option value="A">Alta</option>
+                        </select>
+                        <input type="text" id="txt_MensajeChat" placeholder="Escribe una observación..." class="form-control form-control-sm">
+                        <span class="input-group-append">
+                            <button type="button" class="btn btn-warning btn-sm" onclick="fct_EnviarObservacion()">Enviar</button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+
+            <div class="card card-success shadow-sm mb-3">
+                <div class="card-header collapsed-card" data-toggle="collapse" data-target="#collapseComprobante" style="cursor: pointer;">
+                    <h3 class="card-title"><i class="fas fa-file-invoice-dollar"></i> Registrar Nuevo Comprobante</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool"><i class="fas fa-plus"></i></button>
+                    </div>
+                </div>
+                <div class="collapse show" id="collapseComprobante">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-2">
+                                <label>RUC</label>
+                                <input type="text" id="txt_Comp_RUC" class="form-control form-control-sm" maxlength="11">
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label>Serie</label>
+                                <input type="text" id="txt_Comp_Serie" class="form-control form-control-sm">
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label>Número</label>
+                                <input type="text" id="txt_Comp_Numero" class="form-control form-control-sm">
+                            </div>
+
+                            <div class="col-md-4 mb-2">
+                                <label>Tipo</label>
+                                <select id="cbx_Comp_Tipo" class="form-control form-control-sm loading"></select>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label>Concepto</label>
+                                <select id="cbx_Comp_Concepto" class="form-control form-control-sm loading"></select>
+                            </div>
+
+                            <div class="col-md-4 mb-2">
+                                <label>Moneda / Monto</label>
+                                <div class="input-group input-group-sm">
+                                    <select id="cbx_Comp_Moneda" class="form-control loading" style="max-width: 80px;"></select>
+                                    <input type="number" id="txt_Comp_Monto" class="form-control" step="0.01">
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label>Fecha Emisión</label>
+                                <input type="date" id="txt_Comp_Fecha" class="form-control form-control-sm">
+                            </div>
+
+                            <div class="col-md-8 mb-2">
+                                <label>Adjunto (Imagen/PDF)</label>
+                                <div id="dropZone" class="drop-zone text-center p-2 rounded bg-light">
+                                    <p class="text-muted mb-1 small" id="lbl_DropInfo">Arrastra o click aquí</p>
+                                    <input type="file" id="file_Comp_Archivo" class="d-none" accept=".jpg, .jpeg, .png, .pdf">
+                                    <div id="previewArea" style="display:none;" class="d-flex align-items-center justify-content-center">
+                                        <i id="icon_Preview" class="fas fa-file mr-2"></i>
+                                        <span id="name_Preview" class="small font-weight-bold mr-2">archivo.pdf</span>
+                                        <button type="button" class="btn btn-xs btn-danger" id="btn_RemoveFile"><i class="fas fa-times"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 text-right mt-2">
+                                <button class="btn btn-success btn-sm" id="btn_RegistrarComprobante">
+                                    <i class="fas fa-check"></i> Registrar Comprobante
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card card-secondary shadow-sm">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-list"></i> Comprobantes Registrados</h3>
+                </div>
+                <div class="card-body">
+                    <table id="tbl_ComprobantesDetalle" class="table table-bordered table-striped table-sm w-100">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Proveedor (RUC)</th>
+                                <th>Documento</th>
+                                <th>Concepto</th>
+                                <th>Monto</th>
+                                <th>Archivo</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    // 1. CAPTURAR VARIABLES DEL MODELO (Safe Null Handling)
+    // Usamos estas variables para pre-seleccionar los valores cuando cargue el AJAX
+    var anticipoId = @Model.Anticipo.Id;
+    var usuarioLogueadoId = @Model.UsuarioLogueadoId;
+
+    // IDs seleccionados actualmente en la base de datos (pueden ser nulos si es nuevo)
+    var selEmpresaId = @(Model.Anticipo.EmpresaId.HasValue? Model.Anticipo.EmpresaId.Value : 0);
+    var selUsuarioId = @(Model.Anticipo.UsuarioId.HasValue? Model.Anticipo.UsuarioId.Value : 0);
+    var selBancoId = @(Model.Anticipo.BancoId.HasValue? Model.Anticipo.BancoId.Value : 0);
+    var selTipoRendicionId = @(Model.Anticipo.TipoRendicionId.HasValue? Model.Anticipo.TipoRendicionId.Value : 0);
+    var selMonedaId = @(Model.Anticipo.MonedaId.HasValue? Model.Anticipo.MonedaId.Value : 0); // Asumo que moneda siempre tiene valor int default
+
+    $(document).ready(function () {
+        // --- Carga de Listas AJAX ---
+        cargarListasIniciales();
+
+        // --- Eventos ---
+        // Cascada Empresa -> Usuario
+        $('#cbx_Ant_Empresa').change(function() {
+            let idEmpresa = $(this).val();
+            if(idEmpresa) {
+                cargarUsuarios(idEmpresa, null); // null porque al cambiar manualmente no hay pre-seleccion
+            } else {
+                $('#cbx_Ant_Usuario').html('<option value="">-- Seleccione Empresa primero --</option>').prop('disabled', true);
+            }
+        });
+
+        // --- Inicializadores de Cards (Tus funciones anteriores) ---
+        initCardComprobante();
+        initTableComprobantes();
+        cargarObservaciones();
+    });
+
+    // ==========================================
+    // LOGICA AJAX PARA DROPDOWNS
+    // ==========================================
+
+    function cargarListasIniciales() {
+        // 1. Cargar Combos Independientes (Anticipo)
+        cargarDropdown('/Anticipo/GetEmpresaData', '#cbx_Ant_Empresa', selEmpresaId)
+            .then(() => {
+                // Una vez cargada la empresa, si hay una seleccionada, cargamos los usuarios
+                if(selEmpresaId > 0) {
+                    cargarUsuarios(selEmpresaId, selUsuarioId);
+                }
+            });
+
+        cargarDropdown('/Anticipo/GetBancosData', '#cbx_Ant_Banco', selBancoId);
+        cargarDropdown('/Anticipo/GetTiposRendicionesData', '#cbx_Ant_TipoRendicion', selTipoRendicionId);
+        cargarDropdown('/Anticipo/GetMonedasData', '#cbx_Ant_Moneda', selMonedaId);
+
+        // Cargar Moneda también para el Comprobante
+        cargarDropdown('/Anticipo/GetMonedasData', '#cbx_Comp_Moneda', selMonedaId);
+
+        // 2. Cargar Combos para Comprobante
+        cargarDropdown('/Anticipo/GetTipoComprobanteData', '#cbx_Comp_Tipo', null);
+
+        // ¡OJO! Asegúrate de crear este método en tu controlador o borrar esta línea si no existe
+        cargarDropdown('/Anticipo/GetConceptosData', '#cbx_Comp_Concepto', null);
+    }
+
+    // Función Específica para Usuarios (depende de Empresa)
+    function cargarUsuarios(empresaId, usuarioSeleccionadoId) {
+        let $select = $('#cbx_Ant_Usuario');
+        $select.prop('disabled', true).html('<option>Cargando...</option>');
+
+        $.getJSON('/Anticipo/GetUsuariosData', { EmpresaId: empresaId }, function(resp) {
+            if(resp.status) {
+                let html = '<option value="">-- Seleccionar --</option>';
+                resp.data.forEach(u => {
+                    html += `<option value="${u.id}">${u.nombre}</option>`;
+                });
+                $select.html(html).prop('disabled', false).removeClass('loading');
+
+                if(usuarioSeleccionadoId > 0) {
+                    $select.val(usuarioSeleccionadoId);
+                }
+            } else {
+                $select.html('<option>Error al cargar</option>');
+            }
+        });
+    }
+
+    // Función Genérica Reutilizable
+    function cargarDropdown(url, selector, valorPreSeleccionado) {
+        let $select = $(selector);
+        $select.html('<option>Cargando...</option>').addClass('loading');
+
+        return $.getJSON(url, function(resp) {
+            if(resp.status) {
+                let html = '<option value="">-- Seleccionar --</option>';
+                resp.data.forEach(item => {
+                    // Detectar si viene como "Nombre", "Descripcion" o una combinación
+                    let texto = item.nombre || item.descripcion;
+                    if(item.simbolo) texto = `${item.nombre} (${item.simbolo})`; // Caso monedas
+
+                    html += `<option value="${item.id}">${texto}</option>`;
+                });
+                $select.html(html).removeClass('loading');
+
+                // Pre-seleccionar si corresponde
+                if(valorPreSeleccionado && valorPreSeleccionado > 0) {
+                    $select.val(valorPreSeleccionado);
+                }
+            } else {
+                $select.html('<option>Error cargar datos</option>');
+                console.error("Error en " + url + ": " + resp.message);
+            }
+        }).fail(function() {
+            $select.html('<option>Error de red</option>');
+        });
+    }
+
+    // ==========================================
+    // TUS FUNCIONES EXISTENTES (Sin cambios mayores)
+    // ==========================================
+
+    function fct_ActualizarAnticipo() {
+        let obj = {
+            Id: $('#hdn_AnticipoId').val(),
+            EmpresaId: $('#cbx_Ant_Empresa').val(),
+            UsuarioId: $('#cbx_Ant_Usuario').val(),
+            BancoId: $('#cbx_Ant_Banco').val(),
+            TipoRendicionId: $('#cbx_Ant_TipoRendicion').val(),
+            MonedaId: $('#cbx_Ant_Moneda').val(),
+            Descripcion: $('#txt_Ant_Descripcion').val(),
+            Monto: $('#txt_Ant_Monto').val(),
+            FechaSolicitud: $('#txt_Ant_Fecha').val(),
+            FechaLimiteRendicion: $('#txt_Ant_FechaLimite').val()
+        };
+
+        if (!obj.EmpresaId || !obj.UsuarioId || !obj.Monto) {
+            toastr.warning("Por favor completa los datos esenciales del anticipo.");
+            return;
+        }
+
+        Swal.fire({
+            title: "¿Guardar cambios?",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonText: "Sí, guardar"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.post("/Anticipo/ActualizarAnticipoDatos", obj, function(resp){
+                    if(resp.status) toastr.success(resp.message);
+                    else toastr.error(resp.message);
+                });
+            }
+        });
+    }
+
+    // ... (El resto de funciones initCardComprobante, initTableComprobantes, etc. permanecen igual) ...
+    // Solo copia y pega tus funciones anteriores aquí abajo
+
+    function fct_Volver() {
+        window.location.href = '/Anticipo';
+    }
+
+    // ... Copia aquí initCardComprobante ...
+    function initCardComprobante() {
+        const dropZone = $('#dropZone');
+        const fileInput = $('#file_Comp_Archivo');
+
+        fileInput.on('click', function(e) { e.stopPropagation(); });
+        dropZone.on('click', function(e) {
+            if(e.target.id !== 'btn_RemoveFile' && e.target.parentNode.id !== 'btn_RemoveFile') {
+                fileInput.trigger('click');
+            }
+        });
+        dropZone.on('dragover', function(e) { e.preventDefault(); e.stopPropagation(); $(this).addClass('drag-over'); });
+        dropZone.on('dragleave', function(e) { e.preventDefault(); e.stopPropagation(); $(this).removeClass('drag-over'); });
+        dropZone.on('drop', function(e) {
+            e.preventDefault(); e.stopPropagation(); $(this).removeClass('drag-over');
+            if (e.originalEvent.dataTransfer.files.length) {
+                fileInput[0].files = e.originalEvent.dataTransfer.files;
+                mostrarPreview(fileInput[0].files[0]);
+            }
+        });
+        fileInput.on('change', function() { if(this.files.length) mostrarPreview(this.files[0]); });
+        $('#btn_RemoveFile').on('click', function(e){
+            e.stopPropagation(); e.preventDefault();
+            fileInput.val(''); $('#previewArea').hide(); $('#lbl_DropInfo').show();
+        });
+        function mostrarPreview(file) {
+            $('#lbl_DropInfo').hide(); $('#name_Preview').text(file.name); $('#previewArea').show();
+            if(file.type.includes('pdf')) $('#icon_Preview').attr('class', 'fas fa-file-pdf text-danger fa-2x');
+            else $('#icon_Preview').attr('class', 'fas fa-file-image text-primary fa-2x');
+        }
+        $('#txt_Comp_RUC').on('input', function() { this.value = this.value.replace(/[^0-9]/g, '').slice(0,11); });
+
+        $('#btn_RegistrarComprobante').off('click').on('click', function() {
+            let formData = new FormData();
+            formData.append("AnticipoId", anticipoId);
+            formData.append("RucEmpresa", $('#txt_Comp_RUC').val());
+            formData.append("Serie", $('#txt_Comp_Serie').val());
+            formData.append("Numero", $('#txt_Comp_Numero').val());
+            formData.append("TipoComprobanteId", $('#cbx_Comp_Tipo').val());
+            let conceptoVal = $('#cbx_Comp_Concepto').val();
+            if(conceptoVal) formData.append("ConceptoId", conceptoVal);
+            formData.append("MonedaId", $('#cbx_Comp_Moneda').val());
+            formData.append("MontoTotal", $('#txt_Comp_Monto').val());
+            formData.append("FechaEmision", $('#txt_Comp_Fecha').val());
+            let file = $('#file_Comp_Archivo')[0].files[0];
+            if(file) formData.append("ArchivoComprobante", file);
+            else { toastr.warning("Debes adjuntar el archivo"); return; }
+            if(!$('#txt_Comp_RUC').val() || !$('#txt_Comp_Monto').val() || !$('#txt_Comp_Fecha').val()) {
+                toastr.warning("Completa los campos obligatorios"); return;
+            }
+            $.ajax({
+                url: "/Anticipo/RegistrarComprobante", type: "POST", data: formData, contentType: false, processData: false,
+                success: function(resp) {
+                    if(resp.status) { toastr.success(resp.message); limpiarFormularioComprobante(); $('#tbl_ComprobantesDetalle').DataTable().ajax.reload(); }
+                    else toastr.error(resp.message);
+                }, error: function() { toastr.error("Error de conexión"); }
+            });
+        });
+    }
+
+    function limpiarFormularioComprobante() {
+        $('#txt_Comp_RUC, #txt_Comp_Serie, #txt_Comp_Numero, #txt_Comp_Monto').val('');
+        $('#cbx_Comp_Tipo, #cbx_Comp_Concepto').val('');
+        $('#btn_RemoveFile').click();
+    }
+
+    // ... Copia aquí initTableComprobantes y cargarObservaciones ...
+    function initTableComprobantes() {
+        $('#tbl_ComprobantesDetalle').DataTable({
+            paging: true,
+            select: true,
+            scroller: false,
+            deferRender: true,
+            scrollY: true,
+            scrollX: true,
+            fixedHeader: true,
+            ordering: true,
+            destroy: true,
+            responsive: true,
+            autoWidth: false,
+            processing: true,
+            filter: true,
+            orderMulti: true,
+            stateSave: false,
+            serverSide: false,
+            language: {
+                processing: "Procesando...",
+                sSearch: "Buscar:",
+                lengthMenu: "Mostrar _MENU_ registros",
+                info: "Mostrando del _START_ al _END_ de un total de _TOTAL_ registros",
+                infoEmpty: "Sin registros encontrados.",
+                infoFiltered: "(Total de _MAX_ registros filtrados)",
+                loadingRecords: "Cargando...",
+                zeroRecords: "No se encontraron registros",
+                emptyTable: "No hay datos disponibles en la tabla",
+                paginate: {
+                    previous: "Anterior",
+                    next: "Siguiente",
+                    first: "Primero",
+                    last: "Último",
+                },
+                aria: {
+                    sortAscending: ": Activar para ordenar la columna de manera ascendente",
+                    sortDescending: ": Activar para ordenar la columna de manera descendente"
+                },
+                select: {
+                    rows: {
+                        _: "%d filas seleccionadas",
+                        0: "Haz clic en una fila para seleccionarla",
+                        1: "1 fila seleccionada"
+                    }
+                },
+                buttons: {
+                    copyTitle: 'Copiado en el portapapeles',
+                    copyKeys: 'Presiona <i>ctrl</i> o <i>\u2318</i> + <i>C</i> para copiar los datos de la tabla a tu portapapeles. <br><br>Para cancelar, haga clic en este mensaje o presione Esc.',
+                    copySuccess: {
+                        _: '%d registros copiados correctamente',
+                        1: '1 registro copiado correctamente'
+                    }
+                }
+            },
+            lengthMenu: [[100, 200, 500, -1], [100, 200, 500, 'Todos']],
+            responsive: true,
+            ajax: { url: '/Anticipo/GetComprobantesPorAnticipo?anticipoId=' + anticipoId, type: 'GET', dataSrc: function(json) { return json.data; } },
+            columns: [
+                { data: 'fechaEmision', render: d => moment(d).format('DD/MM/YYYY') },
+                { data: 'proveedorNombre', render: (d,t,r) => `<div>${r.rucEmpresa}</div><small>${d || ''}</small>` },
+                { data: null, render: (d,t,r) => `${r.serie}-${r.numero}` },
+                { data: 'concepto' },
+                { data: 'montoTotal', render: d => parseFloat(d).toFixed(2) },
+                { data: 'archivoUrl', render: function(data) { if(data) return `<a href="${data}" target="_blank" class="btn btn-xs btn-info"><i class="fas fa-eye"></i> Ver</a>`; return '<span class="text-muted">Sin archivo</span>'; } },
+                { data: 'id', render: function(id) { return `<button class="btn btn-xs btn-danger" onclick="eliminarComprobante(${id})"><i class="fas fa-trash"></i></button>`; }, orderable: false }
+            ],
+            columnDefs: [
+                { targets: '_all', className: 'align-middle' },
+                { targets: [5, 6], className: 'text-center' },
+            ]
+        });
+    }
+
+    function eliminarComprobante(id) {
+        Swal.fire({ title: '¿Eliminar comprobante?', icon: 'warning', showCancelButton: true }).then((r) => {
+            if(r.isConfirmed) { $.post('/Anticipo/EliminarComprobante', { id: id }, function(resp) { if(resp.status) $('#tbl_ComprobantesDetalle').DataTable().ajax.reload(); else toastr.error(resp.message); }); }
+        });
+    }
+
+    function cargarObservaciones() {
+        $.getJSON('/Anticipo/GetObservaciones?anticipoId=' + anticipoId, function(resp) {
+            let html = '';
+            if(resp.status && resp.data.length > 0) {
+                resp.data.forEach(obs => {
+                    let esMio = obs.usuarioId === usuarioLogueadoId;
+                    let alineacion = esMio ? 'right' : 'left';
+                    let nombreUsuario = esMio ? 'Yo' : obs.nombreUsuario;
+                    let colorPrioridad = obs.prioridad === 'A' ? 'text-danger' : (obs.prioridad === 'M' ? 'text-warning' : 'text-success');
+                    let fecha = moment(obs.fechaCreacion).format('DD/MM HH:mm');
+                    html += `<div class="direct-chat-msg ${alineacion}"><div class="direct-chat-infos clearfix"><span class="direct-chat-name float-${alineacion}">${nombreUsuario}</span><span class="direct-chat-timestamp float-${esMio ? 'left' : 'right'}">${fecha}</span></div><div class="direct-chat-text"><i class="fas fa-circle ${colorPrioridad} small" title="Prioridad"></i> ${obs.mensaje}</div></div>`;
+                });
+            } else { html = '<p class="text-center text-muted small mt-4">No hay observaciones registradas.</p>'; }
+            $('#div_ChatBox').html(html).scrollTop($('#div_ChatBox')[0].scrollHeight);
+        });
+    }
+
+    function fct_EnviarObservacion() {
+        let msg = $('#txt_MensajeChat').val();
+        let pri = $('#sel_Prioridad').val();
+        if(!msg.trim()) return;
+        $.post('/Anticipo/RegistrarObservacion', { AnticipoId: anticipoId, Mensaje: msg, Prioridad: pri }, function(resp) {
+            if(resp.status) { $('#txt_MensajeChat').val(''); cargarObservaciones(); } else { toastr.error(resp.message); }
+        });
+    }
+</script>

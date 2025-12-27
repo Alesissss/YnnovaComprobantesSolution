@@ -1,0 +1,144 @@
+﻿@{
+    ViewData["Title"] = "Registrar Planilla de Movilidad";
+}
+
+<div class="container-fluid pt-3">
+    <div class="row justify-content-center">
+        <div class="col-md-7">
+            <div class="card shadow">
+                <div class="card-header bg-navy text-white">
+                    <h4 class="text-center mb-0"><i class="fas fa-car-side"></i> Nueva Planilla de Movilidad</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="cbx_Empresa">Empresa</label>
+                            <select id="cbx_Empresa" class="form-control"></select>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="cbx_Usuario">Asignar a Usuario</label>
+                            <select id="cbx_Usuario" class="form-control"></select>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="txt_FechaEmision">Fecha de Emisión</label>
+                            <input type="date" id="txt_FechaEmision" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-dd")">
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="txt_MontoTotal">Monto Límite (Presupuesto)</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">S/</span>
+                                </div>
+                                <input type="number" id="txt_MontoTotal" class="form-control" step="0.01" placeholder="0.00">
+                            </div>
+                            <small class="text-muted">El usuario no podrá exceder este monto en sus detalles.</small>
+                        </div>
+
+                        <div class="col-md-12 text-center">
+                            <hr>
+                            <button id="btn_Volver" type="button" class="btn btn-secondary mr-2">
+                                <i class="fas fa-undo"></i> Volver
+                            </button>
+                            <button id="btn_Registrar" type="button" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Crear Planilla
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        // 1. Cargar Empresas al iniciar
+        fct_GetEmpresas();
+
+        // 2. Evento Cambio de Empresa -> Cargar Usuarios
+        $('#cbx_Empresa').on('change', function () {
+            let idEmpresa = $(this).val();
+            if (idEmpresa) {
+                fct_GetUsuarios(idEmpresa);
+            } else {
+                $('#cbx_Usuario').empty().append('<option value="">--SELECCIONE EMPRESA--</option>');
+            }
+        });
+
+        // --- Funciones de Carga ---
+        function fct_GetEmpresas() {
+            $.getJSON('/PlanillaMovilidad/GetEmpresaData', function (res) {
+                if (res.status) {
+                    let data = res.data.map(e => ({ id: e.id, text: e.ruc + ' - ' + e.nombre }));
+                    $('#cbx_Empresa').select2({
+                        theme: 'bootstrap4',
+                        data: data,
+                        placeholder: "Seleccionar Empresa"
+                    }).val(null).trigger('change');
+                }
+            });
+        }
+
+        function fct_GetUsuarios(idEmpresa) {
+            $.getJSON('/PlanillaMovilidad/GetUsuariosData', { EmpresaId: idEmpresa }, function (res) {
+                if (res.status) {
+                    let data = res.data.map(u => ({ id: u.id, text: u.dni + ' - ' + u.nombre }));
+                    $('#cbx_Usuario').empty().select2({
+                        theme: 'bootstrap4',
+                        data: data,
+                        placeholder: "Seleccionar Usuario"
+                    });
+                }
+            });
+        }
+
+        // --- Evento Registrar ---
+        $("#btn_Registrar").click(function () {
+            let obj = {
+                EmpresaId: $('#cbx_Empresa').val(),
+                UsuarioId: $('#cbx_Usuario').val(),
+                FechaEmision: $('#txt_FechaEmision').val(),
+                MontoTotal: $('#txt_MontoTotal').val()
+            };
+
+            // Validaciones
+            if (!obj.EmpresaId || !obj.UsuarioId || !obj.MontoTotal || obj.MontoTotal <= 0) {
+                toastr.warning("Por favor, complete todos los campos y asigne un monto válido.", "SISTEMA");
+                return;
+            }
+
+            Swal.fire({
+                title: "¿Crear Planilla de Movilidad?",
+                text: "Se asignará el presupuesto al usuario seleccionado.",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Sí, registrar",
+                cancelButtonText: "Cancelar",
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: "/PlanillaMovilidad/RegistrarPlanilla",
+                        type: "POST",
+                        data: obj,
+                        success: function (response) {
+                            if (response.status) {
+                                toastr.success(response.message, "ÉXITO");
+                                setTimeout(() => window.location.href = "/PlanillaMovilidad/Index", 1500);
+                            } else {
+                                toastr.error(response.message, "ERROR");
+                            }
+                        }
+                    });
+                }
+            });
+        });
+
+        $("#btn_Volver").click(function () { window.location.href = "/PlanillaMovilidad/Index"; });
+    });
+</script>

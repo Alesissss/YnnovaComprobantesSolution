@@ -1,0 +1,175 @@
+﻿@{
+    ViewData["Title"] = "Registrar Reembolso";
+}
+<div class="container-fluid pt-3">
+    <div class="row justify-content-center">
+        <div class="col-md-7">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h4 class="text-center mb-0"><i class="fas fa-hand-holding-usd"></i> Registrar solicitud de reembolso</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="cbx_Empresa">Empresa</label>
+                            <select id="cbx_Empresa" class="form-control"></select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="cbx_Usuario">Usuario Solicitante</label>
+                            <select id="cbx_Usuario" class="form-control"></select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="txt_FechaSolicitud">Fecha de Solicitud</label>
+                            <input type="date" id="txt_FechaSolicitud" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-dd")">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="cbx_Moneda">Moneda</label>
+                            <select id="cbx_Moneda" class="form-control"></select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="cbx_Banco">Banco (Para abono)</label>
+                            <select id="cbx_Banco" class="form-control"></select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="txt_NumeroCuenta">Número de Cuenta / CCI</label>
+                            <input type="text" id="txt_NumeroCuenta" class="form-control" placeholder="Ej: 002-310-001...">
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label for="txt_Descripcion">Descripción (opcional)</label>
+                            <textarea id="txt_Descripcion" class="form-control" rows="3" placeholder="Detalle el motivo del gasto realizado..."></textarea>
+                        </div>
+
+                        <div class="col-md-12 mb-3">
+                            <label for="txt_MontoTotal">Monto Estimado Total</label>
+                            <input type="number" id="txt_MontoTotal" class="form-control" step="0.01" value="0.00" readonly>
+                        </div>
+
+                        <div class="col-md-12 text-center">
+                            <hr>
+                            <button id="btn_Volver" type="button" class="btn btn-danger">Cancelar</button>
+                            <button id="btn_Registrar" type="button" class="btn btn-success">Registrar Reembolso</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+
+        // Inicializar selectores de datos llamando a las APIs del nuevo controlador
+        fct_GetEmpresas();
+        fct_GetBancos();
+        fct_GetMonedas();
+
+        // --- Carga de Empresas ---
+        function fct_GetEmpresas() {
+            $.getJSON('/Reembolso/GetEmpresaData', function (res) {
+                if (res.status) {
+                    let data = res.data.map(e => ({ id: e.id, text: e.ruc + ' - ' + e.nombre }));
+                    $('#cbx_Empresa').select2({
+                        theme: 'bootstrap4',
+                        data: data,
+                        placeholder: "Seleccionar Empresa"
+                    }).val(null).trigger('change');
+                }
+            });
+        }
+
+        // --- Carga de Usuarios (Anidado) ---
+        $('#cbx_Empresa').on('change', function() {
+            let id = $(this).val();
+            if(!id) {
+                $('#cbx_Usuario').empty().append('<option value="">--SELECCIONE EMPRESA--</option>');
+                return;
+            }
+            $.getJSON('/Reembolso/GetUsuariosData', { 'EmpresaId': id }, function (res) {
+                if (res.status) {
+                    let data = res.data.map(u => ({ id: u.id, text: u.dni + ' - ' + u.nombre }));
+                    $('#cbx_Usuario').empty().select2({
+                        theme: 'bootstrap4',
+                        data: data,
+                        placeholder: "Seleccionar Usuario"
+                    });
+                }
+            });
+        });
+
+        // --- Carga de Bancos ---
+        function fct_GetBancos() {
+            $.getJSON('/Reembolso/GetBancosData', function (res) {
+                if (res.status) {
+                    let data = res.data.map(b => ({ id: b.id, text: b.descripcion }));
+                    $('#cbx_Banco').select2({
+                        theme: 'bootstrap4',
+                        data: data,
+                        placeholder: "Seleccionar Banco"
+                    }).val(null).trigger('change');
+                }
+            });
+        }
+
+        // --- Carga de Monedas ---
+        function fct_GetMonedas() {
+            $.getJSON('/Reembolso/GetMonedasData', function (res) {
+                if (res.status) {
+                    let opt = '<option value="" disabled selected>--SELECCIONAR--</option>';
+                    res.data.forEach(m => opt += `<option value="${m.id}">${m.simbolo} ${m.nombre}</option>`);
+                    $('#cbx_Moneda').html(opt);
+                }
+            });
+        }
+
+        // --- Evento de Registro ---
+        $("#btn_Registrar").click(function () {
+            let obj = {
+                EmpresaId: $('#cbx_Empresa').val(),
+                UsuarioId: $('#cbx_Usuario').val(),
+                FechaSolicitud: $('#txt_FechaSolicitud').val(),
+                MonedaId: $('#cbx_Moneda').val(),
+                MontoTotal: $('#txt_MontoTotal').val(),
+                Descripcion: $('#txt_Descripcion').val(),
+                BancoId: $('#cbx_Banco').val(),
+                NumeroCuenta: $('#txt_NumeroCuenta').val()
+            };
+
+            // Validación
+            if (!obj.EmpresaId || !obj.UsuarioId || !obj.MonedaId || !obj.FechaSolicitud) {
+                toastr.warning("Complete los campos obligatorios: Empresa, Usuario, Fecha y Moneda.", "SISTEMA");
+                return;
+            }
+
+            Swal.fire({
+                title: "¿Registrar Reembolso?",
+                text: "Se creará la solicitud. Luego podrá adjuntar los comprobantes.",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonColor: "#28a745",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Sí, registrar",
+                cancelButtonText: "Cancelar",
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: "/Reembolso/RegistrarReembolso",
+                        type: "POST",
+                        data: obj,
+                        success: function (response) {
+                            if (response.status) {
+                                toastr.success(response.message, "ÉXITO");
+                                setTimeout(() => window.location.href = "/Reembolso", 1500);
+                            } else {
+                                toastr.error(response.message, "ERROR");
+                            }
+                        }
+                    });
+                }
+            });
+        });
+
+        $("#btn_Volver").click(function () { window.location.href = "/Reembolso"; });
+    });
+</script>

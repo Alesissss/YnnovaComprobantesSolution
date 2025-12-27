@@ -207,18 +207,9 @@
                                     </p>
                                 </a>
                             </li>
-                            <li class="nav-item">
-                                <a href="/TipoGasto/"
-                                   class="nav-link @(controllerName == "TipoGasto" ? "active" : "")">
-                                    <i class="nav-icon fas fa-tags"></i>
-                                    <p>
-                                        Tipo Entrega a Rendir
-                                    </p>
-                                </a>
-                            </li>
                         }    
-                        <li class="nav-item @(controllerName == "Gasto" ? "menu-open" : "")">
-                            <a href="#" class="nav-link @(controllerName == "Gasto" ? "active" : "")">
+                        <li class="nav-item @(new[] { "Anticipo", "Reembolso", "PlanillaMovilidad" }.Contains(controllerName) ? "menu-open" : "")">
+                            <a href="#" class="nav-link">
                                 <i class="nav-icon fas fa-file-invoice-dollar"></i>
                                 <p>
                                     Entregas a rendir
@@ -226,24 +217,27 @@
                                 </p>
                             </a>
                             <ul class="nav nav-treeview">
-                                @if (User.FindFirst("TipoUsuario")?.Value == "Administrador del sistema")
-                                {
-                                    <li class="nav-item">
-                                        <a href="/Gasto/Index"
-                                           class="nav-link @(controllerName == "Gasto" && new[] { "Index", "Registrar", "VerGasto", "RevisarComprobante", "VerRevisionComprobante" }.Contains(actionName) ? "active" : "")">
-                                            <i class="far fa-circle nav-icon"></i>
-                                            <p>Gestionar entregas a rendir</p>
-                                        </a>
-                                    </li>
-                                }
                                 <li class="nav-item">
-                                    <a href="/Gasto/MisGastos"
-                                       class="nav-link @(controllerName == "Gasto" && new[] { "MisGastos", "SubirComprobante", "VerComprobantes", "EditarComprobante", "VerObservaciones"}.Contains(actionName) ? "active" : "")">
+                                    <a href="/Anticipo/Index"
+                                       class="nav-link @(controllerName == "Anticipo" ? "active" : "")">
                                         <i class="far fa-circle nav-icon"></i>
-                                        <p>Mis entregas a rendir</p>
+                                        <p>Anticipos</p>
                                     </a>
                                 </li>
-
+                                <li class="nav-item">
+                                    <a href="/Reembolso/Index"
+                                       class="nav-link @(controllerName == "Reembolso" ? "active" : "")">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Reembolso</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/PlanillaMovilidad/Index"
+                                       class="nav-link @(controllerName == "PlanillaMovilidad" ? "active" : "")">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Planillas de movilidad</p>
+                                    </a>
+                                </li>
                             </ul>
                         </li>
                     </ul>

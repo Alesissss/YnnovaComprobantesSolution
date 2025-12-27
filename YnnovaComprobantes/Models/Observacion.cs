@@ -11,16 +11,22 @@ namespace YnnovaComprobantes.Models
         public int Id { get; set; }
 
         [Column("anticipo_id")]
-        public int AnticipoId { get; set; } // Nuevo FK
+        public int? AnticipoId { get; set; } // Nuevo FK
+
+        [Column("reembolso_id")]
+        public int? ReembolsoId { get; set; } // Nuevo FK
+
+        [Column("planilla_movilidad_id")]
+        public int? PlanillaMovilidadId { get; set; } // Nuevo FK
 
         [Column("usuario_id")]
-        public int UsuarioId { get; set; }
+        public int? UsuarioId { get; set; }
 
         [Column("prioridad")]
-        public string Prioridad { get; set; } // "A", "M", "B"
+        public string? Prioridad { get; set; } // "A", "M", "B"
 
         [Column("mensaje")]
-        public string Mensaje { get; set; }
+        public string? Mensaje { get; set; }
 
         [Column("fecha_creacion")]
         public DateTime FechaCreacion { get; set; } = DateTime.Now;

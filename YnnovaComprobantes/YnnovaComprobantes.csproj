@@ -15,8 +15,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Views\PlanillaMovilidad\" />
-    <Folder Include="Views\Reembolso\" />
+    <Folder Include="wwwroot\comprobantes\" />
+    <Folder Include="wwwroot\comprobantes_reembolso\" />
     <Folder Include="wwwroot\plugins\select2-bootstrap4-theme\" />
     <Folder Include="wwwroot\uploads\comprobantes\" />
     <Folder Include="wwwroot\uploads\fotos\" />

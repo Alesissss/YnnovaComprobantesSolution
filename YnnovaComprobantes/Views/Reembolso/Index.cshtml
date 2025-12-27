@@ -1,121 +1,113 @@
-﻿@* @model YnnovaComprobantes.Models.Gasto
-@{
-    ViewData["Title"] = "Gestionar comprobantes";
+﻿@{
+    ViewData["Title"] = "Gestión de Reembolsos";
 }
+
 <div class="card d-none" id="efec-cargando">
-    <div class="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center overlay dark">
+    <div class="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center overlay dark" style="z-index: 9999; background: rgba(0,0,0,0.5);">
         <i class="fas fa-3x fa-sync-alt fa-spin text-white"></i>
     </div>
 </div>
-<div class="container-fluid p-4">
-    <div class="row">
-        <div class="col-md-12 col-sm-6">
-            <div class="card card-primary card-tabs">
-                <div class="card-header p-0 pt-1">
-                    <ul class="nav nav-tabs" id="custom-tabs-one-tab" role="tablist">
-                        <li class="nav-item">
-                            <a class="nav-link active" id="tab01-tab" data-toggle="pill" href="#tab-01" role="tab"
-                               aria-controls="tab-01" aria-selected="true">Gestionar comprobantes</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" id="tab02-tab" data-toggle="pill" href="#tab-02" role="tab"
-                               aria-controls="tab-02" aria-selected="false">Gestionar devolución</a>
-                        </li>
-                    </ul>
-                </div>
-                <div class="card-body">
-                    <div class="tab-content" id="custom-tabs-one-tabContent">
 
-                        <!-- Tab 1 -->
-                        <div class="tab-pane fade show active" id="tab-01" role="tabpanel" aria-labelledby="tab01-tab">
-                            <div class="panel-heading">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <h1>Gestionar Comprobantes</h1> 
-                                        <a href="/Gasto/MisGastos/">Volver al listado de mis entregas a rendir</a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="panel-body">
-                                <div class="row">
-                                    <div class="col-12">
-                                        <table id="tbl_Comprobantes" class="table table-bordered table-hover">
-                                            <thead class="thead-dark">
-                                                <tr>
-                                                    <th class="text-center">ID</th>
-                                                    <th class="text-center">FECHA</th>
-                                                    <th class="text-center">RUC</th>
-                                                    <th class="text-center">SERIE</th>
-                                                    <th class="text-center">NÚMERO</th>
-                                                    <th class="text-center">TIPO</th>
-                                                    <th class="text-center">CONCEPTO</th>
-                                                    <th class="text-center">MONEDA</th>
-                                                    <th class="text-center">MONTO</th>
-                                                    <th class="text-center">DESCRIPCIÓN</th>
-                                                    <th class="text-center">ESTADO</th>
-                                                    <th class="text-center">ACCIÓN</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Tab 2 -->
-                        <div class="tab-pane fade" id="tab-02" role="tabpanel" aria-labelledby="tab02-tab">
-                            <div class="panel-heading">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <h1>Gestionar Devoluciones de Anticipos</h1>
-                                        <a href="/Gasto/MisGastos/">Volver al listado de mis entregas a rendir</a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="panel-body">
-                                <div class="row">
-                                    <div class="col-12">
-                                        <table id="tbl_Devoluciones" class="table table-bordered table-hover w-100">
-                                            <thead class="thead-dark">
-                                                <tr>
-                                                    <th class="text-center">ID</th>
-                                                    <th class="text-center">EMPRESA</th>
-                                                    <th class="text-center">USUARIO</th>
-                                                    <th class="text-center">FECHA</th>
-                                                    <th class="text-center">IMPORTE</th>
-                                                    <th class="text-center">BANCO</th>
-                                                    <th class="text-center">N° OPERACIÓN</th>
-                                                    <th class="text-center">DESCRIPCIÓN</th>
-                                                    <th class="text-center">ESTADO</th>
-                                                    <th class="text-center">ACCIÓN</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div> <!-- /.tab-content -->
-                </div> <!-- /.card-body -->
-            </div> <!-- /.card -->
+<div class="container-fluid p-4">
+    <div class="card card-primary card-tabs">
+        <div class="card-header p-0 pt-1">
+            <ul class="nav nav-tabs" id="custom-tabs-one-tab" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="tab01-tab" data-toggle="pill" href="#tab-01" role="tab"
+                       aria-controls="tab-01" aria-selected="true">GESTIONAR REEMBOLSOS</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="tab02-tab" data-toggle="pill" href="#tab-02" role="tab"
+                       aria-controls="tab-02" aria-selected="false">MIS REEMBOLSOS</a>
+                </li>
+            </ul>
         </div>
-    </div>
+        <div class="card-body">
+            <div class="tab-content" id="custom-tabs-one-tabContent">
+
+                <!-- Tab 1 -->
+                <div class="tab-pane fade show active" id="tab-01" role="tabpanel" aria-labelledby="tab01-tab">
+                    <div class="panel-heading">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h1>Gestionar reembolsos</h1>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-body mt-3">
+                        <div class="row">
+                            <div class="col-12">
+                                <table id="tbl_Reembolsos" class="table table-bordered table-hover w-100">
+                                    <thead class="thead-dark">
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>FECHA</th>
+                                            <th>EMPRESA</th>
+                                            <th>USUARIO</th>
+                                            <th>BANCO</th>
+                                            <th>N° CUENTA</th>
+                                            <th>MONEDA</th>
+                                            <th>MONTO</th>
+                                            <th>DESCRIPCIÓN</th>
+                                            <th>ESTADO</th>
+                                            <th>ACCIÓN</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Tab 2 -->
+                <div class="tab-pane fade" id="tab-02" role="tabpanel" aria-labelledby="tab02-tab">
+                    <div class="panel-heading">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h1>Gestionar mis anticipos</h1>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="panel-body mt-3">
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <table id="tbl_MisReembolsos" class="table table-bordered table-hover w-100">
+                                                <thead class="thead-dark">
+                                                    <tr>
+                                                        <th>ID</th>
+                                                        <th>FECHA</th>
+                                                        <th>EMPRESA</th>
+                                                        <th>USUARIO</th>
+                                                        <th>BANCO</th>
+                                                        <th>N° CUENTA</th>
+                                                        <th>MONEDA</th>
+                                                        <th>MONTO</th>
+                                                        <th>DESCRIPCIÓN</th>
+                                                        <th>ESTADO</th>
+                                                        <th>ACCIÓN</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody></tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> <!-- /.tab-content -->
+        </div> <!-- /.card-body -->
+    </div> <!-- /.card -->
 </div>
 <script>
-    var dtGastos;
-    var dtDevoluciones;
+    var dtReembolsosGeneral;
+    var dtMisReembolsos;
 
     $(document).ready(function () {
-        // Escuchar el evento cuando se muestra el tab de "Gestionar devolución"
-        $('#tab02-tab').on('shown.bs.tab', function (e) {
-            // Forzar el ajuste de columnas de la tabla específica
-            fct_IniciarTablaDevoluciones('#tbl_Devoluciones');
-        });
-
-
         // $('body').addClass('sidebar-collapse');
         var windowHeight = $('body > div.wrapper > div.content-wrapper').height() / 2;
         //CONFIGURACION POR DEFECTO DATATABLES
@@ -179,12 +171,19 @@
             lengthMenu: [[100, 200, 500, -1], [100, 200, 500, 'Todos']],
         });
 
-        fct_IniciarTablaComprobantes('#tbl_Comprobantes');
+        fct_IniciarTablaReembolsos('#tbl_Reembolsos');
+        fct_IniciarTablaMisReembolsos('#tbl_MisReembolsos');
+
+        $(document).on('shown.bs.tab', 'a[data-toggle="pill"]', function (e) {
+            setTimeout(function () {
+                $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust().responsive.recalc();
+            }, 200);
+        });
     });
 
-    function fct_IniciarTablaDevoluciones(IdTabla) {
+    function fct_IniciarTablaReembolsos(IdTabla) {
         // Inicializar DataTables con botones
-        dtDevoluciones = $(IdTabla).DataTable({
+        dtReembolsosGeneral = $(IdTabla).DataTable({
             buttons: [
                 {
                     extend: 'copy',
@@ -197,7 +196,7 @@
                     text: '<i class="bi bi-file-earmark-excel"></i>',
                     titleAttr: 'Exportar a Excel',
                     className: 'btn btn-success',
-                    filename: 'Mis devoluciones ' + moment().format('DD-MM-YYYY HH_mm'),
+                    filename: 'Reembolsos ' + moment().format('DD-MM-YYYY HH_mm'),
                     footer: true,
                     exportOptions:
                     {
@@ -210,7 +209,7 @@
                     text: '<i class="bi bi-file-earmark-pdf"></i>',
                     titleAttr: 'Exportar a PDF',
                     className: 'btn btn-danger',
-                    filename: 'Mis devoluciones ' + moment().format('DD-MM-YYYY HH_mm'),
+                    filename: 'Reembolsos ' + moment().format('DD-MM-YYYY HH_mm'),
                     exportOptions:
                     {
                         stripHtml: true,
@@ -237,9 +236,17 @@
                     className: 'btn btn-warning',
                     columns: ':not(.noVis)',
                 },
+                {
+                    text: '<i class= "bi bi-plus-circle" style="margin-right: 5px;"></i>Nuevo reembolso',
+                    className: 'btn bg-success m-1',
+                    titleAttr: 'Nuevo',
+                    action: function (e, dt, node, config) {
+                        fct_ReembolsoNuevo();
+                    },
+                },
             ],
             ajax: {
-                url: `/Gasto/GetDevolucionesData/${@Model.Id}`,
+                url: "/Reembolso/GetReembolsosData",
                 type: "GET",
                 datatype: "json",
                 data: function (d) {
@@ -258,65 +265,69 @@
                 },
             },
             columns: [
-                        { data: "Id", name: "Id", className: "text-center" },
-                        { data: "Empresa", name: "Empresa" },
-                        { data: "Usuario", name: "Usuario" },
-                        {
-                            data: "Fecha",
-                            name: "Fecha",
-                            className: "text-center",
-                            render: function (data) {
-                                return data ? moment(data).format('DD/MM/YYYY') : "";
-                            }
-                        },
-                        {
-                            data: "Importe",
-                            name: "Importe",
-                            className: "text-right",
-                            render: function (data) {
-                                if (!data) return '0.00';
-                                return parseFloat(data).toFixed(2);
-                            }
-                        },
-                        { data: "Banco", name: "Banco" },
-                        { data: "NroOperacion", name: "NroOperacion", className: "text-center" },
-                        { data: "Descripcion", name: "Descripcion" },
-                        {
-                            data: "Estado",
-                            name: "Estado",
-                            className: "text-center",
-                            render: function (data) {
-                                let badgeClass = "";
-                                switch (data) {
-                                    case "Aprobado": case "Activo": case "Pagado":
-                                        badgeClass = "badge-success";
-                                        break;
-                                    case "Pendiente":
-                                        badgeClass = "badge-warning text-dark";
-                                        break;
-                                    case "Rechazado": case "Anulado": case "Inactivo": case "Observado":
-                                        badgeClass = "badge-danger";
-                                        break;
-                                    default:
-                                        badgeClass = "badge-secondary";
-                                }
-                                return `<h5 class="mb-0 d-flex align-items-center justify-content-center"><span class="badge ${badgeClass} fs-5">${data}</span></h5>`;
-                            },
-                        },
-                        {
-                            data: null,
-                            render: function (data) {
-                                let buttons = '';
-                                if (data.Estado === 'Pendiente' || data.Estado === 'Observado') {
-                                    buttons += `<button class="btn btn-primary btn-sm m-1" onclick="fct_EditarComprobante('${data.Id}')" title="Editar comprobante"><i class="bi bi-pencil-square"></i></button>`;
-                                }
-                                buttons += `<button class="btn btn-info btn-sm m-1" onclick="fct_VerObservaciones('${data.Id}')" title="Ver observaciones"><i class="bi bi-eye"></i></button>`;
-
-                                return `<div class="flex-wrap btn-group d-flex justify-content-center">${buttons}</div>`;
-                            },
-                            className: 'text-center align-middle',
-                            orderable: false
+                { data: "id", name: "id" },
+                {
+                    data: "fechaSolicitud",
+                    name: "fechaSolicitud",
+                    render: function (data) {
+                        return data ? moment(data).format('DD/MM/YYYY') : "";
+                    }
+                },
+                { data: "empresa", name: "empresa" },
+                { data: "usuario", name: "usuario" },
+                { data: "banco", name: "banco" },
+                { data: "numeroCuenta", name: "numeroCuenta" },
+                { data: "moneda", name: "moneda" },
+                {
+                    data: "montoTotal",
+                    name: "montoTotal",
+                    render: function (data) {
+                        return data ? parseFloat(data).toFixed(2) : "0.00";
+                    }
+                },
+                { data: "descripcion", name: "descripcion" },
+                {
+                    data: "estado",
+                    name: "estado",
+                    render: function (data) {
+                        let badgeClass = "";
+                        switch (data) {
+                            case "Cerrado":
+                                badgeClass = "bg-success";
+                                break;
+                            case "Pendiente":
+                            case "Revisión total":
+                            case "Revisión parcial":
+                                badgeClass = "bg-warning text-dark";
+                                break;
+                            case "Parcial":
+                            case "Por reembolsar":
+                                badgeClass = "bg-info text-dark";
+                                break;
+                            default:
+                                badgeClass = "bg-secondary";
                         }
+                        return `<span class="badge ${badgeClass} p-2" style="min-width: 100px;">${data}</span>`;
+                    },
+                    className: 'text-center'
+                },
+                {
+                    data: null,
+                    render: function (data) {
+                        // Solo botones de Editar y Ver
+                        return `
+                        <div class="d-flex justify-content-center">
+                            <button class="btn btn-primary btn-sm m-1" onclick="fct_ReembolsoEditar('${data.id}')" title="Editar Reembolso">
+                                <i class="bi bi-pencil-square"></i>
+                            </button>
+                            <button class="btn btn-info btn-sm m-1" onclick="fct_ReembolsoVer('${data.id}')" title="Ver Detalle">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>`;
+                    },
+                    className: 'text-center align-middle',
+                    orderable: false
+                }
             ],
             columnDefs: [
                 {
@@ -324,11 +335,11 @@
                     className: "text-center align-middle",
                 },
                 {
-                    targets: [1, 2, 3, 4, 5, 6, 7, 8],
+                    targets: [1, 2, 3, 4, 5, 6, 7, 8, 9],
                     className: 'align-middle',
                 },
                 {
-                    targets: [9],
+                    targets: [10],
                     orderable: false,
                 },
             ],
@@ -349,25 +360,10 @@
         });
     }
 
-    function fct_VerObservaciones(Id) {
-        window.location.href = `/Gasto/VerObservaciones/${Id}`;
-    }
-
-    function fct_EditarComprobante(Id) {
-        window.location.href = `/Gasto/EditarComprobante/${Id}`;
-    }
-
-    function ShowSpinner() {
-        $('#efec-cargando').removeClass('d-none');
-    }
-
-    function HideSpinner() {
-        $('#efec-cargando').addClass('d-none');
-    }
-
-    function fct_IniciarTablaComprobantes(IdTabla) {
+    function fct_IniciarTablaMisReembolsos(IdTabla) {
         // Inicializar DataTables con botones
-        dtGastos = $(IdTabla).DataTable({
+        dtMisAnticipos = $(IdTabla).DataTable({
+            dom: "<'row align-items-center'<'col-sm-8 justify-content-start'f><'col-sm-4 c2 d-flex justify-content-end'>>" + "<'row align-items-center'<'col-sm-6'l><'col-sm-6 my-3 justify-content-start d-flex'B>" + "<'col-sm-6'i><'col-sm-6 mb-3 d-flex justify-content-end'p>" + "rt" + "<'col-sm-6'i><'col-sm-6 mt-1 d-flex justify-content-end'p>",
             buttons: [
                 {
                     extend: 'copy',
@@ -380,7 +376,7 @@
                     text: '<i class="bi bi-file-earmark-excel"></i>',
                     titleAttr: 'Exportar a Excel',
                     className: 'btn btn-success',
-                    filename: 'Mis gastos ' + moment().format('DD-MM-YYYY HH_mm'),
+                    filename: 'Mis reembolsos ' + moment().format('DD-MM-YYYY HH_mm'),
                     footer: true,
                     exportOptions:
                     {
@@ -393,7 +389,7 @@
                     text: '<i class="bi bi-file-earmark-pdf"></i>',
                     titleAttr: 'Exportar a PDF',
                     className: 'btn btn-danger',
-                    filename: 'Mis gastos ' + moment().format('DD-MM-YYYY HH_mm'),
+                    filename: 'Mis reembolsos ' + moment().format('DD-MM-YYYY HH_mm'),
                     exportOptions:
                     {
                         stripHtml: true,
@@ -422,7 +418,7 @@
                 },
             ],
             ajax: {
-                url: `/Gasto/GetDevolucionesData/${@Model.Id}`,
+                url: "/Reembolso/GetMisReembolsosData",
                 type: "GET",
                 datatype: "json",
                 data: function (d) {
@@ -440,29 +436,25 @@
                     console.error('Error en la solicitud Ajax. Status:', Status, 'Error:', error, 'XHR:', xhr);
                 },
             },
-                columns: [
+            columns: [
                 { data: "id", name: "id" },
                 {
-                    data: "fecha",
-                    name: "fecha",
+                    data: "fechaSolicitud",
+                    name: "fechaSolicitud",
                     render: function (data) {
                         return data ? moment(data).format('DD/MM/YYYY') : "";
                     }
                 },
-                { data: "rucEmpresa", name: "rucEmpresa" },
-                { data: "serie", name: "serie" },
-                { data: "numero", name: "numero" },
-                { data: "tipoComprobante", name: "tipoComprobante" },
-                { data: "concepto", name: "concepto" },
+                { data: "empresa", name: "empresa" },
+                { data: "usuario", name: "usuario" },
+                { data: "banco", name: "banco" },
+                { data: "numeroCuenta", name: "numeroCuenta" },
                 { data: "moneda", name: "moneda" },
                 {
-                    data: "monto",
-                    name: "monto",
+                    data: "montoTotal",
+                    name: "montoTotal",
                     render: function (data) {
-                        if (!data) {
-                            return 'Sin monto';
-                        }
-                        return parseFloat(data).toFixed(2);
+                        return data ? parseFloat(data).toFixed(2) : "0.00";
                     }
                 },
                 { data: "descripcion", name: "descripcion" },
@@ -471,40 +463,42 @@
                     name: "estado",
                     render: function (data) {
                         let badgeClass = "";
-                        // Evaluamos el texto que viene de est.Nombre
                         switch (data) {
-                            case "Aprobado": case "Activo": case "Pagado":
-                                badgeClass = "badge-success";
+                            case "Cerrado":
+                                badgeClass = "bg-success";
                                 break;
                             case "Pendiente":
-                                badgeClass = "badge-warning text-dark";
+                            case "Revisión total":
+                            case "Revisión parcial":
+                                badgeClass = "bg-warning text-dark";
                                 break;
-                            case "Rechazado": case "Anulado": case "Inactivo":
-                                badgeClass = "badge-danger";
+                            case "Parcial":
+                            case "Por reembolsar":
+                                badgeClass = "bg-info text-dark";
                                 break;
                             default:
-                                badgeClass = "badge-secondary";
+                                badgeClass = "bg-secondary";
                         }
-                        return `<h5 class="mb-0 d-flex align-items-center justify-content-center"><span class="badge ${badgeClass} fs-5">${data}</span></h5>`;
+                        return `<span class="badge ${badgeClass} p-2" style="min-width: 100px;">${data}</span>`;
                     },
+                    className: 'text-center'
                 },
                 {
                     data: null,
                     render: function (data) {
-                        let buttons = '';
-
-                        if (data.estado === 'Pendiente' || data.estado === 'Observado') {
-                            buttons += `<button class="btn btn-primary btn-sm m-1" onclick="fct_EditarComprobante('${data.id}')" title="Editar comprobante"><i class="bi bi-pencil-square"></i></button>`;
-                        }
-
-                        buttons += `<button class="btn btn-info btn-sm m-1" onclick="fct_VerObservaciones('${data.id}')" title="Ver observaciones"><i class="bi bi-eye"></i></button>`;
-
+                        // Solo botones de Editar y Ver
                         return `
-                        <div class="flex-wrap btn-group">
-                            ${buttons}
+                        <div class="d-flex justify-content-center">
+                            <button class="btn btn-primary btn-sm m-1" onclick="fct_SubirComprobante('${data.id}')" title="Subir comprobante">
+                                <i class="bi bi-upload"></i>
+                            </button>
+                            <button class="btn btn-info btn-sm m-1" onclick="fct_ReembolsoVer('${data.id}')" title="Ver Detalle">
+                                <i class="bi bi-eye"></i>
+                            </button>
                         </div>`;
                     },
                     className: 'text-center align-middle',
+                    orderable: false
                 }
             ],
             columnDefs: [
@@ -513,11 +507,11 @@
                     className: "text-center align-middle",
                 },
                 {
-                    targets: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                    targets: [1, 2, 3, 4, 5, 6, 7, 8, 9],
                     className: 'align-middle',
                 },
                 {
-                    targets: [11],
+                    targets: [10],
                     orderable: false,
                 },
             ],
@@ -530,12 +524,31 @@
                 $('.btn.btn-primary').removeClass('dt-button btn-secondary buttons-copy buttons-html5');
                 $('.btn.btn-info').removeClass('dt-button btn-secondary buttons-print');
                 $('.btn.btn-warning').removeClass('dt-button btn-secondary buttons-collection buttons-colvis');
-                //Botón Nuevo
-                $('button[title="Nuevo"]').attr('id', 'btn_Nuevo');
-                $('#btn_Nuevo').removeClass('dt-button');
-                $('#btn_Nuevo').appendTo('div.col-sm-4.c1.d-flex.justify-content-end');
             },
         });
     }
 
-</script> *@
+    function fct_ReembolsoNuevo() {
+        window.location.href = '/Reembolso/RegistrarReembolso';
+    }
+
+    function fct_ReembolsoEditar(Id) {
+        window.location.href = `/Reembolso/Editar/${Id}`;
+    }
+
+    function fct_ReembolsoVer(Id) {
+        window.location.href = `/Reembolso/VerReembolso/${Id}`;
+    }
+
+    function fct_SubirComprobante(Id) {
+        window.location.href = `/Reembolso/SubirComprobante/${Id}`;
+    }
+
+    function ShowSpinner() {
+        $('#efec-cargando').removeClass('d-none');
+    }
+
+    function HideSpinner() {
+        $('#efec-cargando').addClass('d-none');
+    }
+</script>

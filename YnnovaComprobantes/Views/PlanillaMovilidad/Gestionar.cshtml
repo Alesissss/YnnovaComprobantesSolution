@@ -1,0 +1,286 @@
+﻿@model YnnovaComprobantes.ViewModels.GestionPlanillaViewModel
+@{
+    ViewData["Title"] = "Rendir Movilidad - Planilla #" + Model.Planilla.NumeroPlanilla;
+
+    var nombreEmpresa = Model.Empresas.FirstOrDefault(x => x.Id == Model.Planilla.EmpresaId)?.Nombre ?? "No definido";
+    var nombreUsuario = Model.Usuarios.FirstOrDefault(x => x.Id == Model.Planilla.UsuarioId)?.Nombre ?? "No definido";
+}
+
+<style>
+    .chat-box {
+        max-height: 300px;
+        overflow-y: auto;
+        padding: 10px;
+        background: #f4f6f9;
+        border-radius: 5px;
+    }
+
+    .direct-chat-msg {
+        margin-bottom: 10px;
+    }
+
+    .direct-chat-text {
+        border-radius: .3rem;
+        background: #d2d6de;
+        border: 1px solid #d2d6de;
+        color: #444;
+        margin: 5px 0 0 50px;
+        padding: 5px 10px;
+        position: relative;
+    }
+
+    .right .direct-chat-text {
+        background: #3b8bba;
+        border-color: #3b8bba;
+        color: #fff;
+        margin-left: 0;
+        margin-right: 50px;
+    }
+
+    .form-control-plaintext-custom {
+        background-color: #e9ecef;
+        opacity: 1;
+        border: 1px solid #ced4da;
+    }
+
+    .card-info-top {
+        border-top: 3px solid #17a2b8;
+    }
+</style>
+
+<div class="container-fluid pt-3">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card card-info-top shadow-sm mb-3">
+                <div class="card-header bg-light">
+                    <h3 class="card-title text-info"><i class="fas fa-info-circle"></i> Info de la Planilla</h3>
+                    <div class="card-tools">
+                        <span class="badge badge-primary">@Model.Estado?.Nombre</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12 mb-2">
+                            <label class="small mb-0">Empresa</label>
+                            <input type="text" class="form-control form-control-sm form-control-plaintext-custom" value="@nombreEmpresa" readonly>
+                        </div>
+                        <div class="col-6 mb-2">
+                            <label class="small mb-0">N° Planilla</label>
+                            <input type="text" class="form-control form-control-sm form-control-plaintext-custom" value="@Model.Planilla.NumeroPlanilla" readonly>
+                        </div>
+                        <div class="col-6 mb-2">
+                            <label class="small mb-0">Fecha Emisión</label>
+                            <input type="text" class="form-control form-control-sm form-control-plaintext-custom" value="@Model.Planilla.FechaEmision.ToString("dd/MM/yyyy")" readonly>
+                        </div>
+                        <div class="col-12">
+                            <hr class="my-2">
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted">Presupuesto Asignado:</span>
+                                <span class="font-weight-bold">S/ @Model.Planilla.MontoTotal.ToString("N2")</span>
+                            </div>
+                            <div class="d-flex justify-content-between text-danger">
+                                <span class="text-muted">Gasto Acumulado:</span>
+                                <span class="font-weight-bold" id="lbl_GastoAcumulado">S/ 0.00</span>
+                            </div>
+                            <div class="d-flex justify-content-between text-success border-top pt-1 mt-1">
+                                <span class="font-weight-bold">Saldo Disponible:</span>
+                                <span class="font-weight-bold" id="lbl_SaldoDisponible">S/ 0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <button type="button" class="btn btn-secondary btn-block btn-sm" onclick="location.href='/PlanillaMovilidad'">
+                        <i class="fas fa-arrow-left"></i> Volver a mis planillas
+                    </button>
+                </div>
+            </div>
+
+            <div class="card card-warning card-outline shadow-sm">
+                <div class="card-header"><h3 class="card-title small"><i class="fas fa-comments"></i> Observaciones</h3></div>
+                <div class="card-body p-0">
+                    <div class="chat-box" id="div_ChatBox"></div>
+                </div>
+                <div class="card-footer">
+                    <div class="input-group">
+                        <input type="text" id="txt_MensajeChat" placeholder="Responder..." class="form-control form-control-sm">
+                        <span class="input-group-append">
+                            <button type="button" class="btn btn-warning btn-sm" onclick="fct_EnviarChat()">Enviar</button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card card-success shadow-sm mb-3">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-plus-circle"></i> Registrar Nuevo Trayecto</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-2">
+                            <label class="small">Fecha</label>
+                            <input type="date" id="txt_Det_Fecha" class="form-control form-control-sm" value="@DateTime.Now.ToString("yyyy-MM-dd")">
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <label class="small">Motivo del Gasto</label>
+                            <input type="text" id="txt_Det_Motivo" class="form-control form-control-sm" placeholder="Ej: Entrega de documentos - Cliente X">
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <label class="small">Monto (S/)</label>
+                            <input type="number" id="txt_Det_Monto" class="form-control form-control-sm" step="0.10" placeholder="0.00">
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <label class="small">Origen</label>
+                            <input type="text" id="txt_Det_Origen" class="form-control form-control-sm" placeholder="Lugar de partida">
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <label class="small">Destino</label>
+                            <input type="text" id="txt_Det_Destino" class="form-control form-control-sm" placeholder="Lugar de llegada">
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer text-right">
+                    <button class="btn btn-success" id="btn_AgregarDetalle">
+                        <i class="fas fa-plus"></i> Agregar Trayecto
+                    </button>
+                </div>
+            </div>
+
+            <div class="card card-secondary shadow-sm">
+                <div class="card-header"><h3 class="card-title"><i class="fas fa-list"></i> Detalle de Movilidad Registrada</h3></div>
+                <div class="card-body">
+                    <table id="tbl_DetallesPlanilla" class="table table-bordered table-striped table-sm w-100">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Motivo / Ruta</th>
+                                <th class="text-right">Monto</th>
+                                <th class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var planillaId = @Model.Planilla.Id;
+    var presupuestoTotal = @Model.Planilla.MontoTotal;
+    var usuarioLogueadoId = @Model.UsuarioLogueadoId;
+
+    $(document).ready(function () {
+        initTable();
+        cargarChat();
+
+        // Evento registrar
+        $('#btn_AgregarDetalle').click(fct_RegistrarDetalle);
+    });
+
+    function initTable() {
+        $('#tbl_DetallesPlanilla').DataTable({
+            destroy: true,
+            responsive: true,
+            ajax: { url: '/PlanillaMovilidad/GetDetallesData?planillaId=' + planillaId, type: 'GET', dataSrc: 'data' },
+            columns: [
+                { data: 'fechaGasto' },
+                {
+                    data: null,
+                    render: r => `<b>${r.motivo}</b><br><small class="text-muted"><i class="fas fa-map-marker-alt"></i> ${r.lugarOrigen} <i class="fas fa-arrow-right"></i> ${r.lugarDestino}</small>`
+                },
+                { data: 'monto', className: 'text-right font-weight-bold', render: d => 'S/ ' + parseFloat(d).toFixed(2) },
+                {
+                    data: 'id',
+                    className: 'text-center',
+                    render: id => `<button class="btn btn-xs btn-danger" onclick="fct_EliminarDetalle(${id})"><i class="fas fa-trash"></i></button>`
+                }
+            ],
+            "drawCallback": function(settings) {
+                let total = settings.json ? settings.json.totalGastado : 0;
+                actualizarSaldos(total);
+            }
+        });
+    }
+
+    function actualizarSaldos(total) {
+        let saldo = presupuestoTotal - total;
+        $('#lbl_GastoAcumulado').text("S/ " + parseFloat(total).toFixed(2));
+        $('#lbl_SaldoDisponible').text("S/ " + parseFloat(saldo).toFixed(2));
+
+        // Estética: si el saldo es poco, ponerlo en naranja
+        if(saldo < 10) $('#lbl_SaldoDisponible').parent().addClass('text-warning').removeClass('text-success');
+    }
+
+    function fct_RegistrarDetalle() {
+        let obj = {
+            PlanillaMovilidadId: planillaId,
+            FechaGasto: $('#txt_Det_Fecha').val(),
+            Motivo: $('#txt_Det_Motivo').val(),
+            Monto: $('#txt_Det_Monto').val(),
+            LugarOrigen: $('#txt_Det_Origen').val(),
+            LugarDestino: $('#txt_Det_Destino').val()
+        };
+
+        if(!obj.Motivo || !obj.Monto || !obj.LugarOrigen || !obj.LugarDestino) {
+            toastr.warning("Por favor complete todos los campos del trayecto."); return;
+        }
+
+        $.post('/PlanillaMovilidad/RegistrarDetalle', obj, function(res) {
+            if(res.status) {
+                toastr.success(res.message);
+                limpiarForm();
+                $('#tbl_DetallesPlanilla').DataTable().ajax.reload();
+            } else {
+                Swal.fire("Límite de presupuesto", res.message, "error");
+            }
+        });
+    }
+
+    function fct_EliminarDetalle(id) {
+        Swal.fire({
+            title: '¿Eliminar trayecto?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'No'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.post('/PlanillaMovilidad/EliminarDetalle', { id: id }, function(res) {
+                    if(res.status) {
+                        toastr.success("Trayecto eliminado.");
+                        $('#tbl_DetallesPlanilla').DataTable().ajax.reload();
+                    }
+                });
+            }
+        });
+    }
+
+    function limpiarForm() {
+        $('#txt_Det_Motivo, #txt_Det_Monto, #txt_Det_Origen, #txt_Det_Destino').val('');
+    }
+
+    function cargarChat() {
+        $.getJSON('/PlanillaMovilidad/GetObservaciones?planillaId=' + planillaId, function(resp) {
+            let html = '';
+            resp.data.forEach(obs => {
+                let esMio = obs.usuarioId === usuarioLogueadoId;
+                let alineacion = esMio ? 'right' : 'left';
+                html += `<div class="direct-chat-msg ${alineacion}"><div class="direct-chat-infos clearfix"><span class="direct-chat-name float-${alineacion}">${esMio ? 'Yo' : obs.nombreUsuario}</span></div><div class="direct-chat-text">${obs.mensaje}</div></div>`;
+            });
+            $('#div_ChatBox').html(html).scrollTop($('#div_ChatBox')[0].scrollHeight);
+        });
+    }
+
+    function fct_EnviarChat() {
+        let msg = $('#txt_MensajeChat').val();
+        if(!msg.trim()) return;
+        $.post('/PlanillaMovilidad/RegistrarObservacion', { PlanillaId: planillaId, Mensaje: msg, Prioridad: 'B' }, function() {
+            $('#txt_MensajeChat').val('');
+            cargarChat();
+        });
+    }
+</script>

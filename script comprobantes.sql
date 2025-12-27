@@ -139,7 +139,9 @@ CREATE TABLE moneda (
 -- TABLA observacion
 CREATE TABLE observacion (
     id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
-    anticipo_id INT NOT NULL,
+    anticipo_id INT NULL,
+    reembolso_id INT,
+    planilla_movilidad_id INT,
     usuario_id INT NOT NULL,
     prioridad CHAR(1) NOT NULL, -- 'A' Alta, 'M' Media, 'B' Baja
     mensaje TEXT NOT NULL,
@@ -257,7 +259,10 @@ INSERT INTO estado (nombre, tabla) VALUES ('Pendiente', 'ANTICIPO');
 INSERT INTO estado (nombre, tabla) VALUES ('Parcial', 'ANTICIPO');
 INSERT INTO estado (nombre, tabla) VALUES ('Cerrado', 'ANTICIPO');
 INSERT INTO estado (nombre, tabla) VALUES ('Por reembolsar', 'ANTICIPO');
-
+INSERT INTO estado (nombre, tabla) VALUES ('Pendiente', 'REEMBOLSO');
+INSERT INTO estado (nombre, tabla) VALUES ('Aprobado', 'REEMBOLSO');
+INSERT INTO estado (nombre, tabla) VALUES ('Rechazado', 'REEMBOLSO');
+INSERT INTO estado (nombre, tabla) VALUES ('Observado', 'REEMBOLSO');
 
 -- INSERTS DE 'moneda'
 INSERT INTO moneda (nombre, simbolo) VALUES ('Soles', 'S/.');

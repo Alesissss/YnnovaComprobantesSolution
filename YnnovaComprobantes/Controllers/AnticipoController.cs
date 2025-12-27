@@ -276,7 +276,7 @@ namespace YnnovaComprobantes.Controllers
                 return Json(new ApiResponse { data = null, message = ex.Message, status = false });
             }
         }
-        // Get tipos comprobantes
+        // Get conceptos
         [HttpGet]
         public JsonResult GetConceptosData()
         {

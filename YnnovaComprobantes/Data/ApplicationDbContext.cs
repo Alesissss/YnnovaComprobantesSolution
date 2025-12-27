@@ -20,8 +20,10 @@ namespace YnnovaComprobantes.Data
         public DbSet<TipoRendicion> TipoRendiciones { get; set; }
         public DbSet<EmpresaUsuario> EmpresasUsuarios { get; set; }
         public DbSet<Anticipo> Anticipos { get; set; }
+        public DbSet<Reembolso> Reembolsos { get; set; }
+        public DbSet<PlanillaMovilidad> PlanillasMovilidad { get; set; }
+        public DbSet<DetallePlanillaMovilidad> DetallesPlanillaMovilidad { get; set; }
         public DbSet<Estado> Estados { get; set; }
         public DbSet<Observacion> Observaciones { get; set; }
-        public DbSet<DevolucionGasto> DevolucionGastos { get; set; }
     }
 }
