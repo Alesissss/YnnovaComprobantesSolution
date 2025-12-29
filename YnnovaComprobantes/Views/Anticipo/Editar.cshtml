@@ -111,7 +111,26 @@
                     </button>
                 </div>
             </div>
-
+            <div class="card card-outline card-dark shadow-sm mt-3" id="card_Liquidacion" style="display:none;">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-calculator"></i> Liquidación Final</h3>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Monto Anticipado:</span>
+                        <span id="lbl_Liqui_Asignado">S/ 0.00</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1 text-success">
+                        <span>Total Aprobado:</span>
+                        <span id="lbl_Liqui_Aprobado" class="font-weight-bold">S/ 0.00</span>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <div class="d-flex justify-content-between" id="div_ResultadoDiferencia">
+                        <span id="lbl_Liqui_TextoDiferencia">Diferencia:</span>
+                        <span id="lbl_Liqui_MontoDiferencia" class="font-weight-bold">S/ 0.00</span>
+                    </div>
+                </div>
+            </div>
             <div class="card card-warning shadow-sm">
                 <div class="card-header">
                     <h3 class="card-title"><i class="fas fa-comments"></i> Observaciones</h3>
@@ -159,6 +178,79 @@
                     </table>
                 </div>
             </div>
+
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <div class="card card-danger shadow-sm">
+                        <div class="card-header d-flex justify-content-between align-items-center p-2">
+                            <h3 class="card-title small font-weight-bold"><i class="fas fa-hand-holding-usd"></i> Reembolsos (Déficit)</h3>
+                            <button class="btn btn-tool btn-sm bg-white text-danger" id="btn_AddReembolso" onclick="fct_IntentarAgregar('REEMBOLSO')" title="Generar Reembolso y Cerrar">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="table table-sm table-striped mb-0">
+                                <thead>
+                                    <tr>
+                                        <th style="font-size: 12px;">Fecha</th>
+                                        <th style="font-size: 12px;">Estado</th>
+                                        <th style="font-size: 12px;" class="text-right">Monto</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbl_Body_Reembolsos">
+                                    <tr><td colspan="3" class="text-center small">Cargando...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card card-success shadow-sm">
+                        <div class="card-header d-flex justify-content-between align-items-center p-2">
+                            <h3 class="card-title small font-weight-bold"><i class="fas fa-piggy-bank"></i> Devoluciones (Sobrante)</h3>
+                            <button class="btn btn-tool btn-sm bg-white text-success" id="btn_AddDevolucion" onclick="fct_IntentarAgregar('DEVOLUCION')" title="Registrar Devolución y Cerrar">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="table table-sm table-striped mb-0">
+                                <thead>
+                                    <tr>
+                                        <th style="font-size: 12px;">Fecha</th>
+                                        <th style="font-size: 12px;">Estado</th>
+                                        <th style="font-size: 12px;" class="text-right">Monto</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbl_Body_Devoluciones">
+                                    <tr><td colspan="2" class="text-center small">Cargando...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card card-outline card-dark shadow-sm mt-3" id="card_Liquidacion" style="display:none;">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-calculator"></i> Resumen Liquidación</h3>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-1">
+                    <span>Monto Anticipado:</span>
+                    <span id="lbl_Liqui_Asignado">S/ 0.00</span>
+                </div>
+                <div class="d-flex justify-content-between mb-1 text-success">
+                    <span>Total Aprobado:</span>
+                    <span id="lbl_Liqui_Aprobado" class="font-weight-bold">S/ 0.00</span>
+                </div>
+                <div class="dropdown-divider"></div>
+                <div class="d-flex justify-content-between" id="div_ResultadoDiferencia">
+                    <span id="lbl_Liqui_TextoDiferencia">Diferencia:</span>
+                    <span id="lbl_Liqui_MontoDiferencia" class="font-weight-bold">S/ 0.00</span>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -186,6 +278,7 @@
 
         initTableComprobantes();
         cargarObservaciones();
+        cargarTablasLiquidacion();
     });
 
     // ==========================================
@@ -365,7 +458,10 @@
             columnDefs: [
                 { targets: '_all', className: 'align-middle' },
                 { targets: [3, 4, 5], className: 'text-center' }
-            ]
+            ],
+            "drawCallback": function(settings) {
+            fct_CalcularResumenSilencioso();
+        }
         });
     }
 
@@ -434,6 +530,118 @@
                 toastr.info("Observación enviada. Comprobantes pendientes marcados como observados.");
             } else {
                 toastr.error(resp.message);
+            }
+        });
+    }
+    
+    function fct_CalcularResumenSilencioso() {
+        $.getJSON('/Anticipo/ObtenerResumenLiquidacion', { anticipoId: anticipoId }, function(res) {
+            if(res.status) {
+                $('#card_Liquidacion').show();
+
+                $('#lbl_Liqui_Asignado').text("S/ " + res.montoAnticipo.toFixed(2));
+                $('#lbl_Liqui_Aprobado').text("S/ " + res.totalGastado.toFixed(2));
+                $('#lbl_Liqui_MontoDiferencia').text("S/ " + Math.abs(res.diferencia).toFixed(2));
+
+                saldoCalculado = res.diferencia; // Guardamos en variable global
+
+                // Lógica Visual del Resumen
+                if(res.diferencia > 0) { // Sobró dinero (Devolución)
+                    $('#lbl_Liqui_TextoDiferencia').text("Saldo a Devolver:");
+                    $('#div_ResultadoDiferencia').addClass('text-success').removeClass('text-danger text-primary');
+
+                    // Habilitar botón devolución, deshabilitar reembolso
+                    $('#btn_AddDevolucion').prop('disabled', false).removeClass('disabled');
+                    $('#btn_AddReembolso').prop('disabled', true).addClass('disabled');
+                }
+                else if(res.diferencia < 0) { // Faltó dinero (Reembolso)
+                    $('#lbl_Liqui_TextoDiferencia').text("Exceso a Reembolsar:");
+                    $('#div_ResultadoDiferencia').addClass('text-danger').removeClass('text-success text-primary');
+
+                    // Habilitar botón reembolso, deshabilitar devolución
+                    $('#btn_AddReembolso').prop('disabled', false).removeClass('disabled');
+                    $('#btn_AddDevolucion').prop('disabled', true).addClass('disabled');
+                }
+                else { // Cuadrado
+                    $('#lbl_Liqui_TextoDiferencia').text("Saldo Cuadrado:");
+                    $('#div_ResultadoDiferencia').addClass('text-primary').removeClass('text-success text-danger');
+                    $('#btn_AddReembolso, #btn_AddDevolucion').prop('disabled', true).addClass('disabled');
+                }
+            }
+        });
+    }
+
+    function cargarTablasLiquidacion() {
+        $.getJSON('/Anticipo/GetMovimientosLiquidacion', { anticipoId: anticipoId }, function(res) {
+            if(res.status) {
+                // Render Reembolsos
+                let htmlR = '';
+                if(res.reembolsos.length > 0) {
+                    res.reembolsos.forEach(r => {
+                        htmlR += `<tr><td>${r.fecha}</td><td><span class="badge badge-info">${r.estado}</span></td><td class="text-right">S/ ${r.monto.toFixed(2)}</td></tr>`;
+                    });
+                } else { htmlR = '<tr><td colspan="3" class="text-center text-muted small">Sin registros</td></tr>'; }
+                $('#tbl_Body_Reembolsos').html(htmlR);
+
+                // Render Devoluciones
+                let htmlD = '';
+                if(res.devoluciones.length > 0) {
+                    res.devoluciones.forEach(d => {
+                        htmlD += `<tr><td>${d.fecha}</td><td><span class="badge badge-info">${d.estado}</span></td><td class="text-right">S/ ${d.monto.toFixed(2)}</td></tr>`;
+                    });
+                } else { htmlD = '<tr><td colspan="2" class="text-center text-muted small">Sin registros</td></tr>'; }
+                $('#tbl_Body_Devoluciones').html(htmlD);
+
+                // Si ya existen registros, bloqueamos botones para evitar duplicados (Regla de negocio opcional)
+                if(res.reembolsos.length > 0 || res.devoluciones.length > 0) {
+                    $('#btn_AddReembolso, #btn_AddDevolucion').prop('disabled', true).addClass('disabled').attr('title', 'Ya existe un cierre registrado');
+                }
+            }
+        });
+    }
+
+    function fct_IntentarAgregar(tipo) {
+        let montoAbs = Math.abs(saldoCalculado).toFixed(2);
+        let mensaje = "";
+        let titulo = "";
+
+        if(tipo === 'DEVOLUCION') {
+            if(saldoCalculado <= 0) { toastr.warning("No hay saldo sobrante para devolver."); return; }
+            titulo = "Registrar Devolución";
+            mensaje = `Se registrará una devolución de <b>S/ ${montoAbs}</b> y se cerrará el anticipo.`;
+        }
+        else if(tipo === 'REEMBOLSO') {
+            if(saldoCalculado >= 0) { toastr.warning("No hay exceso de gasto para reembolsar."); return; }
+            titulo = "Generar Reembolso";
+            mensaje = `Se generará un reembolso de <b>S/ ${montoAbs}</b> y se cerrará el anticipo.`;
+        }
+
+        Swal.fire({
+            title: titulo,
+            html: mensaje,
+            icon: 'info',
+            reverseButtons: true,
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, registrar y cerrar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.post('/Anticipo/RegistrarCierreLiquidacion', {
+                    anticipoId: anticipoId,
+                    monto: montoAbs,
+                    tipo: tipo
+                }, function(res) {
+                    if(res.status) {
+                        toastr.success(res.message);
+                        cargarTablasLiquidacion();
+                        // Opcional: Recargar la página para ver el estado "Aprobado" en la cabecera
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        toastr.error(res.message);
+                    }
+                });
             }
         });
     }

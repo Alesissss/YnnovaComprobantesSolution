@@ -330,6 +330,7 @@
         $('#btn_RegistrarComprobante').off('click').on('click', function() {
             let formData = new FormData();
             formData.append("AnticipoId", anticipoId);
+            formData.append("UsuarioId", @Model.Anticipo.UsuarioId);
             formData.append("RucEmpresa", $('#txt_Comp_RUC').val());
             formData.append("Serie", $('#txt_Comp_Serie').val());
             formData.append("Numero", $('#txt_Comp_Numero').val());

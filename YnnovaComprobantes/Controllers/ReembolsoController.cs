@@ -55,6 +55,29 @@ namespace YnnovaComprobantes.Controllers
             return View(model);
         }
         [HttpGet]
+        public IActionResult VerReembolso(int id)
+        {
+            var reembolso = _context.Reembolsos.FirstOrDefault(r => r.Id == id);
+            if (reembolso == null) return NotFound();
+
+            var estado = _context.Estados.FirstOrDefault(e => e.Id == reembolso.EstadoId);
+
+            // Obtener usuario logueado
+            int usuarioId = 0;
+            var claimId = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (claimId != null && int.TryParse(claimId.Value, out int uid)) usuarioId = uid;
+
+            // Usamos el mismo ViewModel o uno similar ajustado a Reembolso
+            var model = new EditarReembolsoViewModel
+            {
+                Reembolso = reembolso,
+                Estado = estado ?? new Estado { Nombre = "Pendiente" },
+                UsuarioLogueadoId = usuarioId
+            };
+
+            return View(model);
+        }
+        [HttpGet]
         public IActionResult SubirComprobante(int id)
         {
             // 1. Obtener el reembolso
@@ -248,6 +271,7 @@ namespace YnnovaComprobantes.Controllers
                     .Select(e => e.Id).FirstOrDefault();
 
                 reembolso.FechaRegistro = DateTime.Now;
+                reembolso.UsuarioRegistro = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
 
                 _context.Reembolsos.Add(reembolso);
                 _context.SaveChanges();
@@ -404,6 +428,7 @@ namespace YnnovaComprobantes.Controllers
                 if (estadoDb == null) return Json(new { status = false, message = "Estado no configurado" });
 
                 comprobante.EstadoId = estadoDb.Id;
+                comprobante.UsuarioAprobador = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
                 await _context.SaveChangesAsync();
 
                 // OPCIONAL: Lógica para actualizar el MontoTotal del Reembolso
@@ -454,6 +479,7 @@ namespace YnnovaComprobantes.Controllers
 
                 var estadoPendiente = _context.Estados.FirstOrDefault(e => e.Tabla == "COMPROBANTE" && e.Nombre == "Pendiente");
                 comprobante.EstadoId = estadoPendiente?.Id ?? 1;
+                comprobante.UsuarioRegistro = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
                 comprobante.FechaRegistro = DateTime.Now;
 
                 _context.Comprobantes.Add(comprobante);

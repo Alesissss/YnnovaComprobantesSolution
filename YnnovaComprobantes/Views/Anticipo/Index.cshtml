@@ -301,17 +301,17 @@
                     render: function (data) {
                         let badgeClass = "";
                         switch (data) {
-                            case "Cerrado":
+                            case "Aprobado":
                                 badgeClass = "bg-success";
                                 break;
                             case "Pendiente":
-                            case "Revisión total":
-                            case "Revisión parcial":
                                 badgeClass = "bg-warning text-dark";
                                 break;
-                            case "Parcial":
-                            case "Por reembolsar":
+                            case "Observado":
                                 badgeClass = "bg-info text-dark";
+                                break;
+                            case "Rechazado":
+                                badgeClass = "bg-danger";
                                 break;
                             default:
                                 badgeClass = "bg-secondary";
@@ -480,17 +480,17 @@
                     render: function (data) {
                         let badgeClass = "";
                         switch (data) {
-                            case "Cerrado":
+                            case "Aprobado":
                                 badgeClass = "bg-success";
                                 break;
                             case "Pendiente":
-                            case "Revisión total":
-                            case "Revisión parcial":
                                 badgeClass = "bg-warning text-dark";
                                 break;
-                            case "Parcial":
-                            case "Por reembolsar":
+                            case "Observado":
                                 badgeClass = "bg-info text-dark";
+                                break;
+                            case "Rechazado":
+                                badgeClass = "bg-danger";
                                 break;
                             default:
                                 badgeClass = "bg-secondary";

@@ -9,6 +9,8 @@ namespace YnnovaComprobantes.Models
         [Key]
         [Column("id")]
         public int? Id { get; set; }
+        [Column("anticipo_id")]
+        public int? AnticipoId { get; set; }
 
         [Column("empresa_id")]
         public int? EmpresaId { get; set; }
@@ -36,6 +38,10 @@ namespace YnnovaComprobantes.Models
 
         [Column("estado_id")]
         public int? EstadoId { get; set; }
+        [Column("usuario_aprobador")]
+        public int? UsuarioAprobador { get; set; }
+        [Column("usuario_registro")]
+        public int? UsuarioRegistro { get; set; }
 
         [Column("fecha_registro")]
         public DateTime FechaRegistro { get; set; } = DateTime.Now;

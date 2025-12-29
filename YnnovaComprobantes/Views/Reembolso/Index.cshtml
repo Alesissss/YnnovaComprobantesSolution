@@ -64,7 +64,7 @@
                     <div class="panel-heading">
                         <div class="row">
                             <div class="col-md-12">
-                                <h1>Gestionar mis anticipos</h1>
+                                <h1>Gestionar mis reembolsos</h1>
                             </div>
                         </div>
                     </div>
@@ -291,18 +291,18 @@
                     name: "estado",
                     render: function (data) {
                         let badgeClass = "";
-                        switch (data) {
-                            case "Cerrado":
+                        switch(data) {
+                            case "Aprobado":
                                 badgeClass = "bg-success";
                                 break;
                             case "Pendiente":
-                            case "Revisión total":
-                            case "Revisión parcial":
                                 badgeClass = "bg-warning text-dark";
                                 break;
-                            case "Parcial":
-                            case "Por reembolsar":
+                            case "Observado":
                                 badgeClass = "bg-info text-dark";
+                                break;
+                            case "Rechazado":
+                                badgeClass = "bg-danger";
                                 break;
                             default:
                                 badgeClass = "bg-secondary";
@@ -463,18 +463,18 @@
                     name: "estado",
                     render: function (data) {
                         let badgeClass = "";
-                        switch (data) {
-                            case "Cerrado":
+                        switch(data) {
+                            case "Aprobado":
                                 badgeClass = "bg-success";
                                 break;
                             case "Pendiente":
-                            case "Revisión total":
-                            case "Revisión parcial":
                                 badgeClass = "bg-warning text-dark";
                                 break;
-                            case "Parcial":
-                            case "Por reembolsar":
+                            case "Observado":
                                 badgeClass = "bg-info text-dark";
+                                break;
+                            case "Rechazado":
+                                badgeClass = "bg-danger";
                                 break;
                             default:
                                 badgeClass = "bg-secondary";

@@ -31,6 +31,7 @@ CREATE TABLE banco (
 
 CREATE TABLE reembolso (
     id INT IDENTITY(1,1) PRIMARY KEY,
+    anticipo_id INT,
     empresa_id INT,
     usuario_id INT,
     fecha_solicitud DATE,
@@ -40,6 +41,8 @@ CREATE TABLE reembolso (
     banco_id INT,
     numero_cuenta VARCHAR(50),
     estado_id INT,
+    usuario_aprobador INT,
+    usuario_registro INT,
     fecha_registro DATETIME DEFAULT GETDATE()
 );
 
@@ -55,12 +58,20 @@ CREATE TABLE anticipo (
     fecha_solicitud DATE,
     fecha_limite_rendicion DATE,
     estado_id INT,
+    usuario_aprobador INT,
+    usuario_registro INT,
     fecha_registro DATETIME DEFAULT GETDATE()
 );
 
 CREATE TABLE devolucion_anticipo (
     id INT IDENTITY(1,1) PRIMARY KEY,
-
+    anticipo_id INT,
+    monto DECIMAL(12,2),
+    fecha_devolucion DATE,
+    estado_id INT,
+    usuario_aprobador INT,
+    usuario_registro INT,
+    fecha_registro DATETIME DEFAULT GETDATE()
 );
 
 CREATE TABLE planilla_movilidad (
@@ -71,6 +82,8 @@ CREATE TABLE planilla_movilidad (
     fecha_emision DATE,
     monto_total DECIMAL(10,2),
     estado_id INT,
+    usuario_aprobador INT,
+    usuario_registro INT,
     fecha_registro DATETIME DEFAULT GETDATE()
 );
 
@@ -102,6 +115,8 @@ CREATE TABLE comprobante (
     descripcion VARCHAR(MAX),
     archivo_url VARCHAR(MAX),
     estado_id INT NOT NULL,
+    usuario_aprobador INT,
+    usuario_registro INT,
     fecha_registro DATETIME DEFAULT GETDATE()
 );
 
@@ -253,16 +268,22 @@ INSERT INTO estado (nombre, tabla) VALUES ('Pendiente', 'COMPROBANTE');
 INSERT INTO estado (nombre, tabla) VALUES ('Aprobado', 'COMPROBANTE');
 INSERT INTO estado (nombre, tabla) VALUES ('Rechazado', 'COMPROBANTE');
 INSERT INTO estado (nombre, tabla) VALUES ('Observado', 'COMPROBANTE');
-INSERT INTO estado (nombre, tabla) VALUES ('Revisión total', 'ANTICIPO');
-INSERT INTO estado (nombre, tabla) VALUES ('Revisión parcial', 'ANTICIPO');
 INSERT INTO estado (nombre, tabla) VALUES ('Pendiente', 'ANTICIPO');
-INSERT INTO estado (nombre, tabla) VALUES ('Parcial', 'ANTICIPO');
-INSERT INTO estado (nombre, tabla) VALUES ('Cerrado', 'ANTICIPO');
-INSERT INTO estado (nombre, tabla) VALUES ('Por reembolsar', 'ANTICIPO');
+INSERT INTO estado (nombre, tabla) VALUES ('Aprobado', 'ANTICIPO');
+INSERT INTO estado (nombre, tabla) VALUES ('Rechazado', 'ANTICIPO');
+INSERT INTO estado (nombre, tabla) VALUES ('Observado', 'ANTICIPO');
 INSERT INTO estado (nombre, tabla) VALUES ('Pendiente', 'REEMBOLSO');
 INSERT INTO estado (nombre, tabla) VALUES ('Aprobado', 'REEMBOLSO');
 INSERT INTO estado (nombre, tabla) VALUES ('Rechazado', 'REEMBOLSO');
 INSERT INTO estado (nombre, tabla) VALUES ('Observado', 'REEMBOLSO');
+INSERT INTO estado (nombre, tabla) VALUES ('Pendiente', 'PLANILLA_MOVILIDAD');
+INSERT INTO estado (nombre, tabla) VALUES ('Aprobado', 'PLANILLA_MOVILIDAD');
+INSERT INTO estado (nombre, tabla) VALUES ('Rechazado', 'PLANILLA_MOVILIDAD');
+INSERT INTO estado (nombre, tabla) VALUES ('Observado', 'PLANILLA_MOVILIDAD');
+INSERT INTO estado (nombre, tabla) VALUES ('Pendiente', 'DEVOLUCION_ANTICIPO');
+INSERT INTO estado (nombre, tabla) VALUES ('Aprobado', 'DEVOLUCION_ANTICIPO');
+INSERT INTO estado (nombre, tabla) VALUES ('Rechazado', 'DEVOLUCION_ANTICIPO');
+INSERT INTO estado (nombre, tabla) VALUES ('Observado', 'DEVOLUCION_ANTICIPO');
 
 -- INSERTS DE 'moneda'
 INSERT INTO moneda (nombre, simbolo) VALUES ('Soles', 'S/.');

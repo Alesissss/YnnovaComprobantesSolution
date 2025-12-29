@@ -1,6 +1,6 @@
 ﻿@model YnnovaComprobantes.ViewModels.GestionPlanillaViewModel
 @{
-    ViewData["Title"] = "Evaluación de Planilla #" + Model.Planilla.NumeroPlanilla;
+    ViewData["Title"] = "Ver Planilla #" + Model.Planilla.NumeroPlanilla;
 }
 
 <style>
@@ -55,7 +55,7 @@
                         <input type="hidden" id="hdn_PlanillaId" value="@Model.Planilla.Id">
                         <div class="form-group mb-2">
                             <label class="small">Empresa</label>
-                            <select id="cbx_Pla_Empresa" class="form-control form-control-sm loading"></select>
+                            <select id="cbx_Pla_Empresa" class="form-control form-control-sm loading" disabled></select>
                         </div>
                         <div class="form-group mb-2">
                             <label class="small">Usuario Beneficiario</label>
@@ -68,11 +68,11 @@
                             </div>
                             <div class="col-md-6 mb-2">
                                 <label class="small">Fecha Emisión</label>
-                                <input type="date" id="txt_Pla_Fecha" class="form-control form-control-sm" value="@Model.Planilla.FechaEmision.ToString("yyyy-MM-dd")">
+                                <input type="date" id="txt_Pla_Fecha" class="form-control form-control-sm" value="@Model.Planilla.FechaEmision.ToString("yyyy-MM-dd")" readonly>
                             </div>
                             <div class="col-md-6 mb-2">
                                 <label class="small">Presupuesto (S/)</label>
-                                <input type="number" id="txt_Pla_Monto" class="form-control form-control-sm" value="@Model.Planilla.MontoTotal" step="0.01">
+                                <input type="number" id="txt_Pla_Monto" class="form-control form-control-sm" value="@Model.Planilla.MontoTotal" step="0.01" readonly>
                             </div>
                             <div class="col-12">
                                 <hr class="my-2">
@@ -94,9 +94,6 @@
                 </div>
                 <div class="card-footer text-right">
                     <button type="button" class="btn btn-danger btn-sm" onclick="fct_Volver()">Volver</button>
-                    <button type="button" class="btn btn-primary btn-sm" onclick="fct_ActualizarPlanilla()">
-                        <i class="fas fa-save"></i> Guardar Cambios
-                    </button>
                 </div>
             </div>
 
@@ -105,14 +102,6 @@
                 <div class="card-body p-0">
                     <div class="chat-box" id="div_ChatBox">
                         <div class="text-center text-muted mt-5">Cargando comentarios...</div>
-                    </div>
-                </div>
-                <div class="card-footer">
-                    <div class="input-group">
-                        <input type="text" id="txt_MensajeChat" placeholder="Escribir observación..." class="form-control form-control-sm">
-                        <span class="input-group-append">
-                            <button type="button" class="btn btn-warning btn-sm" onclick="fct_EnviarObservacion()">Enviar</button>
-                        </span>
                     </div>
                 </div>
             </div>
@@ -182,7 +171,7 @@
             if(resp.status) {
                 let html = '<option value="">-- Seleccionar --</option>';
                 resp.data.forEach(u => { html += `<option value="${u.id}">${u.dni} - ${u.nombre}</option>`; });
-                $select.html(html).prop('disabled', false).removeClass('loading');
+                $select.html(html).prop('disabled', true).removeClass('loading');
                 if(usuarioSeleccionadoId > 0) $select.val(usuarioSeleccionadoId);
             }
         });
@@ -278,21 +267,6 @@
         });
     }
 
-    function fct_ActualizarPlanilla() {
-        let obj = {
-            Id: planillaId,
-            EmpresaId: $('#cbx_Pla_Empresa').val(),
-            UsuarioId: $('#cbx_Pla_Usuario').val(),
-            FechaEmision: $('#txt_Pla_Fecha').val(),
-            MontoTotal: $('#txt_Pla_Monto').val()
-        };
-
-        $.post("/PlanillaMovilidad/ActualizarPlanillaDatos", obj, function(resp){
-            if(resp.status) toastr.success(resp.message);
-            else toastr.error(resp.message);
-        });
-    }
-
     function cargarObservaciones() {
         $.getJSON('/PlanillaMovilidad/GetObservaciones?planillaId=' + planillaId, function(resp) {
             let html = '';
@@ -305,17 +279,6 @@
                 });
             } else { html = '<p class="text-center text-muted small mt-4">Sin observaciones.</p>'; }
             $('#div_ChatBox').html(html).scrollTop($('#div_ChatBox')[0].scrollHeight);
-        });
-    }
-
-    function fct_EnviarObservacion() {
-        let msg = $('#txt_MensajeChat').val();
-        if(!msg.trim()) return;
-        $.post('/PlanillaMovilidad/RegistrarObservacion', { PlanillaId: planillaId, Mensaje: msg, Prioridad: 'B' }, function(resp) {
-            if(resp.status) {
-                $('#txt_MensajeChat').val('');
-                cargarObservaciones();
-            }
         });
     }
 

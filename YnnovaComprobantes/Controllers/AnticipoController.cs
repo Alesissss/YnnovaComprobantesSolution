@@ -62,6 +62,40 @@ namespace YnnovaComprobantes.Controllers
             return View(model);
         }
         [HttpGet]
+        public IActionResult VerAnticipo(int id)
+        {
+            var anticipo = _context.Anticipos.FirstOrDefault(a => a.Id == id);
+            if (anticipo == null) return NotFound();
+
+            var estado = _context.Estados.FirstOrDefault(e => e.Id == anticipo.EstadoId);
+
+            // Obtener usuario logueado (Simulado o real)
+            int usuarioId = 1;
+            var claimId = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (claimId != null && int.TryParse(claimId.Value, out int uid)) usuarioId = uid;
+
+            var model = new EditarAnticipoViewModel
+            {
+                Anticipo = anticipo,
+                Estado = estado ?? new Estado { Nombre = "Desconocido" },
+
+                // --- NUEVAS LISTAS PARA EL ANTICIPO ---
+                Empresas = _context.Empresas.Where(x => x.Estado == true).ToList(),
+                Usuarios = _context.Usuarios.Where(x => x.Estado == true).ToList(), // Podrías filtrar por empresa si lo deseas
+                Bancos = _context.Bancos.Where(x => x.Estado == true).ToList(),
+                TiposRendicion = _context.TipoRendiciones.Where(x => x.Estado == true).ToList(),
+
+                // Listas existentes
+                Monedas = _context.Monedas.ToList(),
+                TiposComprobante = _context.TipoComprobantes.Where(x => x.Estado == true).ToList(),
+                Conceptos = _context.Conceptos.Where(x => x.Estado == true).ToList(),
+
+                UsuarioLogueadoId = usuarioId
+            };
+
+            return View(model);
+        }
+        [HttpGet]
         public IActionResult SubirComprobante(int id)
         {
             var anticipo = _context.Anticipos.FirstOrDefault(a => a.Id == id);
@@ -409,6 +443,7 @@ namespace YnnovaComprobantes.Controllers
                 if (estadoDb == null) return Json(new { status = false, message = "Estado no configurado en BD" });
 
                 comprobante.EstadoId = estadoDb.Id;
+                comprobante.UsuarioAprobador = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
                 await _context.SaveChangesAsync();
 
                 return Json(new { status = true, message = $"Comprobante marcado como {nuevoEstadoNombre}" });
@@ -481,7 +516,7 @@ namespace YnnovaComprobantes.Controllers
                 // Asignar estado "Pendiente" (Búscalo en tu DB o usa el ID directo si lo conoces)
                 var estadoPendiente = _context.Estados.FirstOrDefault(e => e.Tabla == "COMPROBANTE" && e.Nombre == "Pendiente");
                 comprobante.EstadoId = estadoPendiente != null ? estadoPendiente.Id : 1;
-
+                comprobante.UsuarioRegistro = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
                 comprobante.FechaRegistro = DateTime.Now;
                 // Asignar el usuario logueado (puedes tomarlo de Claims o del modelo si lo enviaste)
                 // comprobante.UsuarioId = ... 
@@ -555,6 +590,129 @@ namespace YnnovaComprobantes.Controllers
             catch (Exception ex)
             {
                 return Json(new { status = false, message = ex.Message });
+            }
+        }
+        #endregion
+        #region LIQUIDACION Y CIERRE
+        [HttpGet]
+        public async Task<JsonResult> ObtenerResumenLiquidacion(int anticipoId)
+        {
+            var anticipo = await _context.Anticipos.FindAsync(anticipoId);
+            if (anticipo == null) return Json(new { status = false });
+
+            // Sumamos solo comprobantes APROBADOS
+            var estadoAprobado = await _context.Estados.FirstOrDefaultAsync(e => e.Nombre == "Aprobado" && e.Tabla == "COMPROBANTE");
+            var totalGastado = await _context.Comprobantes
+                .Where(c => c.AnticipoId == anticipoId && c.EstadoId == (estadoAprobado != null ? estadoAprobado.Id : 0))
+                .SumAsync(c => c.MontoTotal);
+
+            decimal? diferencia = anticipo.Monto - totalGastado;
+
+            return Json(new
+            {
+                status = true,
+                montoAnticipo = anticipo.Monto,
+                totalGastado = totalGastado,
+                diferencia = diferencia // Positivo: Devolución, Negativo: Reembolso
+            });
+        }
+        [HttpGet]
+        public JsonResult GetMovimientosLiquidacion(int anticipoId)
+        {
+            try
+            {
+                // 1. Obtener Devoluciones
+                var devoluciones = _context.DevolucionesAnticipos
+                    .Where(d => d.AnticipoId == anticipoId)
+                    .Select(d => new
+                    {
+                        id = d.Id,
+                        Estado = _context.Estados.FirstOrDefault(e => e.Id == d.EstadoId).Nombre,
+                        fecha = d.FechaDevolucion.ToString("dd/MM/yyyy"),
+                        monto = d.Monto
+                    }).ToList();
+
+                // 2. Obtener Reembolsos amarrados
+                var reembolsos = _context.Reembolsos
+                    .Where(r => r.AnticipoId == anticipoId)
+                    .Select(r => new
+                    {
+                        id = r.Id,
+                        fecha = r.FechaSolicitud.HasValue ? r.FechaSolicitud.Value.ToString("dd/MM/yyyy") : "-",
+                        monto = r.MontoTotal,
+                        estado = _context.Estados.FirstOrDefault(e => e.Id == r.EstadoId).Nombre
+                    }).ToList();
+
+                return Json(new { status = true, devoluciones, reembolsos });
+            }
+            catch (Exception ex) { return Json(new { status = false, message = ex.Message }); }
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> RegistrarCierreLiquidacion(int anticipoId, decimal monto, string tipo)
+        {
+            using (var transaction = _context.Database.BeginTransaction())
+            {
+                try
+                {
+                    var anticipo = await _context.Anticipos.FindAsync(anticipoId);
+                    int usuarioId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
+
+                    // 1. Registrar el movimiento (Devolución o Reembolso)
+                    var estadoAprobadoDevolucion = await _context.Estados.FirstOrDefaultAsync(e => e.Nombre == "Aprobado" && e.Tabla == "DEVOLUCION_ANTICIPO");
+                    if (tipo == "DEVOLUCION")
+                    {
+                        var dev = new DevolucionAnticipo
+                        {
+                            AnticipoId = anticipoId,
+                            Monto = monto,
+                            FechaDevolucion = DateTime.Now,
+                            // Asumiendo que existe estado 'Aprobado' para devoluciones, sino usa 1
+                            EstadoId = estadoAprobadoDevolucion?.Id ?? 1,
+                            UsuarioRegistro = usuarioId,
+                            FechaRegistro = DateTime.Now
+                        };
+                        _context.DevolucionesAnticipos.Add(dev);
+                    }
+                    else if (tipo == "REEMBOLSO")
+                    {
+                        // Buscar estado Aprobado para reembolso
+                        var estadoAprobadoReem = await _context.Estados.FirstOrDefaultAsync(e => e.Nombre == "Aprobado" && e.Tabla == "REEMBOLSO");
+
+                        var reem = new Reembolso
+                        {
+                            AnticipoId = anticipoId,
+                            EmpresaId = anticipo.EmpresaId,
+                            UsuarioId = anticipo.UsuarioId,
+                            MontoTotal = monto,
+                            FechaSolicitud = DateTime.Now,
+                            MonedaId = anticipo.MonedaId,
+                            EstadoId = estadoAprobadoReem?.Id ?? 1,
+                            Descripcion = $"Reembolso por cierre de Anticipo #{anticipo.Id}",
+                            UsuarioRegistro = usuarioId,
+                            FechaRegistro = DateTime.Now
+                        };
+                        _context.Reembolsos.Add(reem);
+                    }
+
+                    // 2. CAMBIAR ESTADO DEL ANTICIPO A "APROBADO" (CERRADO)
+                    var estadoAprobadoAnticipo = await _context.Estados.FirstOrDefaultAsync(e => e.Nombre == "Aprobado" && e.Tabla == "ANTICIPO");
+                    if (estadoAprobadoAnticipo != null)
+                    {
+                        anticipo.EstadoId = estadoAprobadoAnticipo.Id;
+                        anticipo.UsuarioAprobador = usuarioId;
+                    }
+
+                    await _context.SaveChangesAsync();
+                    transaction.Commit();
+
+                    return Json(new { status = true, message = "Registro creado y Anticipo Cerrado (Aprobado) correctamente." });
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    return Json(new { status = false, message = ex.Message });
+                }
             }
         }
         #endregion

@@ -88,7 +88,31 @@ namespace YnnovaComprobantes.Controllers
 
             return View(model);
         }
+        [HttpGet]
+        public IActionResult VerPlanilla(int id)
+        {
+            var planilla = _context.PlanillasMovilidad.FirstOrDefault(p => p.Id == id);
+            if (planilla == null) return NotFound();
 
+            var estado = _context.Estados.FirstOrDefault(e => e.Id == planilla.EstadoId);
+
+            // Obtener usuario logueado para el chat
+            int usuarioLogueadoId = 0;
+            var claimId = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (claimId != null && int.TryParse(claimId.Value, out int uid)) usuarioLogueadoId = uid;
+
+            var model = new GestionPlanillaViewModel
+            {
+                Planilla = planilla,
+                Estado = estado ?? new Estado { Nombre = "Pendiente" },
+                UsuarioLogueadoId = usuarioLogueadoId,
+                // Listas para los combos de edición
+                Empresas = _context.Empresas.ToList(),
+                Usuarios = _context.Usuarios.ToList()
+            };
+
+            return View(model);
+        }
         #endregion
 
         #region APIS - CABECERA (PLANILLA)
@@ -184,6 +208,7 @@ namespace YnnovaComprobantes.Controllers
                 planilla.NumeroPlanilla = siguienteId.ToString("D10");
                 // Resultado ej: "0000000001", "0000000002", etc.
 
+                planilla.UsuarioRegistro = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
                 _context.PlanillasMovilidad.Add(planilla);
                 _context.SaveChanges();
 

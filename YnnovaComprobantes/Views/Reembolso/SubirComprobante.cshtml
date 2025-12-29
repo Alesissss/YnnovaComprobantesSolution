@@ -334,6 +334,7 @@
 
             let formData = new FormData();
             formData.append("ReembolsoId", reembolsoId);
+            formData.append("UsuarioId", @Model.Reembolso.UsuarioId);
             formData.append("RucEmpresa", $('#txt_Comp_RUC').val());
             formData.append("Serie", $('#txt_Comp_Serie').val());
             formData.append("Numero", $('#txt_Comp_Numero').val());
