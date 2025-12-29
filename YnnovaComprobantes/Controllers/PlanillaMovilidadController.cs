@@ -123,6 +123,42 @@ namespace YnnovaComprobantes.Controllers
                 return Json(new { status = false, message = ex.Message });
             }
         }
+        [HttpGet]
+        public JsonResult GetMisPlanillasData()
+        {
+            try
+            {
+                int usuarioLogueadoId = 0;
+                var claimId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+                if (claimId != null && int.TryParse(claimId.Value, out int uid))
+                    usuarioLogueadoId = uid;
+
+                if (usuarioLogueadoId == 0)
+                    return Json(new { status = false, message = "Usuario no identificado." });
+
+                var query = from p in _context.PlanillasMovilidad
+                            join e in _context.Empresas on p.EmpresaId equals e.Id
+                            join u in _context.Usuarios on p.UsuarioId equals u.Id
+                            join est in _context.Estados on p.EstadoId equals est.Id
+                            where u.Id == usuarioLogueadoId
+                            select new
+                            {
+                                p.Id,
+                                p.NumeroPlanilla,
+                                FechaEmision = p.FechaEmision.ToString("yyyy-MM-dd"),
+                                Empresa = e.Nombre,
+                                Usuario = u.Nombre,
+                                MontoAsignado = p.MontoTotal,
+                                Estado = est.Nombre
+                            };
+
+                return Json(new { data = query.ToList(), status = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { status = false, message = ex.Message });
+            }
+        }
 
         [HttpPost]
         public JsonResult RegistrarPlanilla(PlanillaMovilidad planilla)
@@ -242,6 +278,66 @@ namespace YnnovaComprobantes.Controllers
             catch (Exception ex)
             {
                 return Json(new { status = false, message = ex.Message });
+            }
+        }
+        [HttpGet]
+        public JsonResult GetObservaciones(int planillaId)
+        {
+            try
+            {
+                var lista = (from o in _context.Observaciones
+                             join u in _context.Usuarios on o.UsuarioId equals u.Id
+                             where o.PlanillaMovilidadId == planillaId // Nueva columna en BD
+                             orderby o.FechaCreacion ascending
+                             select new
+                             {
+                                 id = o.Id,
+                                 usuarioId = o.UsuarioId,
+                                 nombreUsuario = u.Nombre,
+                                 prioridad = o.Prioridad,
+                                 mensaje = o.Mensaje,
+                                 fechaCreacion = o.FechaCreacion
+                             }).ToList();
+
+                return Json(new { status = true, data = lista });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { status = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RegistrarObservacion(int PlanillaId, string Mensaje, string Prioridad)
+        {
+            using (var transaction = _context.Database.BeginTransaction())
+            {
+                try
+                {
+                    string? userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                    if (userIdString == null) return Json(new { status = false, message = "No logueado" });
+                    int userId = int.Parse(userIdString.Trim());
+
+                    // 1. Registrar Observación
+                    var nuevaObs = new Observacion
+                    {
+                        PlanillaMovilidadId = PlanillaId,
+                        UsuarioId = userId,
+                        Mensaje = Mensaje,
+                        Prioridad = Prioridad,
+                        FechaCreacion = DateTime.Now
+                    };
+                    _context.Observaciones.Add(nuevaObs);
+                    _context.SaveChanges();
+
+                    transaction.Commit();
+                    return Json(new { status = true, message = "Observación enviada." });
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    return Json(new { status = false, message = ex.Message });
+                }
             }
         }
 

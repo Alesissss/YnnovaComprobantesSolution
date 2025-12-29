@@ -103,6 +103,11 @@
                 </div>
                 <div class="card-footer">
                     <div class="input-group">
+                        <select id="sel_Prioridad" class="form-control form-control-sm" style="max-width: 100px;">
+                            <option value="B">Baja</option>
+                            <option value="M">Media</option>
+                            <option value="A">Alta</option>
+                        </select>
                         <input type="text" id="txt_MensajeChat" placeholder="Responder..." class="form-control form-control-sm">
                         <span class="input-group-append">
                             <button type="button" class="btn btn-warning btn-sm" onclick="fct_EnviarChat()">Enviar</button>
@@ -183,7 +188,59 @@
 
     function initTable() {
         $('#tbl_DetallesPlanilla').DataTable({
+            paging: true,
+            select: true,
+            scroller: false,
+            deferRender: true,
+            scrollY: true,
+            scrollX: true,
+            fixedHeader: true,
+            ordering: true,
             destroy: true,
+            responsive: true,
+            autoWidth: false,
+            processing: true,
+            filter: true,
+            orderMulti: true,
+            stateSave: false,
+            serverSide: false,
+            language: {
+                processing: "Procesando...",
+                sSearch: "Buscar:",
+                lengthMenu: "Mostrar _MENU_ registros",
+                info: "Mostrando del _START_ al _END_ de un total de _TOTAL_ registros",
+                infoEmpty: "Sin registros encontrados.",
+                infoFiltered: "(Total de _MAX_ registros filtrados)",
+                loadingRecords: "Cargando...",
+                zeroRecords: "No se encontraron registros",
+                emptyTable: "No hay datos disponibles en la tabla",
+                paginate: {
+                    previous: "Anterior",
+                    next: "Siguiente",
+                    first: "Primero",
+                    last: "Último",
+                },
+                aria: {
+                    sortAscending: ": Activar para ordenar la columna de manera ascendente",
+                    sortDescending: ": Activar para ordenar la columna de manera descendente"
+                },
+                select: {
+                    rows: {
+                        _: "%d filas seleccionadas",
+                        0: "Haz clic en una fila para seleccionarla",
+                        1: "1 fila seleccionada"
+                    }
+                },
+                buttons: {
+                    copyTitle: 'Copiado en el portapapeles',
+                    copyKeys: 'Presiona <i>ctrl</i> o <i>\u2318</i> + <i>C</i> para copiar los datos de la tabla a tu portapapeles. <br><br>Para cancelar, haga clic en este mensaje o presione Esc.',
+                    copySuccess: {
+                        _: '%d registros copiados correctamente',
+                        1: '1 registro copiado correctamente'
+                    }
+                }
+            },
+            lengthMenu: [[100, 200, 500, -1], [100, 200, 500, 'Todos']],
             responsive: true,
             ajax: { url: '/PlanillaMovilidad/GetDetallesData?planillaId=' + planillaId, type: 'GET', dataSrc: 'data' },
             columns: [
@@ -198,6 +255,16 @@
                     className: 'text-center',
                     render: id => `<button class="btn btn-xs btn-danger" onclick="fct_EliminarDetalle(${id})"><i class="fas fa-trash"></i></button>`
                 }
+            ],
+            columnDefs: [
+                { 
+                    targets: [0, 1, 2, 3], 
+                    className: "align-middle" 
+                },
+                { 
+                    targets: [3], 
+                    orderable: false,
+                },
             ],
             "drawCallback": function(settings) {
                 let total = settings.json ? settings.json.totalGastado : 0;
@@ -278,7 +345,7 @@
     function fct_EnviarChat() {
         let msg = $('#txt_MensajeChat').val();
         if(!msg.trim()) return;
-        $.post('/PlanillaMovilidad/RegistrarObservacion', { PlanillaId: planillaId, Mensaje: msg, Prioridad: 'B' }, function() {
+        $.post('/PlanillaMovilidad/RegistrarObservacion', { PlanillaId: planillaId, Mensaje: msg, Prioridad: $('#sel_Prioridad').val() }, function() {
             $('#txt_MensajeChat').val('');
             cargarChat();
         });
