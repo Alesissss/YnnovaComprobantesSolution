@@ -1,0 +1,513 @@
+﻿@{
+    ViewData["Title"] = "Mi Rendición de Cuentas";
+    int liqId = ViewBag.LiquidacionId;
+}
+
+<input type="hidden" id="hdn_LiqId" value="@liqId">
+
+<div class="container-fluid pt-3">
+
+    <div class="card card-primary card-outline shadow-sm mb-3">
+        <div class="card-body p-2">
+            <div class="row align-items-center">
+                <div class="col-md-5 border-right">
+                    <h5 class="mb-0 text-primary font-weight-bold" id="lbl_Codigo">...</h5>
+                    <small class="text-muted" id="lbl_Empresa">...</small>
+                </div>
+                <div class="col-md-7 text-right">
+                    <span class="text-muted small mr-2 font-weight-bold">MI BALANCE:</span>
+                    <span class="text-success font-weight-bold" id="lbl_Ingresos">S/ 0.00</span>
+                    <small>(Recibido)</small>
+                    <span class="mx-2 text-muted">-</span>
+                    <span class="text-danger font-weight-bold" id="lbl_Egresos">S/ 0.00</span>
+                    <small>(Gastado)</small>
+                    <span class="mx-2 text-muted">=</span>
+                    <span class="font-weight-bold bg-light border px-2 py-1 rounded" id="lbl_Saldo">S/ 0.00</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card card-success card-outline h-100 shadow-sm">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-wallet mr-1"></i> 1. Dinero Recibido</h3>
+                </div>
+                <div class="card-body p-0 table-responsive">
+                    <table class="table table-sm table-striped mb-0" id="tbl_Anticipos">
+                        <thead class="bg-light">
+                            <tr>
+                                <th>Tipo rendición</th>
+                                <th>Banco</th>
+                                <th>Moneda</th>
+                                <th>Monto</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <div class="card-footer small text-muted">
+                    * Aquí verás el dinero que te transfiere Administración.
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card card-primary card-outline card-tabs h-100 shadow-sm">
+                <div class="card-header p-0 pt-1 border-bottom-0">
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-toggle="pill" href="#tab-facturas" role="tab">
+                                <i class="fas fa-file-invoice mr-1"></i> 2. Registrar Facturas
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="pill" href="#tab-planilla" role="tab">
+                                <i class="fas fa-car mr-1"></i> 3. Registrar Movilidad
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="tab-facturas">
+                            <div class="text-right mb-2">
+                                <button class="btn btn-primary btn-sm font-weight-bold" onclick="abrirModalFactura()">
+                                    <i class="fas fa-upload mr-1"></i> Subir Comprobante
+                                </button>
+                            </div>
+                            <table class="table table-bordered table-sm w-100" id="tbl_Comprobantes">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Tipo</th>
+                                        <th>Proveedor</th>
+                                        <th>Moneda</th>
+                                        <th class="text-right">Monto</th>
+                                        <th class="text-center">Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+
+                        <div class="tab-pane fade" id="tab-planilla">
+                            <div class="text-right mb-2">
+                                <button class="btn btn-warning btn-sm font-weight-bold" onclick="abrirModalMovilidad()">
+                                    <i class="fas fa-route mr-1"></i> Agregar Ruta
+                                </button>
+                            </div>
+                            <table class="table table-bordered table-sm w-100" id="tbl_Planilla">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Ruta / Motivo</th>
+                                        <th class="text-right">Monto</th>
+                                        <th class="text-center">Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-12">
+            <div class="card card-warning collapsed-card shadow-sm">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-comments mr-1"></i> Chat con Administración</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-plus"></i></button>
+                    </div>
+                </div>
+                <div class="card-body" style="display: none;">
+                    <div class="direct-chat-messages" id="div_ChatBox" style="height: 250px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; background: #f8f9fa;">
+                    </div>
+                    <div class="input-group mt-2">
+                        <input type="text" id="txt_Mensaje" placeholder="Responder o consultar..." class="form-control">
+                        <span class="input-group-append">
+                            <button type="button" class="btn btn-warning" onclick="enviarObservacion()">Enviar</button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="mdl_SubirComp" tabindex="-1" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="fas fa-file-invoice mr-1"></i> Registrar Gasto</h5>
+                <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6 mb-2">
+                        <label>Proveedor</label>
+                        <input type="text" id="txt_Comp_Proveedor" class="form-control form-control-sm">
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label>RUC</label>
+                        <input type="text" id="txt_Comp_RUC" class="form-control form-control-sm" maxlength="11">
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label>Serie</label>
+                        <input type="text" id="txt_Comp_Serie" class="form-control form-control-sm">
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label>Número</label>
+                        <input type="text" id="txt_Comp_Numero" class="form-control form-control-sm">
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label>Tipo</label>
+                        <select id="cbx_Comp_Tipo" class="form-control form-control-sm loading"></select>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label>Concepto</label>
+                        <select id="cbx_Comp_Concepto" class="form-control form-control-sm loading"></select>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label>Fecha Emisión</label>
+                        <input type="date" id="txt_Comp_Fecha" class="form-control form-control-sm">
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label>Moneda / Monto</label>
+                        <div class="input-group input-group-sm">
+                            <select id="cbx_Comp_Moneda" class="form-control loading" style="max-width: 80px;"></select>
+                            <input type="number" id="txt_Comp_Monto" class="form-control" step="0.01">
+                        </div>
+                    </div>
+                    <div class="col-md-12 mb-2">
+                        <label>Adjunto (Imagen/PDF)</label>
+                        <div id="dropZone" class="drop-zone text-center p-2 rounded bg-light">
+                            <p class="text-muted mb-1 small" id="lbl_DropInfo">Arrastra o click aquí</p>
+                            <input type="file" id="cp_File" class="d-none" accept=".jpg, .jpeg, .png, .pdf">
+                            <div id="previewArea" style="display:none;" class="d-flex align-items-center justify-content-center">
+                                <i id="icon_Preview" class="fas fa-file mr-2"></i>
+                                <span id="name_Preview" class="small font-weight-bold mr-2">archivo.pdf</span>
+                                <button type="button" class="btn btn-xs btn-danger" id="btn_RemoveFile"><i class="fas fa-times"></i></button>
+                            </div>
+                        </div>
+                        <small class="text-muted">Obligatorio</small>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btn_RegistrarComprobante">Guardar Gasto</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="mdl_AddMov" tabindex="-1" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title"><i class="fas fa-taxi mr-1"></i> Registrar Movilidad</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Fecha Gasto</label>
+                    <input type="date" id="mov_Fecha" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-dd")">
+                </div>
+                <div class="form-group">
+                    <label>Motivo</label>
+                    <input type="text" id="mov_Motivo" class="form-control" placeholder="Ej: Visita a cliente X">
+                </div>
+                <div class="row">
+                    <div class="col-6 form-group">
+                        <label>Origen</label>
+                        <input type="text" id="mov_Origen" class="form-control" placeholder="Oficina">
+                    </div>
+                    <div class="col-6 form-group">
+                        <label>Destino</label>
+                        <input type="text" id="mov_Destino" class="form-control" placeholder="Cliente">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Precio Pagado</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend"><span class="input-group-text">S/</span></div>
+                        <input type="number" id="mov_Monto" class="form-control" step="0.10" placeholder="0.00">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-warning" onclick="guardarMovilidad()">Agregar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var liqId = $('#hdn_LiqId').val();
+
+    $(document).ready(function(){
+        cargarTodoUser();
+        cargarListasParaComprobante();
+        initCardComprobante();
+    });
+
+    function cargarTodoUser() {
+        // Cabecera
+        $.getJSON('/Liquidacion/ObtenerDatosCarpeta', { liquidacionId: liqId }, function(res) {
+            if(res.status) {
+                $('#lbl_Codigo').text(res.data.codigoGenerado);
+                $('#lbl_Empresa').text(res.data.empresa);
+                if(res.data.esCerrada) {
+                    // Si está cerrada, bloqueamos los botones de registro
+                    $('.btn-primary, .btn-warning').prop('disabled', true);
+                    toastr.info("Esta liquidación está CERRADA.");
+                }
+            }
+        });
+
+        // Resumen
+        $.getJSON('/Liquidacion/ObtenerResumenFinanciero', { liquidacionId: liqId }, function(res) {
+            if(res.status) {
+                $('#lbl_Ingresos').text("S/ " + res.ingresos.toFixed(2));
+                $('#lbl_Egresos').text("S/ " + res.gastos.toFixed(2));
+                $('#lbl_Saldo').text("S/ " + res.saldo.toFixed(2));
+            }
+        });
+
+        // Anticipos (Solo lectura, ver estado)
+        $.getJSON('/Liquidacion/ListarAnticipos', { liquidacionId: liqId }, function(res) {
+            let html = '';
+            res.data.forEach(a => {
+                let badge = a.estado === 'Transferido' ? 'success' : 'warning';
+                let link = a.estado === 'Transferido' ? `<br><a href="${a.voucherUrl}" target="_blank" class="small text-info"><i class="fas fa-paperclip"></i> Ver Voucher</a>` : '';
+                html += `<tr>
+                            <td class="align-middle">${a.tipoRendicion}</td>
+                            <td class="align-middle">${a.banco}</td>
+                            <td class="align-middle">${a.moneda}</td>
+                            <td class="align-middle font-weight-bold">${a.monto.toFixed(2)}</td>
+                            <td><span class="badge badge-${badge}">${a.estado}</span>${link}</td>
+                         </tr>`;
+            });
+            $('#tbl_Anticipos tbody').html(html);
+        });
+
+        // Comprobantes
+        $.getJSON('/Liquidacion/ListarComprobantes', { liquidacionId: liqId }, function(res) {
+            let html = '';
+            res.data.forEach(c => {
+                let badge = c.estado === 'Aprobado' ? 'success' : (c.estado === 'Rechazado' ? 'danger' : 'warning');
+                html += `<tr>
+                            <td class="align-middle">${c.fecha}</td>
+                            <td class="align-middle">${c.tipoComprobante}<br><small class="text-muted">${c.concepto}</small></td>
+                            <td class="align-middle">${c.proveedor}<br><small class="text-muted">${c.serie}</small></td>
+                            <td class="align-middle">${c.moneda}</td>
+                            <td class="text-right align-middle">${c.monto.toFixed(2)}</td>
+                            <td class="text-center align-middle"><span class="badge badge-${badge}">${c.estado}</span></td>
+                         </tr>`;
+            });
+            $('#tbl_Comprobantes tbody').html(html);
+        });
+
+        // Planilla
+        $.getJSON('/Liquidacion/ListarDetallesPlanilla', { liquidacionId: liqId }, function(res) {
+            let html = '';
+            res.data.forEach(d => {
+                let st = d.aprobado ? '<span class="badge badge-success">Aprobado</span>' : '<span class="badge badge-danger">Rechazado</span>';
+                html += `<tr>
+                            <td>${d.fecha}</td>
+                            <td class="align-middle">${d.motivo}<br><small class="text-muted">${d.lugarOrigen} <i class="fas fa-arrow-right"></i> ${d.lugarDestino}</small></td>
+                            <td class="text-right">S/ ${d.monto.toFixed(2)}</td>
+                            <td class="text-center">${st}</td>
+                         </tr>`;
+            });
+            $('#tbl_Planilla tbody').html(html);
+        });
+
+        cargarChat();
+    }
+
+    // --- ACCIONES DE REGISTRO ---
+
+    function abrirModalFactura() { $('#mdl_SubirComp').modal('show'); }
+    function abrirModalMovilidad() { $('#mdl_AddMov').modal('show'); }
+
+    function cargarListasParaComprobante() {
+        // 1. Moneda (Requerido para el combo de nuevo comprobante)
+        cargarDropdown('/Liquidacion/GetMonedasData', '#cbx_Comp_Moneda', null);
+
+        // 2. Tipos de Comprobante
+        cargarDropdown('/Liquidacion/GetTipoComprobanteData', '#cbx_Comp_Tipo', null);
+
+        // 3. Conceptos
+        cargarDropdown('/Liquidacion/GetConceptosData', '#cbx_Comp_Concepto', null);
+    }
+
+    // Helper Genérico (Mismo de antes)
+    function cargarDropdown(url, selector, valorPreSeleccionado) {
+        let $select = $(selector);
+        $select.html('<option>Cargando...</option>').addClass('loading');
+        return $.getJSON(url, function(resp) {
+            if(resp.status) {
+                let html = '<option value="">-- Seleccionar --</option>';
+                resp.data.forEach(item => {
+                    let texto = item.nombre || item.descripcion;
+                    if(item.simbolo) texto = `${item.nombre} (${item.simbolo})`;
+                    html += `<option value="${item.id}">${texto}</option>`;
+                });
+                $select.html(html).removeClass('loading');
+                if(valorPreSeleccionado && valorPreSeleccionado > 0) $select.val(valorPreSeleccionado);
+            }
+        });
+    }
+
+    function initCardComprobante() {
+        const dropZone = $('#dropZone');
+        const fileInput = $('#cp_File');
+
+        fileInput.on('click', function(e) { e.stopPropagation(); });
+        dropZone.on('click', function(e) {
+            if(e.target.id !== 'btn_RemoveFile' && e.target.parentNode.id !== 'btn_RemoveFile') {
+                fileInput.trigger('click');
+            }
+        });
+        dropZone.on('dragover', function(e) { e.preventDefault(); e.stopPropagation(); $(this).addClass('drag-over'); });
+        dropZone.on('dragleave', function(e) { e.preventDefault(); e.stopPropagation(); $(this).removeClass('drag-over'); });
+        dropZone.on('drop', function(e) {
+            e.preventDefault(); e.stopPropagation(); $(this).removeClass('drag-over');
+            if (e.originalEvent.dataTransfer.files.length) {
+                fileInput[0].files = e.originalEvent.dataTransfer.files;
+                mostrarPreview(fileInput[0].files[0]);
+            }
+        });
+        fileInput.on('change', function() { if(this.files.length) mostrarPreview(this.files[0]); });
+        $('#btn_RemoveFile').on('click', function(e){
+            e.stopPropagation(); e.preventDefault();
+            fileInput.val(''); $('#previewArea').hide(); $('#lbl_DropInfo').show();
+        });
+        function mostrarPreview(file) {
+            $('#lbl_DropInfo').hide(); $('#name_Preview').text(file.name); $('#previewArea').show();
+            if(file.type.includes('pdf')) $('#icon_Preview').attr('class', 'fas fa-file-pdf text-danger fa-2x');
+            else $('#icon_Preview').attr('class', 'fas fa-file-image text-primary fa-2x');
+        }
+        $('#txt_Comp_RUC').on('input', function() { this.value = this.value.replace(/[^0-9]/g, '').slice(0,11); });
+
+        $('#btn_RegistrarComprobante').off('click').on('click', function() {
+            let formData = new FormData();
+            formData.append('LiquidacionId', liqId);
+            formData.append("RucEmpresa", $('#txt_Comp_RUC').val());
+            formData.append("ProveedorNombre", $('#txt_Comp_Proveedor').val());
+            formData.append("Serie", $('#txt_Comp_Serie').val());
+            formData.append("Numero", $('#txt_Comp_Numero').val());
+            formData.append("TipoComprobanteId", $('#cbx_Comp_Tipo').val());
+            let conceptoVal = $('#cbx_Comp_Concepto').val();
+            if(conceptoVal) formData.append("ConceptoId", conceptoVal);
+            formData.append("MonedaId", $('#cbx_Comp_Moneda').val());
+            formData.append("MontoTotal", $('#txt_Comp_Monto').val());
+            formData.append("FechaEmision", $('#txt_Comp_Fecha').val());
+            let file = $('#cp_File')[0].files[0];
+            if(file) formData.append("archivo", file);
+            else { toastr.warning("Debes adjuntar el archivo"); return; }
+
+            if(!$('#txt_Comp_RUC').val() || !$('#txt_Comp_Monto').val() || !$('#txt_Comp_Fecha').val()) {
+                toastr.warning("Completa los campos obligatorios"); return;
+            }
+
+            Swal.fire(
+                {
+                    title: '¿Registrar comprobante?',
+                    text: "Esta acción registrará al comprobante.",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "Sí, registrar comprobante",
+                    cancelButtonText: "Cancelar",
+                    reverseButtons: true
+                }).then((r) => {
+                if(r.isConfirmed) {
+                    $.ajax({
+                        url: '/Liquidacion/SubirComprobante',
+                        type: 'POST',
+                        data: formData,
+                        processData: false, contentType: false,
+                        success: function(res) {
+                            if(res.status) {
+                                toastr.success("Comprobante subido");
+                                $('#mdl_SubirComp').modal('hide');
+                                // Limpiar campos
+                                $('#cp_Prov').val(''); $('#cp_Monto').val(''); $('#cp_File').val('');
+                                cargarTodoUser();
+                            } else {
+                                toastr.error("Error al subir");
+                            }
+                        }
+                    });
+                }
+            });
+
+            
+        });
+    }
+
+
+    function guardarMovilidad() {
+        if(!$('#mov_Monto').val()) { toastr.warning("Ingrese el monto"); return; }
+
+        let obj = {
+            FechaGasto: $('#mov_Fecha').val(),
+            Motivo: $('#mov_Motivo').val(),
+            LugarOrigen: $('#mov_Origen').val(),
+            LugarDestino: $('#mov_Destino').val(),
+            Monto: $('#mov_Monto').val()
+        };
+        $.post('/Liquidacion/AgregarDetallePlanilla', { liquidacionId: liqId, detalle: obj }, function(res) {
+             if(res.status) {
+                 toastr.success("Ruta agregada");
+                 $('#mdl_AddMov').modal('hide');
+                 $('#mov_Motivo').val(''); $('#mov_Monto').val('');
+                 cargarTodoUser();
+             } else {
+                 toastr.error("Error al guardar");
+             }
+        });
+    }
+
+    // --- CHAT ---
+    function cargarChat() {
+        $.getJSON('/Liquidacion/ObtenerObservaciones', { liquidacionId: liqId }, function(res) {
+            let html = '';
+            if(res.status) {
+                res.data.forEach(msg => {
+                    let align = msg.esMio ? 'text-right' : 'text-left';
+                    let bg = msg.esMio ? 'bg-primary text-white' : 'bg-light text-dark';
+                    let user = msg.esMio ? 'Yo' : msg.nombreUsuario;
+
+                    html += `<div class="${align} mb-2">
+                                <small class="text-muted font-weight-bold">${user} <span style="font-size:0.7em">${msg.fecha}</span></small>
+                                <div class="p-2 rounded ${bg}" style="display:inline-block; max-width:80%; border-radius:10px;">
+                                    ${msg.mensaje}
+                                </div>
+                             </div>`;
+                });
+            }
+            $('#div_ChatBox').html(html);
+            $('#div_ChatBox').scrollTop($('#div_ChatBox')[0].scrollHeight);
+        });
+    }
+
+    function enviarObservacion() {
+        let txt = $('#txt_Mensaje').val();
+        if(!txt.trim()) return;
+        $.post('/Liquidacion/RegistrarObservacion', { liquidacionId: liqId, mensaje: txt, prioridad: 'M' }, function(res) {
+            if(res.status) { $('#txt_Mensaje').val(''); cargarChat(); }
+        });
+    }
+</script>

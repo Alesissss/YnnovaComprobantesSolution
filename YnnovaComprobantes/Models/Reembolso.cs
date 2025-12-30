@@ -8,15 +8,10 @@ namespace YnnovaComprobantes.Models
     {
         [Key]
         [Column("id")]
-        public int? Id { get; set; }
-        [Column("anticipo_id")]
-        public int? AnticipoId { get; set; }
+        public int Id { get; set; }
 
-        [Column("empresa_id")]
-        public int? EmpresaId { get; set; }
-
-        [Column("usuario_id")]
-        public int? UsuarioId { get; set; }
+        [Column("liquidacion_id")]
+        public int LiquidacionId { get; set; }
 
         [Column("fecha_solicitud")]
         public DateTime? FechaSolicitud { get; set; }
@@ -24,8 +19,8 @@ namespace YnnovaComprobantes.Models
         [Column("moneda_id")]
         public int? MonedaId { get; set; }
 
-        [Column("monto_total")]
-        public decimal? MontoTotal { get; set; }
+        [Column("monto")]
+        public decimal? Monto { get; set; }
 
         [Column("descripcion")]
         public string? Descripcion { get; set; }
@@ -36,12 +31,14 @@ namespace YnnovaComprobantes.Models
         [Column("numero_cuenta")]
         public string? NumeroCuenta { get; set; }
 
+        [Column("es_devolucion")]
+        public bool? EsDevolucion { get; set; } // true: Devolución, false: Reembolso
+
         [Column("estado_id")]
         public int? EstadoId { get; set; }
+
         [Column("usuario_aprobador")]
         public int? UsuarioAprobador { get; set; }
-        [Column("usuario_registro")]
-        public int? UsuarioRegistro { get; set; }
 
         [Column("fecha_registro")]
         public DateTime FechaRegistro { get; set; } = DateTime.Now;

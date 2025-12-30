@@ -208,34 +208,27 @@
                                 </a>
                             </li>
                         }    
-                        <li class="nav-item @(new[] { "Anticipo", "Reembolso", "PlanillaMovilidad" }.Contains(controllerName) ? "menu-open" : "")">
+                        <li class="nav-item @(new[] { "Liquidacion" }.Contains(controllerName) ? "menu-open" : "")">
                             <a href="#" class="nav-link">
                                 <i class="nav-icon fas fa-file-invoice-dollar"></i>
                                 <p>
-                                    Entregas a rendir
+                                    Liquidaciones
                                     <i class="right fas fa-angle-left"></i>
                                 </p>
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="/Anticipo/Index"
-                                       class="nav-link @(controllerName == "Anticipo" ? "active" : "")">
+                                    <a href="/Liquidacion/IndexAdmin"
+                                       class="nav-link @((controllerName == "Liquidacion" && actionName == "IndexAdmin") ? "active" : "")">
                                         <i class="far fa-circle nav-icon"></i>
-                                        <p>Anticipos</p>
+                                        <p>Gestionar liquidaciones</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="/Reembolso/Index"
-                                       class="nav-link @(controllerName == "Reembolso" ? "active" : "")">
+                                    <a href="/Liquidacion/IndexUsuario"
+                                       class="nav-link @((controllerName == "Liquidacion" && actionName == "IndexUsuario") ? "active" : "")">
                                         <i class="far fa-circle nav-icon"></i>
-                                        <p>Reembolso</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="/PlanillaMovilidad/Index"
-                                       class="nav-link @(controllerName == "PlanillaMovilidad" ? "active" : "")">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Planillas de movilidad</p>
+                                        <p>Mis liquidaciones</p>
                                     </a>
                                 </li>
                             </ul>

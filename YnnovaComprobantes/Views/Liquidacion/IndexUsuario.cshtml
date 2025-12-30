@@ -1,0 +1,120 @@
+﻿@{
+    ViewData["Title"] = "Mis Liquidaciones";
+}
+
+<div class="container-fluid pt-4">
+    <div class="card card-primary shadow-lg">
+        <div class="card-header">
+            <h3 class="card-title mb-0">
+                <i class="fas fa-folder mr-2"></i> Mis Carpetas Asignadas
+            </h3>
+        </div>
+
+        <div class="card-body">
+            <table id="tbl_User" class="table table-bordered table-hover dt-responsive nowrap" style="width:100%">
+                <thead class="bg-light">
+                    <tr>
+                        <th style="width: 20%">Código</th>
+                        <th style="width: 20%">Fecha Asignación</th>
+                        <th>Empresa</th>
+                        <th style="width: 15%">Estado</th>
+                        <th style="width: 10%" class="text-center">Acción</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        initTableUser();
+    });
+
+    function initTableUser() {
+        $('#tbl_User').DataTable({
+            paging: true,
+            select: true,
+            scroller: false,
+            deferRender: true,
+            scrollY: true,
+            scrollX: false,
+            fixedHeader: true,
+            ordering: true,
+            destroy: true,
+            responsive: true,
+            autoWidth: false,
+            processing: true,
+            filter: true,
+            orderMulti: true,
+            stateSave: false,
+            serverSide: false,
+            language: {
+                processing: "Procesando...",
+                sSearch: "Buscar:",
+                lengthMenu: "Mostrar _MENU_ registros",
+                info: "Mostrando del _START_ al _END_ de un total de _TOTAL_ registros",
+                infoEmpty: "Sin registros encontrados.",
+                infoFiltered: "(Total de _MAX_ registros filtrados)",
+                loadingRecords: "Cargando...",
+                zeroRecords: "No se encontraron registros",
+                emptyTable: "No hay datos disponibles en la tabla",
+                paginate: {
+                    previous: "Anterior",
+                    next: "Siguiente",
+                    first: "Primero",
+                    last: "Último",
+                },
+                aria: {
+                    sortAscending: ": Activar para ordenar la columna de manera ascendente",
+                    sortDescending: ": Activar para ordenar la columna de manera descendente"
+                },
+                select: {
+                    rows: {
+                        _: "%d filas seleccionadas",
+                        0: "Haz clic en una fila para seleccionarla",
+                        1: "1 fila seleccionada"
+                    }
+                },
+                buttons: {
+                    copyTitle: 'Copiado en el portapapeles',
+                    copyKeys: 'Presiona <i>ctrl</i> o <i>\u2318</i> + <i>C</i> para copiar los datos de la tabla a tu portapapeles. <br><br>Para cancelar, haga clic en este mensaje o presione Esc.',
+                    copySuccess: {
+                        _: '%d registros copiados correctamente',
+                        1: '1 registro copiado correctamente'
+                    }
+                }
+            },
+            lengthMenu: [[100, 200, 500, -1], [100, 200, 500, 'Todos']],
+            ajax: {
+                url: '/Liquidacion/ListarMisLiquidaciones', // API filtrada por usuario logueado
+                type: 'GET',
+                dataSrc: 'data'
+            },
+            columns: [
+                { data: 'codigoGenerado', className: 'font-weight-bold text-primary align-middle' },
+                { data: 'fecha', className: 'align-middle' },
+                { data: 'empresa', className: 'align-middle' },
+                {
+                    data: 'estado',
+                    className: 'text-center align-middle',
+                    render: function(data) {
+                        let color = data === 'Abierta' ? 'success' : 'secondary';
+                        return `<span class="badge badge-${color} p-2">${data}</span>`;
+                    }
+                },
+                {
+                    data: 'id',
+                    className: 'text-center align-middle',
+                    render: function(id) {
+                        return `<a href="/Liquidacion/GestionarUsuario/${id}" class="btn btn-primary btn-sm shadow-sm">
+                                    <i class="fas fa-door-open mr-1"></i> Entrar
+                                </a>`;
+                    }
+                }
+            ],
+            order: [[ 1, "desc" ]],
+        });
+    }
+</script>

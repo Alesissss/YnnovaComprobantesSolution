@@ -1,192 +1,64 @@
--- USE DB
-use ynnovaco_corpsaf_comprobantes;
+-- =============================================
+-- SCRIPT DE BASE DE DATOS - LIQUIDACION (AGIL / SIN FKs)
+-- =============================================
 
--- DROPS TABLES
-DROP TABLE IF EXISTS devolucion_anticipo;
-DROP TABLE IF EXISTS anticipo;
-DROP TABLE IF EXISTS reembolso;
-DROP TABLE IF EXISTS planilla_movilidad;
+USE ynnovaco_corpsaf_comprobantes;
+GO
+
+-- 1. DROP TABLES (Eliminamos todo para reiniciar limpio)
 DROP TABLE IF EXISTS detalle_planilla_movilidad;
-DROP TABLE IF EXISTS banco;
+DROP TABLE IF EXISTS planilla_movilidad;
 DROP TABLE IF EXISTS comprobante;
-DROP TABLE IF EXISTS concepto;
-DROP TABLE IF EXISTS empresa;
-DROP TABLE IF EXISTS estado;
-DROP TABLE IF EXISTS moneda;
 DROP TABLE IF EXISTS observacion;
+DROP TABLE IF EXISTS reembolso;
+DROP TABLE IF EXISTS anticipo;
+DROP TABLE IF EXISTS liquidacion;
+DROP TABLE IF EXISTS empresa_usuario;
+DROP TABLE IF EXISTS usuario;
+DROP TABLE IF EXISTS empresa;
+DROP TABLE IF EXISTS banco;
+DROP TABLE IF EXISTS concepto;
 DROP TABLE IF EXISTS tipo_comprobante;
 DROP TABLE IF EXISTS tipo_rendicion;
 DROP TABLE IF EXISTS tipo_usuario;
-DROP TABLE IF EXISTS usuario;
-DROP TABLE IF EXISTS empresa_usuario;
+DROP TABLE IF EXISTS estado;
+DROP TABLE IF EXISTS moneda;
+GO
 
--- CREATE TABLE
--- TABLA banco
-CREATE TABLE banco (
-    id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
-    codigo VARCHAR(50) NOT NULL,
-    descripcion VARCHAR(255) NOT NULL,
-    estado BIT NOT NULL
-);
-
-CREATE TABLE reembolso (
-    id INT IDENTITY(1,1) PRIMARY KEY,
-    anticipo_id INT,
-    empresa_id INT,
-    usuario_id INT,
-    fecha_solicitud DATE,
-    moneda_id INT,
-    monto_total DECIMAL(12,2),
-    descripcion VARCHAR(MAX),
-    banco_id INT,
-    numero_cuenta VARCHAR(50),
-    estado_id INT,
-    usuario_aprobador INT,
-    usuario_registro INT,
-    fecha_registro DATETIME DEFAULT GETDATE()
-);
-
-CREATE TABLE anticipo (
-    id INT IDENTITY(1,1) PRIMARY KEY,
-    empresa_id INT,
-    usuario_id INT,
-    banco_id INT,
-    moneda_id INT,
-    tipo_rendicion_id INT,
-    monto DECIMAL(12,2),
-    descripcion VARCHAR(MAX),
-    fecha_solicitud DATE,
-    fecha_limite_rendicion DATE,
-    estado_id INT,
-    usuario_aprobador INT,
-    usuario_registro INT,
-    fecha_registro DATETIME DEFAULT GETDATE()
-);
-
-CREATE TABLE devolucion_anticipo (
-    id INT IDENTITY(1,1) PRIMARY KEY,
-    anticipo_id INT,
-    monto DECIMAL(12,2),
-    fecha_devolucion DATE,
-    estado_id INT,
-    usuario_aprobador INT,
-    usuario_registro INT,
-    fecha_registro DATETIME DEFAULT GETDATE()
-);
-
-CREATE TABLE planilla_movilidad (
-    id INT IDENTITY(1,1) PRIMARY KEY,
-    usuario_id INT,
-    empresa_id INT,
-    numero_planilla VARCHAR(20),
-    fecha_emision DATE,
-    monto_total DECIMAL(10,2),
-    estado_id INT,
-    usuario_aprobador INT,
-    usuario_registro INT,
-    fecha_registro DATETIME DEFAULT GETDATE()
-);
-
-CREATE TABLE detalle_planilla_movilidad (
-    id INT IDENTITY(1,1) PRIMARY KEY,
-    planilla_movilidad_id INT,
-    fecha_gasto DATE,
-    motivo VARCHAR(255),
-    lugar_origen VARCHAR(255),
-    lugar_destino VARCHAR(255),
-    monto DECIMAL(10,2)
-);
-
-CREATE TABLE comprobante (
-    id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
-    usuario_id INT NOT NULL,
-    anticipo_id INT NULL,
-    reembolso_id INT NULL,
-    planilla_movilidad_id INT NULL,
-    tipo_comprobante_id INT NOT NULL,
-    concepto_id INT,
-    proveedor_nombre VARCHAR(255),
-    ruc_empresa CHAR(11),
-    serie VARCHAR(10),
-    numero VARCHAR(20),
-    fecha_emision DATE NOT NULL,
-    moneda_id INT NOT NULL,
-    monto_total DECIMAL(10, 2) NOT NULL,
-    descripcion VARCHAR(MAX),
-    archivo_url VARCHAR(MAX),
-    estado_id INT NOT NULL,
-    usuario_aprobador INT,
-    usuario_registro INT,
-    fecha_registro DATETIME DEFAULT GETDATE()
-);
-
--- TABLA concepto
-CREATE TABLE concepto (
-    id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL,
-    descripcion TEXT,
-    estado BIT NOT NULL
-);
-
--- TABLA empresa
-CREATE TABLE empresa (
-    id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
-    ruc char(11) NOT NULL,
-    nombre VARCHAR(255) NOT NULL,
-    descripcion TEXT,
-    estado BIT NOT NULL
-);
-
--- TABLA estado
+-- 2. TABLAS MAESTRAS (Configuración)
 CREATE TABLE estado (
     id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
-    nombre VARCHAR(30) NOT NULL,
-    tabla VARCHAR(30) NOT NULL
+    nombre VARCHAR(50) NOT NULL,
+    tabla VARCHAR(50) NOT NULL
 );
 
--- TABLA moneda
 CREATE TABLE moneda (
     id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
     nombre VARCHAR(50) NOT NULL,
-    simbolo VARCHAR(50) NOT NULL
+    simbolo VARCHAR(10) NOT NULL
 );
 
--- TABLA observacion
-CREATE TABLE observacion (
-    id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
-    anticipo_id INT NULL,
-    reembolso_id INT,
-    planilla_movilidad_id INT,
-    usuario_id INT NOT NULL,
-    prioridad CHAR(1) NOT NULL, -- 'A' Alta, 'M' Media, 'B' Baja
-    mensaje TEXT NOT NULL,
-    fecha_creacion DATETIME NOT NULL DEFAULT GETDATE()
-);
-
--- TABLA tipo_comprobante
-CREATE TABLE tipo_comprobante (
-    id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
-    codigo VARCHAR(50) NOT NULL,
-    descripcion TEXT NOT NULL,
-    estado BIT NOT NULL
-);
-
--- TABLA tipo_rendicion
-CREATE TABLE tipo_rendicion (
+CREATE TABLE banco (
     id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
     codigo VARCHAR(50) NOT NULL,
     descripcion VARCHAR(255) NOT NULL,
     estado BIT NOT NULL DEFAULT 1
 );
 
--- TABLA tipo_usuario
+CREATE TABLE empresa (
+    id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
+    ruc CHAR(11) NOT NULL,
+    nombre VARCHAR(255) NOT NULL,
+    descripcion TEXT,
+    estado BIT NOT NULL DEFAULT 1
+);
+
 CREATE TABLE tipo_usuario (
     id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
     nombre VARCHAR(30) NOT NULL,
-    estado BIT NOT NULL
+    estado BIT NOT NULL DEFAULT 1
 );
 
--- TABLA usuario
 CREATE TABLE usuario (
     id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
     dni CHAR(8) NOT NULL,
@@ -194,16 +66,191 @@ CREATE TABLE usuario (
     email VARCHAR(255),
     telefono VARCHAR(20),
     password VARCHAR(255) NOT NULL,
-    estado BIT NOT NULL
+    estado BIT NOT NULL DEFAULT 1
 );
 
--- TABLA empresa_usuario
 CREATE TABLE empresa_usuario (
     id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
     empresa_id INT NOT NULL,
     usuario_id INT NOT NULL,
     tipo_usuario_id INT NOT NULL
 );
+
+CREATE TABLE concepto (
+    id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    descripcion TEXT,
+    estado BIT NOT NULL DEFAULT 1
+);
+
+CREATE TABLE tipo_comprobante (
+    id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
+    codigo VARCHAR(50) NOT NULL,
+    descripcion TEXT NOT NULL,
+    estado BIT NOT NULL DEFAULT 1
+);
+
+CREATE TABLE tipo_rendicion (
+    id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
+    codigo VARCHAR(50) NOT NULL,
+    descripcion VARCHAR(255) NOT NULL,
+    estado BIT NOT NULL DEFAULT 1
+);
+
+-- 3. TABLA PADRE: LIQUIDACIÓN (La Carpeta)
+CREATE TABLE liquidacion (
+    id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
+    codigo_generado VARCHAR(20), -- Ej: LIQ-0001-2025
+    empresa_id INT NOT NULL,
+    usuario_id INT NOT NULL,
+    
+    fecha_inicio DATE NOT NULL DEFAULT GETDATE(),
+    fecha_cierre DATE NULL,
+    descripcion VARCHAR(MAX),
+    
+    -- RESUMEN FINANCIERO (Calculados en C# y guardados aquí para reporte rápido)
+    total_anticibido DECIMAL(12,2) DEFAULT 0, -- Suma de anticipos TRANSFERIDOS
+    total_gastado DECIMAL(12,2) DEFAULT 0,    -- Suma de comprobantes + planillas APROBADAS
+    saldo_final DECIMAL(12,2) DEFAULT 0,      -- Diferencia (Positivo=Devolver, Negativo=Reembolsar)
+    
+    estado_id INT NOT NULL, -- (Abierta, Cerrada)
+    usuario_registro INT,
+    fecha_registro DATETIME DEFAULT GETDATE()
+);
+
+-- 4. TABLA ANTICIPO (Dinero que entra)
+CREATE TABLE anticipo (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    liquidacion_id INT NOT NULL, -- Relación lógica con Liquidación
+    
+    banco_id INT,
+    moneda_id INT,
+    tipo_rendicion_id INT,
+    monto DECIMAL(12,2) NOT NULL,
+    descripcion VARCHAR(MAX),
+    fecha_solicitud DATE,
+    fecha_limite_rendicion DATE,
+    
+    -- === CAMPOS DEL VOUCHER / TRANSFERENCIA (SOLICITADO) ===
+    voucher_numero_operacion VARCHAR(50) NULL, -- Código de operación bancaria
+    voucher_fecha DATETIME NULL,               -- Cuándo hizo la transferencia el admin
+    voucher_archivo_url VARCHAR(MAX) NULL,     -- La foto/pdf del voucher
+    voucher_banco_origen_id INT NULL,          -- Desde qué banco pagó la empresa (opcional)
+    -- ========================================================
+    
+    estado_id INT, -- (Generado, Transferido)
+    usuario_aprobador INT, -- El admin que subió el voucher
+    fecha_registro DATETIME DEFAULT GETDATE()
+);
+
+-- 5. TABLA REEMBOLSO / DEVOLUCION (Cierre de caja)
+-- Esta tabla se usa al final. Si sobra plata (Devolución) o falta (Reembolso).
+CREATE TABLE reembolso (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    liquidacion_id INT NOT NULL,
+    
+    fecha_solicitud DATE,
+    moneda_id INT,
+    monto DECIMAL(12,2), -- El monto a reembolsar o devolver
+    descripcion VARCHAR(MAX),
+    
+    banco_id INT,
+    numero_cuenta VARCHAR(50),
+    
+    es_devolucion BIT DEFAULT 0, -- 1: Usuario devuelve a Empresa. 0: Empresa paga a Usuario.
+    
+    estado_id INT,
+    usuario_aprobador INT,
+    fecha_registro DATETIME DEFAULT GETDATE()
+);
+
+-- 6. TABLA PLANILLA MOVILIDAD (Dinero que sale sin factura)
+CREATE TABLE planilla_movilidad (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    liquidacion_id INT NOT NULL, 
+    numero_planilla VARCHAR(255),
+    fecha_emision DATE,
+    
+    -- El monto total se suma de sus detalles
+    monto_total_declarado DECIMAL(10,2) DEFAULT 0, 
+    
+    estado_id INT,
+    fecha_registro DATETIME DEFAULT GETDATE()
+);
+
+CREATE TABLE detalle_planilla_movilidad (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    planilla_movilidad_id INT NOT NULL,
+    
+    fecha_gasto DATE,
+    motivo VARCHAR(255),
+    lugar_origen VARCHAR(255),
+    lugar_destino VARCHAR(255),
+    monto DECIMAL(10,2),
+    
+    estado_aprobacion BIT DEFAULT 1 -- 1: Aprobado, 0: Rechazado (Para cálculo fino)
+);
+
+-- 7. TABLA COMPROBANTE (Dinero que sale con factura)
+CREATE TABLE comprobante (
+    id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
+    liquidacion_id INT NOT NULL, -- Pertenece a la carpeta
+    
+    -- Opcional: Referencia lógica si el usuario quiere decir "esto es de tal anticipo"
+    anticipo_id INT NULL, 
+    
+    tipo_comprobante_id INT NOT NULL,
+    concepto_id INT,
+    proveedor_nombre VARCHAR(255),
+    ruc_empresa CHAR(11),
+    serie VARCHAR(20),
+    numero VARCHAR(20),
+    fecha_emision DATE NOT NULL,
+    moneda_id INT NOT NULL,
+    monto_total DECIMAL(10, 2) NOT NULL,
+    descripcion VARCHAR(MAX),
+    archivo_url VARCHAR(MAX),
+    
+    estado_id INT NOT NULL, -- Pendiente, Aprobado, Rechazado
+    usuario_aprobador INT,
+    usuario_registro INT,
+    fecha_registro DATETIME DEFAULT GETDATE()
+);
+
+-- 8. OBSERVACIONES (Chat de la Liquidación)
+CREATE TABLE observacion (
+    id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
+    liquidacion_id INT NOT NULL,
+    usuario_id INT NOT NULL,
+    prioridad CHAR(1) NOT NULL, -- 'A', 'M', 'B'
+    mensaje TEXT NOT NULL,
+    fecha_creacion DATETIME NOT NULL DEFAULT GETDATE()
+);
+
+-- =============================================
+-- 9. INSERTS DE DATOS INICIALES (PARA QUE CORRA YA)
+-- =============================================
+
+-- Estados para LIQUIDACIÓN
+INSERT INTO estado (nombre, tabla) VALUES ('Abierta', 'LIQUIDACION');
+INSERT INTO estado (nombre, tabla) VALUES ('Cerrada', 'LIQUIDACION');
+
+-- Estados para ANTICIPO (Flujo del Admin)
+INSERT INTO estado (nombre, tabla) VALUES ('Generado', 'ANTICIPO');  -- Cuando el Admin registra el monto
+INSERT INTO estado (nombre, tabla) VALUES ('Transferido', 'ANTICIPO'); -- Cuando el Admin sube el voucher (Dinero en manos del usuario)
+
+-- Estados para COMPROBANTE (Flujo de aprobación)
+INSERT INTO estado (nombre, tabla) VALUES ('Pendiente', 'COMPROBANTE'); -- Usuario sube foto
+INSERT INTO estado (nombre, tabla) VALUES ('Aprobado', 'COMPROBANTE');  -- Admin da OK
+INSERT INTO estado (nombre, tabla) VALUES ('Rechazado', 'COMPROBANTE'); -- Admin rechaza
+INSERT INTO estado (nombre, tabla) VALUES ('Observado', 'COMPROBANTE'); -- Opcional: si quieres un estado intermedio por chat
+
+-- Estados para REEMBOLSO (Cierre final)
+INSERT INTO estado (nombre, tabla) VALUES ('Pendiente', 'REEMBOLSO');
+INSERT INTO estado (nombre, tabla) VALUES ('Pagado', 'REEMBOLSO');
+
+-- Estados para PLANILLA (Cabecera)
+INSERT INTO estado (nombre, tabla) VALUES ('Activo', 'PLANILLA_MOVILIDAD');
 
 -- INSERTS
 -- INSERTS DE 'tipo_rendicion'
@@ -264,26 +311,26 @@ INSERT INTO tipo_comprobante (codigo, descripcion, estado) VALUES ('98','Nota de
 INSERT INTO tipo_comprobante (codigo, descripcion, estado) VALUES ('99','Otros - Consolidado de Boletas de Venta',1);
 
 -- INSERTS DE 'estado' PARA LA TABLA 'comprobante'
-INSERT INTO estado (nombre, tabla) VALUES ('Pendiente', 'COMPROBANTE');
-INSERT INTO estado (nombre, tabla) VALUES ('Aprobado', 'COMPROBANTE');
-INSERT INTO estado (nombre, tabla) VALUES ('Rechazado', 'COMPROBANTE');
-INSERT INTO estado (nombre, tabla) VALUES ('Observado', 'COMPROBANTE');
-INSERT INTO estado (nombre, tabla) VALUES ('Pendiente', 'ANTICIPO');
-INSERT INTO estado (nombre, tabla) VALUES ('Aprobado', 'ANTICIPO');
-INSERT INTO estado (nombre, tabla) VALUES ('Rechazado', 'ANTICIPO');
-INSERT INTO estado (nombre, tabla) VALUES ('Observado', 'ANTICIPO');
-INSERT INTO estado (nombre, tabla) VALUES ('Pendiente', 'REEMBOLSO');
-INSERT INTO estado (nombre, tabla) VALUES ('Aprobado', 'REEMBOLSO');
-INSERT INTO estado (nombre, tabla) VALUES ('Rechazado', 'REEMBOLSO');
-INSERT INTO estado (nombre, tabla) VALUES ('Observado', 'REEMBOLSO');
-INSERT INTO estado (nombre, tabla) VALUES ('Pendiente', 'PLANILLA_MOVILIDAD');
-INSERT INTO estado (nombre, tabla) VALUES ('Aprobado', 'PLANILLA_MOVILIDAD');
-INSERT INTO estado (nombre, tabla) VALUES ('Rechazado', 'PLANILLA_MOVILIDAD');
-INSERT INTO estado (nombre, tabla) VALUES ('Observado', 'PLANILLA_MOVILIDAD');
-INSERT INTO estado (nombre, tabla) VALUES ('Pendiente', 'DEVOLUCION_ANTICIPO');
-INSERT INTO estado (nombre, tabla) VALUES ('Aprobado', 'DEVOLUCION_ANTICIPO');
-INSERT INTO estado (nombre, tabla) VALUES ('Rechazado', 'DEVOLUCION_ANTICIPO');
-INSERT INTO estado (nombre, tabla) VALUES ('Observado', 'DEVOLUCION_ANTICIPO');
+--INSERT INTO estado (nombre, tabla) VALUES ('Pendiente', 'COMPROBANTE');
+--INSERT INTO estado (nombre, tabla) VALUES ('Aprobado', 'COMPROBANTE');
+--INSERT INTO estado (nombre, tabla) VALUES ('Rechazado', 'COMPROBANTE');
+--INSERT INTO estado (nombre, tabla) VALUES ('Observado', 'COMPROBANTE');
+--INSERT INTO estado (nombre, tabla) VALUES ('Pendiente', 'ANTICIPO');
+--INSERT INTO estado (nombre, tabla) VALUES ('Aprobado', 'ANTICIPO');
+--INSERT INTO estado (nombre, tabla) VALUES ('Rechazado', 'ANTICIPO');
+--INSERT INTO estado (nombre, tabla) VALUES ('Observado', 'ANTICIPO');
+--INSERT INTO estado (nombre, tabla) VALUES ('Pendiente', 'REEMBOLSO');
+--INSERT INTO estado (nombre, tabla) VALUES ('Aprobado', 'REEMBOLSO');
+--INSERT INTO estado (nombre, tabla) VALUES ('Rechazado', 'REEMBOLSO');
+--INSERT INTO estado (nombre, tabla) VALUES ('Observado', 'REEMBOLSO');
+--INSERT INTO estado (nombre, tabla) VALUES ('Pendiente', 'PLANILLA_MOVILIDAD');
+--INSERT INTO estado (nombre, tabla) VALUES ('Aprobado', 'PLANILLA_MOVILIDAD');
+--INSERT INTO estado (nombre, tabla) VALUES ('Rechazado', 'PLANILLA_MOVILIDAD');
+--INSERT INTO estado (nombre, tabla) VALUES ('Observado', 'PLANILLA_MOVILIDAD');
+--INSERT INTO estado (nombre, tabla) VALUES ('Pendiente', 'DEVOLUCION_ANTICIPO');
+--INSERT INTO estado (nombre, tabla) VALUES ('Aprobado', 'DEVOLUCION_ANTICIPO');
+--INSERT INTO estado (nombre, tabla) VALUES ('Rechazado', 'DEVOLUCION_ANTICIPO');
+--INSERT INTO estado (nombre, tabla) VALUES ('Observado', 'DEVOLUCION_ANTICIPO');
 
 -- INSERTS DE 'moneda'
 INSERT INTO moneda (nombre, simbolo) VALUES ('Soles', 'S/.');

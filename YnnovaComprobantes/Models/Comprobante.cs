@@ -10,17 +10,11 @@ namespace YnnovaComprobantes.Models
         [Column("id")]
         public int Id { get; set; }
 
-        [Column("usuario_id")]
-        public int UsuarioId { get; set; }
+        [Column("liquidacion_id")]
+        public int LiquidacionId { get; set; }
 
         [Column("anticipo_id")]
         public int? AnticipoId { get; set; }
-
-        [Column("reembolso_id")]
-        public int? ReembolsoId { get; set; }
-
-        [Column("planilla_movilidad_id")]
-        public int? PlanillaMovilidadId { get; set; }
 
         [Column("tipo_comprobante_id")]
         public int TipoComprobanteId { get; set; }
@@ -46,7 +40,7 @@ namespace YnnovaComprobantes.Models
         [Column("moneda_id")]
         public int MonedaId { get; set; }
 
-        [Column("monto_total", TypeName = "decimal(10, 2)")]
+        [Column("monto_total")]
         public decimal MontoTotal { get; set; }
 
         [Column("descripcion")]
@@ -57,8 +51,10 @@ namespace YnnovaComprobantes.Models
 
         [Column("estado_id")]
         public int EstadoId { get; set; }
+
         [Column("usuario_aprobador")]
         public int? UsuarioAprobador { get; set; }
+
         [Column("usuario_registro")]
         public int? UsuarioRegistro { get; set; }
 

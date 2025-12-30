@@ -14,7 +14,7 @@ namespace YnnovaComprobantes.Models
         public int PlanillaMovilidadId { get; set; }
 
         [Column("fecha_gasto")]
-        public DateTime FechaGasto { get; set; }
+        public DateTime? FechaGasto { get; set; }
 
         [Column("motivo")]
         public string? Motivo { get; set; }
@@ -27,5 +27,8 @@ namespace YnnovaComprobantes.Models
 
         [Column("monto")]
         public decimal Monto { get; set; }
+
+        [Column("estado_aprobacion")]
+        public bool? EstadoAprobacion { get; set; } // 1: Aprobado, 0: Rechazado
     }
 }

@@ -1,0 +1,240 @@
+﻿@{
+    ViewData["Title"] = "Monitor de Liquidaciones";
+}
+
+<div class="container-fluid pt-4">
+    <div class="card card-navy shadow-lg">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h3 class="card-title mb-0 text-white">
+                <i class="fas fa-folder-open mr-2"></i> Monitor de Liquidaciones
+            </h3>
+            <button class="ml-auto btn btn-success font-weight-bold" onclick="abrirModalCrear()">
+                <i class="fas fa-plus-circle mr-1"></i> Nueva Carpeta
+            </button>
+        </div>
+
+        <div class="card-body">
+            <table id="tbl_Admin" class="table table-bordered table-striped table-hover dt-responsive nowrap" style="width:100%">
+                <thead class="bg-light">
+                    <tr>
+                        <th style="width: 15%">Código</th>
+                        <th style="width: 15%">Fecha</th>
+                        <th>Empresa</th>
+                        <th>Empleado Asignado</th>
+                        <th style="width: 10%">Estado</th>
+                        <th style="width: 10%" class="text-center">Acción</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="mdl_NuevaLiquidacion" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-navy text-white">
+                <h5 class="modal-title"><i class="fas fa-file-contract mr-2"></i>Abrir Nueva Carpeta</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info small">
+                    <i class="fas fa-info-circle mr-1"></i> Seleccione la empresa y el empleado responsable.
+                </div>
+
+                <div class="form-group">
+                    <label class="font-weight-bold">1. Empresa</label>
+                    <select id="sel_Empresa" class="form-control">
+                        <option value="">-- Cargando... --</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="font-weight-bold">2. Asignar al Empleado</label>
+                    <select id="sel_Usuario" class="form-control" disabled>
+                        <option value="">-- Seleccione una empresa primero --</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" onclick="fct_CrearLiquidacion()">
+                    <i class="fas fa-check mr-1"></i> Crear y Asignar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        initTable();
+        cargarEmpresas();
+
+        // Cascada: Empresa -> Usuarios
+        $('#sel_Empresa').change(function() {
+            let idEmpresa = $(this).val();
+            cargarUsuarios(idEmpresa);
+        });
+    });
+
+    function initTable() {
+        $('#tbl_Admin').DataTable({
+            paging: true,
+            select: true,
+            scroller: false,
+            deferRender: true,
+            scrollY: true,
+            scrollX: false,
+            fixedHeader: true,
+            ordering: true,
+            destroy: true,
+            responsive: true,
+            autoWidth: false,
+            processing: true,
+            filter: true,
+            orderMulti: true,
+            stateSave: false,
+            serverSide: false,
+            language: {
+                processing: "Procesando...",
+                sSearch: "Buscar:",
+                lengthMenu: "Mostrar _MENU_ registros",
+                info: "Mostrando del _START_ al _END_ de un total de _TOTAL_ registros",
+                infoEmpty: "Sin registros encontrados.",
+                infoFiltered: "(Total de _MAX_ registros filtrados)",
+                loadingRecords: "Cargando...",
+                zeroRecords: "No se encontraron registros",
+                emptyTable: "No hay datos disponibles en la tabla",
+                paginate: {
+                    previous: "Anterior",
+                    next: "Siguiente",
+                    first: "Primero",
+                    last: "Último",
+                },
+                aria: {
+                    sortAscending: ": Activar para ordenar la columna de manera ascendente",
+                    sortDescending: ": Activar para ordenar la columna de manera descendente"
+                },
+                select: {
+                    rows: {
+                        _: "%d filas seleccionadas",
+                        0: "Haz clic en una fila para seleccionarla",
+                        1: "1 fila seleccionada"
+                    }
+                },
+                buttons: {
+                    copyTitle: 'Copiado en el portapapeles',
+                    copyKeys: 'Presiona <i>ctrl</i> o <i>\u2318</i> + <i>C</i> para copiar los datos de la tabla a tu portapapeles. <br><br>Para cancelar, haga clic en este mensaje o presione Esc.',
+                    copySuccess: {
+                        _: '%d registros copiados correctamente',
+                        1: '1 registro copiado correctamente'
+                    }
+                }
+            },
+            lengthMenu: [[100, 200, 500, -1], [100, 200, 500, 'Todos']],
+            ajax: {
+                url: '/Liquidacion/ListarTodasLasLiquidaciones',
+                type: 'GET',
+                dataSrc: 'data'
+            },
+            columns: [
+                { data: 'codigoGenerado', className: 'font-weight-bold text-primary align-middle' },
+                { data: 'fecha', className: 'align-middle' },
+                { data: 'empresa', className: 'align-middle' },
+                {
+                    data: 'usuario',
+                    className: 'align-middle',
+                    render: function(data) {
+                        return `<i class="fas fa-user text-muted mr-1"></i> ${data}`;
+                    }
+                },
+                {
+                    data: 'estado',
+                    className: 'text-center align-middle',
+                    render: function(data) {
+                        let color = data === 'Abierta' ? 'success' : 'secondary';
+                        return `<span class="badge badge-${color} p-2">${data}</span>`;
+                    }
+                },
+                {
+                    data: 'id',
+                    className: 'text-center align-middle',
+                    render: function(id) {
+                        return `<a href="/Liquidacion/GestionarAdmin/${id}" class="btn btn-primary btn-sm" title="Auditar">
+                                    <i class="fas fa-edit mr-1"></i> Gestionar
+                                </a>`;
+                    }
+                }
+            ],
+            order: [[ 1, "desc" ]]
+        });
+    }
+
+    function cargarEmpresas() {
+        $.ajax({
+            url: '/Liquidacion/GetEmpresas',
+            type: 'GET',
+            success: function(res) {
+                if(res.status) {
+                    let html = '<option value="">-- Seleccionar --</option>';
+                    res.data.forEach(e => html += `<option value="${e.id}">${e.nombre}</option>`);
+                    $('#sel_Empresa').html(html);
+                }
+            }
+        });
+    }
+
+    function cargarUsuarios(empresaId) {
+        let $selUser = $('#sel_Usuario');
+
+        if(!empresaId) {
+            $selUser.html('<option value="">-- Seleccione una empresa primero --</option>').prop('disabled', true);
+            return;
+        }
+
+        $selUser.html('<option>Cargando...</option>').prop('disabled', true);
+
+        $.ajax({
+            url: '/Liquidacion/GetUsuariosPorEmpresa',
+            type: 'GET',
+            data: { empresaId: empresaId },
+            success: function(res) {
+                if(res.status) {
+                    let html = '<option value="">-- Seleccionar Empleado --</option>';
+                    res.data.forEach(u => html += `<option value="${u.id}">${u.nombre}</option>`);
+                    $selUser.html(html).prop('disabled', false);
+                }
+            }
+        });
+    }
+
+    function abrirModalCrear() {
+        $('#sel_Empresa').val('');
+        $('#sel_Usuario').html('<option value="">-- Seleccione una empresa primero --</option>').prop('disabled', true);
+        $('#mdl_NuevaLiquidacion').modal('show');
+    }
+
+    function fct_CrearLiquidacion() {
+        let empId = $('#sel_Empresa').val();
+        let userId = $('#sel_Usuario').val();
+
+        if (!empId || !userId) {
+            toastr.warning("Seleccione empresa y empleado.");
+            return;
+        }
+
+        $.post('/Liquidacion/CrearNuevaLiquidacion', { empresaId: empId, usuarioAsignadoId: userId }, function(res) {
+            if(res.status) {
+                toastr.success(res.message);
+                $('#mdl_NuevaLiquidacion').modal('hide');
+                $('#tbl_Admin').DataTable().ajax.reload();
+            } else {
+                toastr.error(res.message);
+            }
+        });
+    }
+</script>
