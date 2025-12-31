@@ -166,6 +166,9 @@
                     render: function(id) {
                         return `<a href="/Liquidacion/GestionarAdmin/${id}" class="btn btn-primary btn-sm" title="Auditar">
                                     <i class="fas fa-edit mr-1"></i> Gestionar
+                                </a>
+                                <a href="/Liquidacion/GenerarReportePdf/${id}" target="_blank" class="btn btn-danger btn-sm" title="Descargar PDF">
+                                    <i class="fas fa-file-pdf mr-1"></i> Reporte
                                 </a>`;
                     }
                 }

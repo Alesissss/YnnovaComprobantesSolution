@@ -1,4 +1,13 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿// --- USINGS PARA PDF (iText7) ---
+using iText.IO.Font.Constants;
+using iText.Kernel.Colors;       // Aquí viven ColorConstants
+using iText.Kernel.Font;
+using iText.Kernel.Geom;
+using iText.Kernel.Pdf;
+using iText.Layout;
+using iText.Layout.Element;      // Aquí viven Paragraph, Table, Cell
+using iText.Layout.Properties;   // Aquí viven TextAlignment, UnitValue
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore; // Necesario para EF Core
 using System.Security.Claims;
@@ -346,11 +355,11 @@ namespace YnnovaComprobantes.Controllers
 
                 if (archivoVoucher != null && archivoVoucher.Length > 0)
                 {
-                    string folder = Path.Combine(_webHostEnvironment.WebRootPath, "vouchers");
-                    if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
+                    string folder = System.IO.Path.Combine(_webHostEnvironment.WebRootPath, "vouchers");
+                    if (!System.IO.Directory.Exists(folder)) Directory.CreateDirectory(folder);
 
-                    string fileName = $"VOUCHER_{ant.Id}_{Guid.NewGuid()}{Path.GetExtension(archivoVoucher.FileName)}";
-                    using (var stream = new FileStream(Path.Combine(folder, fileName), FileMode.Create))
+                    string fileName = $"VOUCHER_{ant.Id}_{Guid.NewGuid()}{System.IO.Path.GetExtension(archivoVoucher.FileName)}";
+                    using (var stream = new System.IO.FileStream(System.IO.Path.Combine(folder, fileName), FileMode.Create))
                     {
                         await archivoVoucher.CopyToAsync(stream);
                     }
@@ -410,11 +419,11 @@ namespace YnnovaComprobantes.Controllers
             {
                 if (archivo != null && archivo.Length > 0)
                 {
-                    string folder = Path.Combine(_webHostEnvironment.WebRootPath, "comprobantes");
-                    if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
+                    string folder = System.IO.Path.Combine(_webHostEnvironment.WebRootPath, "comprobantes");
+                    if (!System.IO.Directory.Exists(folder)) Directory.CreateDirectory(folder);
 
-                    string fileName = $"CP_{Guid.NewGuid()}{Path.GetExtension(archivo.FileName)}";
-                    using (var stream = new FileStream(Path.Combine(folder, fileName), FileMode.Create))
+                    string fileName = $"CP_{Guid.NewGuid()}{System.IO.Path.GetExtension(archivo.FileName)}";
+                    using (var stream = new System.IO.FileStream(System.IO.Path.Combine(folder, fileName), FileMode.Create))
                     {
                         await archivo.CopyToAsync(stream);
                     }
@@ -704,6 +713,272 @@ namespace YnnovaComprobantes.Controllers
             // Para tus pruebas locales:
             //return 1; // <--- Asegúrate que el Usuario con ID 1 existe en tu tabla 'usuario'
         }
+        #endregion
+        [HttpGet]
+        public IActionResult GenerarReportePdf(int id)
+        {
+            // =========================================================
+            // PASO 1: OBTENCIÓN DE DATOS (LINQ - IGUAL QUE ANTES)
+            // =========================================================
+
+            // (A. Cabecera)
+            var liq = (from l in _context.Liquidaciones
+                       join e in _context.Empresas on l.EmpresaId equals e.Id
+                       join u in _context.Usuarios on l.UsuarioId equals u.Id
+                       join est in _context.Estados on l.EstadoId equals est.Id
+                       where l.Id == id
+                       select new ReporteLiquidacionVM
+                       {
+                           Codigo = l.CodigoGenerado,
+                           FechaInicio = l.FechaInicio.ToString("dd/MM/yyyy"),
+                           Estado = est.Nombre,
+                           Empresa = e.Nombre,
+                           RucEmpresa = e.Ruc,
+                           EmpleadoNombre = u.Nombre,
+                           EmpleadoDni = u.Dni,
+                           TotalRecibido = l.TotalAnticipado,
+                           TotalGastado = l.TotalGastado,
+                           Saldo = l.SaldoFinal
+                       }).FirstOrDefault();
+
+            if (liq == null) return NotFound("Liquidación no encontrada");
+
+            // Recálculo si abierta
+            if (liq.Estado == "Abierta")
+            {
+                var estTrans = _context.Estados.FirstOrDefault(x => x.Tabla == "ANTICIPO" && x.Nombre == "Transferido")?.Id ?? 0;
+                var estAprob = _context.Estados.FirstOrDefault(x => x.Tabla == "COMPROBANTE" && x.Nombre == "Aprobado")?.Id ?? 0;
+
+                liq.TotalRecibido = _context.Anticipos.Where(x => x.LiquidacionId == id && x.EstadoId == estTrans).Sum(x => x.Monto);
+
+                decimal gFact = _context.Comprobantes.Where(x => x.LiquidacionId == id && x.EstadoId == estAprob).Sum(x => x.MontoTotal);
+
+                var plan = _context.PlanillasMovilidad.FirstOrDefault(x => x.LiquidacionId == id);
+                decimal gPlan = plan != null ? _context.DetallesPlanillaMovilidad.Where(x => x.PlanillaMovilidadId == plan.Id && x.EstadoAprobacion == true).Sum(x => x.Monto) : 0;
+
+                liq.TotalGastado = gFact + gPlan;
+                liq.Saldo = liq.TotalRecibido - liq.TotalGastado;
+            }
+
+            // (B. Anticipos)
+            liq.Anticipos = (from a in _context.Anticipos
+                             join est in _context.Estados on a.EstadoId equals est.Id
+                             join tr in _context.TipoRendiciones on a.TipoRendicionId equals tr.Id
+                             join b in _context.Bancos on a.BancoId equals b.Id
+                             join mo in _context.Monedas on a.MonedaId equals mo.Id
+                             join u in _context.Usuarios on a.UsuarioAprobador equals u.Id into userGroup
+                             from uAdmin in userGroup.DefaultIfEmpty()
+                             where a.LiquidacionId == id
+                             select new ReporteAnticipoVM
+                             {
+                                 Fecha = a.FechaSolicitud.HasValue ? a.FechaSolicitud.Value.ToString("dd/MM/yyyy") : "-",
+                                 TipoRendicion = tr.Descripcion,
+                                 Banco = b.Descripcion,
+                                 MonedaSimbolo = mo.Simbolo,
+                                 Monto = a.Monto,
+                                 Estado = est.Nombre,
+                                 NumeroOperacion = a.VoucherNumeroOperacion ?? "-",
+                                 AprobadoPor = uAdmin != null ? uAdmin.Nombre : "-"
+                             }).ToList();
+
+            // (C. Comprobantes)
+            liq.Comprobantes = (from c in _context.Comprobantes
+                                join est in _context.Estados on c.EstadoId equals est.Id
+                                join tc in _context.TipoComprobantes on c.TipoComprobanteId equals tc.Id
+                                join mo in _context.Monedas on c.MonedaId equals mo.Id
+                                join co in _context.Conceptos on c.ConceptoId equals co.Id
+                                join u in _context.Usuarios on c.UsuarioAprobador equals u.Id into userGroup
+                                from uAdmin in userGroup.DefaultIfEmpty()
+                                where c.LiquidacionId == id
+                                select new ReporteComprobanteVM
+                                {
+                                    Fecha = c.FechaEmision.ToString("dd/MM/yyyy"),
+                                    TipoComprobante = tc.Descripcion,
+                                    Proveedor = c.ProveedorNombre,
+                                    SerieNumero = c.Serie + "-" + c.Numero,
+                                    Concepto = co.Nombre,
+                                    MonedaSimbolo = mo.Simbolo,
+                                    Monto = c.MontoTotal,
+                                    Estado = est.Nombre,
+                                    AprobadoPor = uAdmin != null ? uAdmin.Nombre : "-"
+                                }).ToList();
+
+            // (D. Planilla)
+            var planillaId = _context.PlanillasMovilidad.FirstOrDefault(p => p.LiquidacionId == id)?.Id;
+            if (planillaId.HasValue)
+            {
+                liq.PlanillaItems = _context.DetallesPlanillaMovilidad
+                    .Where(d => d.PlanillaMovilidadId == planillaId.Value)
+                    .Select(d => new ReportePlanillaVM
+                    {
+                        Fecha = d.FechaGasto.HasValue ? d.FechaGasto.Value.ToString("dd/MM/yyyy") : "-",
+                        Motivo = d.Motivo,
+                        Ruta = (d.LugarOrigen ?? "") + " - " + (d.LugarDestino ?? ""),
+                        Monto = d.Monto,
+                        Estado = (d.EstadoAprobacion ?? false) ? "Aprobado" : "Rechazado"
+                    }).ToList();
+            }
+
+            // (E. Reembolso)
+            var reem = (from r in _context.Reembolsos
+                        join mo in _context.Monedas on r.MonedaId equals mo.Id into moGroup
+                        from moReem in moGroup.DefaultIfEmpty()
+                        where r.LiquidacionId == id
+                        select new { r, Simbolo = moReem != null ? moReem.Simbolo : "S/." }).FirstOrDefault();
+
+            if (reem != null)
+            {
+                liq.Cierre = new ReporteReembolsoVM
+                {
+                    Tipo = (reem.r.EsDevolucion ?? false) ? "DEVOLUCIÓN" : "REEMBOLSO",
+                    Monto = reem.r.Monto ?? 0,
+                    MonedaSimbolo = reem.Simbolo,
+                    Fecha = reem.r.FechaSolicitud.HasValue ? reem.r.FechaSolicitud.Value.ToString("dd/MM/yyyy") : "-"
+                };
+            }
+
+            // =========================================================
+            // PASO 2: GENERACIÓN PDF (SOLUCIÓN DEFINITIVA)
+            // =========================================================
+
+            using (var stream = new System.IO.MemoryStream())
+            {
+                PdfWriter writer = new PdfWriter(stream);
+                PdfDocument pdf = new PdfDocument(writer);
+                Document document = new Document(pdf, PageSize.A4.Rotate());
+                document.SetMargins(20, 20, 20, 20);
+
+                // --- 1. CARGAMOS FUENTES AL INICIO (LO SEGURO) ---
+                PdfFont fontBold = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
+                PdfFont fontItalic = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_OBLIQUE);
+
+                // --- TÍTULO ---
+                document.Add(new Paragraph(new Text($"REPORTE DE LIQUIDACIÓN: {liq.Codigo}").SetFont(fontBold))
+                    .SetTextAlignment(TextAlignment.CENTER)
+                    .SetFontSize(16));
+
+                document.Add(new Paragraph(new Text($"Estado Actual: {liq.Estado} | Generado: {DateTime.Now:dd/MM/yyyy HH:mm}").SetFont(fontItalic))
+                    .SetTextAlignment(TextAlignment.CENTER)
+                    .SetFontSize(10));
+
+                document.Add(new Paragraph("\n"));
+
+                // --- DATOS GENERALES ---
+                Table tableInfo = new Table(UnitValue.CreatePercentArray(new float[] { 50, 50 })).UseAllAvailableWidth();
+
+                Cell cellEmp = new Cell().Add(new Paragraph(new Text("DATOS EMPRESA").SetFont(fontBold)).SetFontColor(ColorConstants.WHITE));
+                cellEmp.SetBackgroundColor(ColorConstants.DARK_GRAY);
+                tableInfo.AddCell(cellEmp);
+
+                Cell cellUser = new Cell().Add(new Paragraph(new Text("DATOS EMPLEADO").SetFont(fontBold)).SetFontColor(ColorConstants.WHITE));
+                cellUser.SetBackgroundColor(ColorConstants.DARK_GRAY);
+                tableInfo.AddCell(cellUser);
+
+                tableInfo.AddCell(new Paragraph($"{liq.Empresa}\nRUC: {liq.RucEmpresa}").SetFontSize(10));
+                tableInfo.AddCell(new Paragraph($"{liq.EmpleadoNombre}\nDNI: {liq.EmpleadoDni}").SetFontSize(10));
+
+                document.Add(tableInfo);
+                document.Add(new Paragraph("\n"));
+
+                // --- TOTALES ---
+                Table tableTotales = new Table(UnitValue.CreatePercentArray(new float[] { 33, 33, 34 })).UseAllAvailableWidth();
+                tableTotales.AddHeaderCell(new Cell().Add(new Paragraph(new Text("TOTAL RECIBIDO").SetFont(fontBold))).SetBackgroundColor(ColorConstants.LIGHT_GRAY).SetTextAlignment(TextAlignment.CENTER));
+                tableTotales.AddHeaderCell(new Cell().Add(new Paragraph(new Text("TOTAL GASTADO").SetFont(fontBold))).SetBackgroundColor(ColorConstants.LIGHT_GRAY).SetTextAlignment(TextAlignment.CENTER));
+                tableTotales.AddHeaderCell(new Cell().Add(new Paragraph(new Text("SALDO FINAL").SetFont(fontBold))).SetBackgroundColor(ColorConstants.LIGHT_GRAY).SetTextAlignment(TextAlignment.CENTER));
+
+                tableTotales.AddCell(new Cell().Add(new Paragraph($"{liq.TotalRecibido:N2}")).SetTextAlignment(TextAlignment.CENTER));
+                tableTotales.AddCell(new Cell().Add(new Paragraph($"{liq.TotalGastado:N2}")).SetTextAlignment(TextAlignment.CENTER));
+
+                string saldoLabel = liq.Saldo > 0 ? " (Devolver)" : (liq.Saldo < 0 ? " (Reembolsar)" : " (Cuadrado)");
+                Text txtSaldo = new Text($"{Math.Abs(liq.Saldo):N2}" + saldoLabel).SetFont(fontBold);
+
+                if (liq.Saldo > 0) txtSaldo.SetFontColor(ColorConstants.GREEN);
+                else if (liq.Saldo < 0) txtSaldo.SetFontColor(ColorConstants.RED);
+
+                tableTotales.AddCell(new Cell().Add(new Paragraph(txtSaldo)).SetTextAlignment(TextAlignment.CENTER));
+                document.Add(tableTotales);
+
+                // --- 1. DETALLE ANTICIPOS ---
+                document.Add(new Paragraph(new Text("\n1. DETALLE DE ANTICIPOS").SetFont(fontBold)).SetFontSize(12));
+                Table tableAnt = new Table(UnitValue.CreatePercentArray(new float[] { 10, 15, 15, 15, 15, 10, 20 })).UseAllAvailableWidth();
+
+                string[] hAnt = { "Fecha", "Tipo Rend.", "Banco", "N° Oper.", "Monto", "Estado", "Registrado Por" };
+                foreach (var h in hAnt)
+                    tableAnt.AddHeaderCell(new Cell().Add(new Paragraph(new Text(h).SetFont(fontBold)).SetFontSize(9)).SetBackgroundColor(ColorConstants.LIGHT_GRAY));
+
+                foreach (var item in liq.Anticipos)
+                {
+                    // AGREGADO ?? "" EN CADA CAMPO DE TEXTO
+                    tableAnt.AddCell(new Paragraph(item.Fecha ?? "").SetFontSize(8));
+                    tableAnt.AddCell(new Paragraph(item.TipoRendicion ?? "").SetFontSize(8));
+                    tableAnt.AddCell(new Paragraph(item.Banco ?? "").SetFontSize(8));
+                    tableAnt.AddCell(new Paragraph(item.NumeroOperacion ?? "").SetFontSize(8));
+                    tableAnt.AddCell(new Paragraph(new Text($"{item.MonedaSimbolo ?? ""} {item.Monto:N2}").SetFont(fontBold)).SetFontSize(8));
+                    tableAnt.AddCell(new Paragraph(item.Estado ?? "").SetFontSize(8));
+                    tableAnt.AddCell(new Paragraph(item.AprobadoPor ?? "").SetFontSize(8));
+                }
+                document.Add(tableAnt);
+
+                // --- 2. DETALLE COMPROBANTES ---
+                document.Add(new Paragraph(new Text("\n2. DETALLE DE COMPROBANTES").SetFont(fontBold)).SetFontSize(12));
+                Table tableComp = new Table(UnitValue.CreatePercentArray(new float[] { 10, 15, 15, 10, 10, 15, 10, 15 })).UseAllAvailableWidth();
+
+                string[] hComp = { "Fecha", "Tipo Doc.", "Proveedor", "Concepto", "Serie-N°", "Monto", "Estado", "Auditado Por" };
+                foreach (var h in hComp)
+                    tableComp.AddHeaderCell(new Cell().Add(new Paragraph(new Text(h).SetFont(fontBold)).SetFontSize(9)).SetBackgroundColor(ColorConstants.LIGHT_GRAY));
+
+                foreach (var item in liq.Comprobantes)
+                {
+                    // AGREGADO ?? "" AQUÍ TAMBIÉN (Aquí te salía el error)
+                    tableComp.AddCell(new Paragraph(item.Fecha ?? "").SetFontSize(8));
+                    tableComp.AddCell(new Paragraph(item.TipoComprobante ?? "").SetFontSize(8));
+                    tableComp.AddCell(new Paragraph(item.Proveedor ?? "").SetFontSize(8));
+                    tableComp.AddCell(new Paragraph(item.Concepto ?? "").SetFontSize(8));
+                    tableComp.AddCell(new Paragraph(item.SerieNumero ?? "").SetFontSize(8));
+                    tableComp.AddCell(new Paragraph(new Text($"{item.MonedaSimbolo ?? ""} {item.Monto:N2}").SetFont(fontBold)).SetFontSize(8));
+                    tableComp.AddCell(new Paragraph(item.Estado ?? "").SetFontSize(8));
+                    tableComp.AddCell(new Paragraph(item.AprobadoPor ?? "").SetFontSize(8));
+                }
+                document.Add(tableComp);
+
+                // --- 3. PLANILLA ---
+                if (liq.PlanillaItems.Any())
+                {
+                    document.Add(new Paragraph(new Text("\n3. PLANILLA DE MOVILIDAD (Soles)").SetFont(fontBold)).SetFontSize(12));
+                    Table tablePlan = new Table(UnitValue.CreatePercentArray(new float[] { 10, 25, 30, 15, 20 })).UseAllAvailableWidth();
+
+                    string[] hPlan = { "Fecha", "Motivo", "Ruta (Origen - Destino)", "Monto (S/.)", "Estado" };
+                    foreach (var h in hPlan)
+                        tablePlan.AddHeaderCell(new Cell().Add(new Paragraph(new Text(h).SetFont(fontBold)).SetFontSize(9)).SetBackgroundColor(ColorConstants.LIGHT_GRAY));
+
+                    foreach (var item in liq.PlanillaItems)
+                    {
+                        // AGREGADO ?? ""
+                        tablePlan.AddCell(new Paragraph(item.Fecha ?? "").SetFontSize(8));
+                        tablePlan.AddCell(new Paragraph(item.Motivo ?? "").SetFontSize(8));
+                        tablePlan.AddCell(new Paragraph(item.Ruta ?? "").SetFontSize(8));
+                        tablePlan.AddCell(new Paragraph(new Text($"S/. {item.Monto:N2}").SetFont(fontBold)).SetFontSize(8));
+                        tablePlan.AddCell(new Paragraph(item.Estado ?? "").SetFontSize(8));
+                    }
+                    document.Add(tablePlan);
+                }
+
+                // --- 4. CIERRE ---
+                if (liq.Cierre != null)
+                {
+                    document.Add(new Paragraph(new Text("\n4. LIQUIDACIÓN FINAL").SetFont(fontBold)).SetFontSize(12));
+                    document.Add(new Paragraph($"Resultado: {liq.Cierre.Tipo}"));
+                    document.Add(new Paragraph(new Text($"Monto Procesado: {liq.Cierre.MonedaSimbolo} {liq.Cierre.Monto:N2}").SetFont(fontBold)));
+                    document.Add(new Paragraph($"Fecha: {liq.Cierre.Fecha}"));
+                }
+                else
+                {
+                    document.Add(new Paragraph(new Text("\nLiquidación en proceso (Sin cierre definitivo).").SetFont(fontItalic)));
+                }
+
+                document.Close();
+                return File(stream.ToArray(), "application/pdf", $"Liquidacion_{liq.Codigo}.pdf");
+            }
+        }
     }
-    #endregion
 }
