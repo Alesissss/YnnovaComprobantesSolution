@@ -9,6 +9,7 @@
         public string Empresa { get; set; }
         public string RucEmpresa { get; set; }
         public string EmpleadoNombre { get; set; }
+        public string EmpleadoNumeroCuenta { get; set; }
         public string EmpleadoDni { get; set; }
 
         // Totales Generales (Tal cual se guardan en BD)

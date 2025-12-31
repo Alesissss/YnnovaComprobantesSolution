@@ -65,6 +65,7 @@ CREATE TABLE usuario (
     nombre VARCHAR(255) NOT NULL,
     email VARCHAR(255),
     telefono VARCHAR(20),
+    numero_cuenta VARCHAR(20),
     password VARCHAR(255) NOT NULL,
     estado BIT NOT NULL DEFAULT 1
 );
@@ -143,24 +144,29 @@ CREATE TABLE anticipo (
     fecha_registro DATETIME DEFAULT GETDATE()
 );
 
--- 5. TABLA REEMBOLSO / DEVOLUCION (Cierre de caja)
--- Esta tabla se usa al final. Si sobra plata (Devolución) o falta (Reembolso).
+-- 5. TABLA REEMBOLSO / DEVOLUCION (MODIFICADA PARA SOPORTAR VOUCHERS)
 CREATE TABLE reembolso (
     id INT IDENTITY(1,1) PRIMARY KEY,
     liquidacion_id INT NOT NULL,
     
     fecha_solicitud DATE,
     moneda_id INT,
-    monto DECIMAL(12,2), -- El monto a reembolsar o devolver
+    monto DECIMAL(12,2), 
     descripcion VARCHAR(MAX),
     
     banco_id INT,
     numero_cuenta VARCHAR(50),
     
-    es_devolucion BIT DEFAULT 0, -- 1: Usuario devuelve a Empresa. 0: Empresa paga a Usuario.
+    es_devolucion BIT DEFAULT 0, -- 1: Usuario devuelve a Empresa. 0: Empresa reembolsa a Usuario.
     
+    -- === NUEVOS CAMPOS DE VOUCHER (Igual que Anticipo) ===
+    voucher_numero_operacion VARCHAR(50) NULL,
+    voucher_fecha DATETIME NULL,
+    voucher_archivo_url VARCHAR(MAX) NULL,
+    -- =====================================================
+
     estado_id INT,
-    usuario_aprobador INT,
+    usuario_registro INT, -- Quien subió el registro (Admin o Usuario)
     fecha_registro DATETIME DEFAULT GETDATE()
 );
 

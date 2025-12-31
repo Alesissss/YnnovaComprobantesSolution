@@ -320,6 +320,30 @@ namespace YnnovaComprobantes.Controllers
 
             return Json(new { status = true, data = lista });
         }
+        [HttpGet]
+        public JsonResult ListarReembolsos(int liquidacionId)
+        {
+            var lista = (from rem in _context.Reembolsos
+                         join e in _context.Estados on rem.EstadoId equals e.Id
+                         join b in _context.Bancos on rem.BancoId equals b.Id
+                         join mo in _context.Monedas on rem.MonedaId equals mo.Id
+                         where rem.LiquidacionId == liquidacionId
+                         select new
+                         {
+                             rem.Id,
+                             Fecha = rem.FechaSolicitud.HasValue ? rem.FechaSolicitud.Value.ToString("dd/MM/yyyy") : "-",
+                             Banco = b.Descripcion,
+                             Moneda = mo.Nombre,
+                             Estado = e.Nombre,
+                             rem.Monto,
+                             rem.Descripcion,
+                             rem.EsDevolucion,
+                             VoucherUrl = rem.VoucherArchivoUrl,
+                             VoucherOperacion = rem.VoucherNumeroOperacion
+                         }).ToList();
+
+            return Json(new { status = true, data = lista });
+        }
 
         // USUARIO: Solicita dinero
         [HttpPost]
@@ -598,18 +622,30 @@ namespace YnnovaComprobantes.Controllers
         {
             try
             {
+                // Estados necesarios
                 var estAntTransferido = _context.Estados.FirstOrDefault(e => e.Tabla == "ANTICIPO" && e.Nombre == "Transferido");
                 var estCompAprobado = _context.Estados.FirstOrDefault(e => e.Tabla == "COMPROBANTE" && e.Nombre == "Aprobado");
+                // Asumimos que el reembolso manual nace como "Pagado" o "Validado" directamente al subir voucher
+                var estReemPagado = _context.Estados.FirstOrDefault(e => e.Tabla == "REEMBOLSO" && e.Nombre == "Pagado");
 
-                int idTransferido = estAntTransferido?.Id ?? -1;
-                int idAprobado = estCompAprobado?.Id ?? -1;
+                int idTrans = estAntTransferido?.Id ?? -1;
+                int idAprob = estCompAprobado?.Id ?? -1;
+                int idPagado = estReemPagado?.Id ?? -1;
 
-                decimal ingresos = _context.Anticipos
-                    .Where(a => a.LiquidacionId == liquidacionId && a.EstadoId == idTransferido)
+                // 1. DINERO RECIBIDO (Anticipos + Reembolsos de la empresa al usuario)
+                decimal anticipos = _context.Anticipos
+                    .Where(a => a.LiquidacionId == liquidacionId && a.EstadoId == idTrans)
                     .Sum(a => a.Monto);
 
-                decimal gastosFactura = _context.Comprobantes
-                    .Where(c => c.LiquidacionId == liquidacionId && c.EstadoId == idAprobado)
+                decimal reembolsosRecibidos = _context.Reembolsos
+                    .Where(r => r.LiquidacionId == liquidacionId && r.EstadoId == idPagado && r.EsDevolucion == false)
+                    .Sum(r => r.Monto ?? 0);
+
+                decimal totalIngresos = anticipos + reembolsosRecibidos;
+
+                // 2. DINERO GASTADO/DEVUELTO (Facturas + Planilla + Devoluciones del usuario a la empresa)
+                decimal facturas = _context.Comprobantes
+                    .Where(c => c.LiquidacionId == liquidacionId && c.EstadoId == idAprob)
                     .Sum(c => c.MontoTotal);
 
                 var planilla = _context.PlanillasMovilidad.FirstOrDefault(p => p.LiquidacionId == liquidacionId);
@@ -621,14 +657,20 @@ namespace YnnovaComprobantes.Controllers
                         .Sum(d => d.Monto);
                 }
 
-                decimal totalGastado = gastosFactura + gastosPlanilla;
-                decimal saldo = ingresos - totalGastado;
+                decimal devolucionesHechas = _context.Reembolsos
+                    .Where(r => r.LiquidacionId == liquidacionId && r.EstadoId == idPagado && r.EsDevolucion == true)
+                    .Sum(r => r.Monto ?? 0);
+
+                decimal totalEgresos = facturas + gastosPlanilla + devolucionesHechas;
+
+                // 3. SALDO FINAL
+                decimal saldo = totalIngresos - totalEgresos;
 
                 return Json(new
                 {
                     status = true,
-                    ingresos = ingresos,
-                    gastos = totalGastado,
+                    ingresos = totalIngresos,
+                    gastos = totalEgresos,
                     saldo = saldo
                 });
             }
@@ -638,68 +680,113 @@ namespace YnnovaComprobantes.Controllers
         [HttpPost]
         public JsonResult CerrarLiquidacion(int liquidacionId)
         {
-            using (var transaction = _context.Database.BeginTransaction())
+            try
             {
-                try
+                // 1. Obtener IDs de estados
+                var estAntTransferido = _context.Estados.FirstOrDefault(e => e.Tabla == "ANTICIPO" && e.Nombre == "Transferido")?.Id ?? -1;
+                var estCompAprobado = _context.Estados.FirstOrDefault(e => e.Tabla == "COMPROBANTE" && e.Nombre == "Aprobado")?.Id ?? -1;
+                var estReemPagado = _context.Estados.FirstOrDefault(e => e.Tabla == "REEMBOLSO" && e.Nombre == "Pagado")?.Id ?? -1;
+
+                // 2. Calcular INGRESOS (Anticipos + Reembolsos que la empresa pagó al empleado)
+                decimal anticipos = _context.Anticipos.Where(a => a.LiquidacionId == liquidacionId && a.EstadoId == estAntTransferido).Sum(a => a.Monto);
+                decimal reembolsosRecibidos = _context.Reembolsos.Where(r => r.LiquidacionId == liquidacionId && r.EstadoId == estReemPagado && r.EsDevolucion == false).Sum(r => r.Monto ?? 0);
+                decimal totalIngresos = anticipos + reembolsosRecibidos;
+
+                // 3. Calcular GASTOS (Facturas + Planilla + Devoluciones que empleado pagó a empresa)
+                decimal facturas = _context.Comprobantes.Where(c => c.LiquidacionId == liquidacionId && c.EstadoId == estCompAprobado).Sum(c => c.MontoTotal);
+
+                var planilla = _context.PlanillasMovilidad.FirstOrDefault(p => p.LiquidacionId == liquidacionId);
+                decimal gastosPlanilla = (planilla != null)
+                    ? _context.DetallesPlanillaMovilidad.Where(d => d.PlanillaMovilidadId == planilla.Id && d.EstadoAprobacion == true).Sum(d => d.Monto)
+                    : 0;
+
+                decimal devolucionesHechas = _context.Reembolsos.Where(r => r.LiquidacionId == liquidacionId && r.EstadoId == estReemPagado && r.EsDevolucion == true).Sum(r => r.Monto ?? 0);
+
+                decimal totalGastado = facturas + gastosPlanilla + devolucionesHechas;
+                decimal saldo = totalIngresos - totalGastado;
+
+                // 4. VALIDACIÓN DE SALDO CERO
+                if (Math.Abs(saldo) > 0.01m)
                 {
-                    var estAntTransferido = _context.Estados.FirstOrDefault(e => e.Tabla == "ANTICIPO" && e.Nombre == "Transferido");
-                    var estCompAprobado = _context.Estados.FirstOrDefault(e => e.Tabla == "COMPROBANTE" && e.Nombre == "Aprobado");
-
-                    int idTransferido = estAntTransferido?.Id ?? -1;
-                    int idAprobado = estCompAprobado?.Id ?? -1;
-
-                    decimal ingresos = _context.Anticipos.Where(a => a.LiquidacionId == liquidacionId && a.EstadoId == idTransferido).Sum(a => a.Monto);
-                    decimal gastosFact = _context.Comprobantes.Where(c => c.LiquidacionId == liquidacionId && c.EstadoId == idAprobado).Sum(c => c.MontoTotal);
-
-                    var planilla = _context.PlanillasMovilidad.FirstOrDefault(p => p.LiquidacionId == liquidacionId);
-                    decimal gastosPlanilla = (planilla != null)
-                        ? _context.DetallesPlanillaMovilidad.Where(d => d.PlanillaMovilidadId == planilla.Id && d.EstadoAprobacion == true).Sum(d => d.Monto)
-                        : 0;
-
-                    decimal saldo = ingresos - (gastosFact + gastosPlanilla);
-
-                    // 1. Reembolso
-                    if (saldo != 0)
+                    return Json(new
                     {
-                        var estadoPendienteReem = _context.Estados.FirstOrDefault(e => e.Tabla == "REEMBOLSO" && e.Nombre == "Pendiente");
-                        var cierre = new Reembolso
-                        {
-                            LiquidacionId = liquidacionId,
-                            FechaSolicitud = DateTime.Now,
-                            Monto = Math.Abs(saldo),
-                            Descripcion = "Cierre automático de Liquidación",
-                            EstadoId = estadoPendienteReem?.Id ?? 1,
-                            UsuarioAprobador = GetCurrentUserId()
-                        };
+                        status = false,
+                        message = $"No se puede cerrar. El saldo debe ser 0.00. Saldo actual: {saldo:N2}. Registre el pago correspondiente."
+                    });
+                }
 
-                        cierre.EsDevolucion = (saldo > 0);
-                        _context.Reembolsos.Add(cierre);
-                    }
+                // 5. Cierre
+                var liq = _context.Liquidaciones.Find(liquidacionId);
+                var estadoCerrada = _context.Estados.FirstOrDefault(e => e.Tabla == "LIQUIDACION" && e.Nombre == "Cerrada");
 
-                    // 2. Cierre
-                    var liq = _context.Liquidaciones.Find(liquidacionId);
-                    var estadoCerrada = _context.Estados.FirstOrDefault(e => e.Tabla == "LIQUIDACION" && e.Nombre == "Cerrada");
-
-                    if (liq != null && estadoCerrada != null)
-                    {
-                        liq.EstadoId = estadoCerrada.Id;
-                        liq.FechaCierre = DateTime.Now;
-                        liq.TotalAnticipado = ingresos;
-                        liq.TotalGastado = gastosFact + gastosPlanilla;
-                        liq.SaldoFinal = saldo;
-                    }
+                if (liq != null && estadoCerrada != null)
+                {
+                    liq.EstadoId = estadoCerrada.Id;
+                    liq.FechaCierre = DateTime.Now;
+                    liq.TotalAnticipado = totalIngresos;
+                    liq.TotalGastado = totalGastado;
+                    liq.SaldoFinal = saldo; // Será 0.00
 
                     _context.SaveChanges();
-                    transaction.Commit();
+                    return Json(new { status = true, message = "Liquidación CERRADA correctamente. Balance cuadrado." });
+                }
 
-                    return Json(new { status = true, message = "Liquidación cerrada correctamente." });
-                }
-                catch (Exception ex)
-                {
-                    transaction.Rollback();
-                    return Json(new { status = false, message = ex.Message });
-                }
+                return Json(new { status = false, message = "Error al cerrar liquidación." });
             }
+            catch (Exception ex) { return Json(new { status = false, message = ex.Message }); }
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> RegistrarPagoCierre(int liquidacionId, decimal monto, bool esDevolucion, string nroOperacion, DateTime fechaPago, int bancoId, IFormFile archivoVoucher)
+        {
+            try
+            {
+                if (archivoVoucher == null || archivoVoucher.Length == 0)
+                    return Json(new { status = false, message = "El voucher es obligatorio para cerrar caja." });
+
+                // 1. Manejo del Archivo (System.IO explícito)
+                string folder = System.IO.Path.Combine(_webHostEnvironment.WebRootPath, "vouchers_cierre");
+                if (!System.IO.Directory.Exists(folder)) System.IO.Directory.CreateDirectory(folder);
+
+                string fileName = $"CIERRE_{liquidacionId}_{Guid.NewGuid()}{System.IO.Path.GetExtension(archivoVoucher.FileName)}";
+                string fullPath = System.IO.Path.Combine(folder, fileName);
+
+                using (var stream = new System.IO.FileStream(fullPath, System.IO.FileMode.Create))
+                {
+                    await archivoVoucher.CopyToAsync(stream);
+                }
+
+                // 2. Crear Registro en Tabla Reembolso
+                var estPagado = _context.Estados.FirstOrDefault(e => e.Tabla == "REEMBOLSO" && e.Nombre == "Pagado");
+
+                var movimiento = new Reembolso
+                {
+                    LiquidacionId = liquidacionId,
+                    Monto = monto,
+                    EsDevolucion = esDevolucion, // true: Usuario devuelve, false: Empresa paga
+
+                    // Datos del Voucher
+                    VoucherNumeroOperacion = nroOperacion,
+                    VoucherFecha = fechaPago,
+                    VoucherArchivoUrl = "/vouchers_cierre/" + fileName,
+                    BancoId = bancoId,
+
+                    // Datos Auditoría
+                    FechaSolicitud = DateTime.Now,
+                    EstadoId = estPagado?.Id ?? 1,
+                    UsuarioRegistro = GetCurrentUserId(),
+                    Descripcion = esDevolucion ? "Devolución de sobrante por Usuario" : "Reembolso de gastos por Empresa"
+                };
+
+                // Asignar moneda por defecto (Soles) si no viene
+                movimiento.MonedaId = _context.Monedas.FirstOrDefault(m => m.Simbolo == "S/.")?.Id ?? 1;
+
+                _context.Reembolsos.Add(movimiento);
+                await _context.SaveChangesAsync();
+
+                return Json(new { status = true, message = "Pago registrado. Verifique si el saldo quedó en 0." });
+            }
+            catch (Exception ex) { return Json(new { status = false, message = ex.Message }); }
         }
 
         #endregion
@@ -718,7 +805,7 @@ namespace YnnovaComprobantes.Controllers
         public IActionResult GenerarReportePdf(int id)
         {
             // =========================================================
-            // PASO 1: OBTENCIÓN DE DATOS (LINQ - IGUAL QUE ANTES)
+            // PASO 1: OBTENCIÓN DE DATOS 
             // =========================================================
 
             // (A. Cabecera)
@@ -736,6 +823,7 @@ namespace YnnovaComprobantes.Controllers
                            RucEmpresa = e.Ruc,
                            EmpleadoNombre = u.Nombre,
                            EmpleadoDni = u.Dni,
+                           EmpleadoNumeroCuenta = u.NumeroCuenta, // <--- MAPEADO DESDE BD
                            TotalRecibido = l.TotalAnticipado,
                            TotalGastado = l.TotalGastado,
                            Saldo = l.SaldoFinal
@@ -743,18 +831,28 @@ namespace YnnovaComprobantes.Controllers
 
             if (liq == null) return NotFound("Liquidación no encontrada");
 
-            // Recálculo si abierta
+            // Recálculo si está abierta (Lógica idéntica a la anterior)
             if (liq.Estado == "Abierta")
             {
                 var estTrans = _context.Estados.FirstOrDefault(x => x.Tabla == "ANTICIPO" && x.Nombre == "Transferido")?.Id ?? 0;
                 var estAprob = _context.Estados.FirstOrDefault(x => x.Tabla == "COMPROBANTE" && x.Nombre == "Aprobado")?.Id ?? 0;
 
-                liq.TotalRecibido = _context.Anticipos.Where(x => x.LiquidacionId == id && x.EstadoId == estTrans).Sum(x => x.Monto);
+                // 1. Ingresos (Anticipos + Reembolsos que la empresa PAGÓ al usuario)
+                decimal ant = _context.Anticipos.Where(x => x.LiquidacionId == id && x.EstadoId == estTrans).Sum(x => x.Monto);
 
+                // Nota: Aquí podrías sumar también los reembolsos manuales (Empresa -> Usuario) si ya existen
+                // var reemIngreso = ...
+
+                liq.TotalRecibido = ant;
+
+                // 2. Gastos (Facturas + Planilla + Devoluciones que el usuario PAGÓ a empresa)
                 decimal gFact = _context.Comprobantes.Where(x => x.LiquidacionId == id && x.EstadoId == estAprob).Sum(x => x.MontoTotal);
 
                 var plan = _context.PlanillasMovilidad.FirstOrDefault(x => x.LiquidacionId == id);
                 decimal gPlan = plan != null ? _context.DetallesPlanillaMovilidad.Where(x => x.PlanillaMovilidadId == plan.Id && x.EstadoAprobacion == true).Sum(x => x.Monto) : 0;
+
+                // Nota: Aquí podrías sumar devoluciones manuales (Usuario -> Empresa)
+                // var reemEgreso = ...
 
                 liq.TotalGastado = gFact + gPlan;
                 liq.Saldo = liq.TotalRecibido - liq.TotalGastado;
@@ -838,7 +936,7 @@ namespace YnnovaComprobantes.Controllers
             }
 
             // =========================================================
-            // PASO 2: GENERACIÓN PDF (SOLUCIÓN DEFINITIVA)
+            // PASO 2: GENERACIÓN PDF
             // =========================================================
 
             using (var stream = new System.IO.MemoryStream())
@@ -848,7 +946,6 @@ namespace YnnovaComprobantes.Controllers
                 Document document = new Document(pdf, PageSize.A4.Rotate());
                 document.SetMargins(20, 20, 20, 20);
 
-                // --- 1. CARGAMOS FUENTES AL INICIO (LO SEGURO) ---
                 PdfFont fontBold = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
                 PdfFont fontItalic = PdfFontFactory.CreateFont(StandardFonts.HELVETICA_OBLIQUE);
 
@@ -875,7 +972,10 @@ namespace YnnovaComprobantes.Controllers
                 tableInfo.AddCell(cellUser);
 
                 tableInfo.AddCell(new Paragraph($"{liq.Empresa}\nRUC: {liq.RucEmpresa}").SetFontSize(10));
-                tableInfo.AddCell(new Paragraph($"{liq.EmpleadoNombre}\nDNI: {liq.EmpleadoDni}").SetFontSize(10));
+
+                // AGREGADO LA CUENTA AQUÍ:
+                string cuentaInfo = $"Cuenta: {liq.EmpleadoNumeroCuenta ?? "No registrada"}";
+                tableInfo.AddCell(new Paragraph($"{liq.EmpleadoNombre}\nDNI: {liq.EmpleadoDni}\n{cuentaInfo}").SetFontSize(10));
 
                 document.Add(tableInfo);
                 document.Add(new Paragraph("\n"));
@@ -908,7 +1008,6 @@ namespace YnnovaComprobantes.Controllers
 
                 foreach (var item in liq.Anticipos)
                 {
-                    // AGREGADO ?? "" EN CADA CAMPO DE TEXTO
                     tableAnt.AddCell(new Paragraph(item.Fecha ?? "").SetFontSize(8));
                     tableAnt.AddCell(new Paragraph(item.TipoRendicion ?? "").SetFontSize(8));
                     tableAnt.AddCell(new Paragraph(item.Banco ?? "").SetFontSize(8));
@@ -929,7 +1028,6 @@ namespace YnnovaComprobantes.Controllers
 
                 foreach (var item in liq.Comprobantes)
                 {
-                    // AGREGADO ?? "" AQUÍ TAMBIÉN (Aquí te salía el error)
                     tableComp.AddCell(new Paragraph(item.Fecha ?? "").SetFontSize(8));
                     tableComp.AddCell(new Paragraph(item.TipoComprobante ?? "").SetFontSize(8));
                     tableComp.AddCell(new Paragraph(item.Proveedor ?? "").SetFontSize(8));
@@ -953,7 +1051,6 @@ namespace YnnovaComprobantes.Controllers
 
                     foreach (var item in liq.PlanillaItems)
                     {
-                        // AGREGADO ?? ""
                         tablePlan.AddCell(new Paragraph(item.Fecha ?? "").SetFontSize(8));
                         tablePlan.AddCell(new Paragraph(item.Motivo ?? "").SetFontSize(8));
                         tablePlan.AddCell(new Paragraph(item.Ruta ?? "").SetFontSize(8));

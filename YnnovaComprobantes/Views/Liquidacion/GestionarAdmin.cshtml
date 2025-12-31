@@ -21,12 +21,12 @@
                     <div class="d-flex justify-content-center align-items-center font-weight-bold" style="font-size: 1.2rem;">
                         <div class="px-3">
                             <span class="text-success" id="lbl_Ingresos">S/ 0.00</span>
-                            <br><small class="text-muted" style="font-size: 0.7rem;">INGRESOS (ANTICIPOS)</small>
+                            <br><small class="text-muted" style="font-size: 0.7rem;">INGRESOS</small>
                         </div>
                         <div class="text-muted">-</div>
                         <div class="px-3">
                             <span class="text-danger" id="lbl_Egresos">S/ 0.00</span>
-                            <br><small class="text-muted" style="font-size: 0.7rem;">GASTOS (APROBADOS)</small>
+                            <br><small class="text-muted" style="font-size: 0.7rem;">GASTOS</small>
                         </div>
                         <div class="text-muted">=</div>
                         <div class="px-3">
@@ -47,36 +47,80 @@
     </div>
 
     <div class="row">
-        <div class="col-md-4">
-            <div class="card card-success card-outline h-100 shadow-sm">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h3 class="card-title"><i class="fas fa-hand-holding-usd mr-1"></i> 1. Anticipos</h3>
-                    <button class="btn btn-success btn-xs font-weight-bold btn-auditar" onclick="$('#mdl_NuevoAnticipo').modal('show')">
-                        <i class="fas fa-plus"></i> Nuevo
-                    </button>
+        <div class="col-md-5">
+            <div class="card card-success card-outline card-tabs h-100 shadow-sm">
+                <div class="card-header p-0 pt-1 border-bottom-0">
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-toggle="pill" href="#tab-anticipos" role="tab">
+                                <i class="fas fa-hand-holding-usd mr-1"></i> 1. Anticipos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="pill" href="#tab-reembolsos" role="tab">
+                                <i class="fas fa-exchange-alt mr-1"></i> 4. Reembolsos
+                            </a>
+                        </li>
+                    </ul>
                 </div>
-                <div class="card-body p-0 table-responsive">
-                    <table class="table table-sm table-striped mb-0" id="tbl_Anticipos">
-                        <thead class="bg-light">
-                            <tr>
-                                <th>Tipo rendición</th>
-                                <th>Banco</th>
-                                <th>Moneda</th>
-                                <th>Monto</th>
-                                <th>Estado</th>
-                                <th class="text-center">Voucher</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-                <div class="card-footer small text-muted">
-                    <i class="fas fa-info-circle"></i> Registre el anticipo y luego suba el voucher para confirmarlo.
+                <div class="card-body">
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="tab-anticipos" role="tabpanel">
+                            <div class="text-right mb-2">
+                                <button class="btn btn-success btn-xs font-weight-bold btn-auditar" onclick="$('#mdl_NuevoAnticipo').modal('show')">
+                                    <i class="fas fa-plus"></i> Nuevo Anticipo
+                                </button>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-striped mb-0" id="tbl_Anticipos">
+                                    <thead class="bg-light">
+                                        <tr>
+                                            <th>Tipo / Banco</th>
+                                            <th>Moneda</th>
+                                            <th>Monto</th>
+                                            <th>Estado</th>
+                                            <th class="text-center">Voucher</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                            <div class="mt-2 small text-muted">
+                                <i class="fas fa-info-circle"></i> Registre el anticipo y suba el voucher.
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="tab-reembolsos" role="tabpanel">
+                            <div class="text-right mb-2">
+                                <button class="btn btn-primary btn-xs font-weight-bold btn-auditar" onclick="abrirModalReembolso()">
+                                    <i class="fas fa-hand-holding-usd mr-1"></i> Registrar Pago
+                                </button>
+                            </div>
+                            <div class="alert alert-light border small p-2 mb-2">
+                                <i class="fas fa-info-circle"></i> Aquí se registran los pagos para cuadrar la caja a cero.
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-sm w-100" id="tbl_Reembolsos">
+                                    <thead class="bg-light">
+                                        <tr>
+                                            <th>Fecha</th>
+                                            <th>Tipo</th>
+                                            <th>Banco</th>
+                                            <th>Moneda</th>
+                                            <th class="text-right">Monto</th>
+                                            <th class="text-center">Voucher</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-8">
+        <div class="col-md-7">
             <div class="card card-primary card-outline card-tabs h-100 shadow-sm">
                 <div class="card-header p-0 pt-1 border-bottom-0">
                     <ul class="nav nav-tabs" role="tablist">
@@ -99,12 +143,11 @@
                                 <thead class="bg-light">
                                     <tr>
                                         <th>Fecha</th>
-                                        <th>Tipo</th>
                                         <th>Proveedor</th>
                                         <th>Moneda</th>
                                         <th class="text-right">Monto</th>
                                         <th class="text-center">Estado</th>
-                                        <th class="text-center" style="width: 100px;">Auditar</th>
+                                        <th class="text-center" style="width: 80px;">Acción</th>
                                         <th class="text-center">Ver</th>
                                     </tr>
                                 </thead>
@@ -142,8 +185,7 @@
                     </div>
                 </div>
                 <div class="card-body" style="display: none;">
-                    <div class="direct-chat-messages" id="div_ChatBox" style="height: 250px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; background: #f8f9fa;">
-                    </div>
+                    <div class="direct-chat-messages" id="div_ChatBox" style="height: 250px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; background: #f8f9fa;"></div>
                     <div class="input-group mt-2">
                         <input type="text" id="txt_Mensaje" placeholder="Escribir observación..." class="form-control">
                         <span class="input-group-append">
@@ -165,36 +207,36 @@
                 <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="txt_Ant_FechaSolicitud">Fecha de Solicitud</label>
-                            <input type="date" id="txt_Ant_FechaSolicitud" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-dd")">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="txt_Ant_FechaLimiteRendicion">Fecha límite de rendición</label>
-                            <input type="date" id="txt_Ant_FechaLimiteRendicion" class="form-control">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="cbx_Ant_TipoRendicion">Tipo de rendición</label>
-                            <select id="cbx_Ant_TipoRendicion" class="form-control"></select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="cbx_Ant_Banco">Banco (Depósito)</label>
-                            <select id="cbx_Ant_Banco" class="form-control"></select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="cbx_Ant_Moneda">Moneda</label>
-                            <select id="cbx_Ant_Moneda" class="form-control"></select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="txt_Ant_Monto">Monto solicitado</label>
+                <div class="row">
+                    <div class="col-6 form-group">
+                        <label>Fecha Solicitud</label>
+                        <input type="date" id="txt_Ant_FechaSolicitud" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-dd")">
+                    </div>
+                    <div class="col-6 form-group">
+                        <label>Fecha Límite</label>
+                        <input type="date" id="txt_Ant_FechaLimiteRendicion" class="form-control">
+                    </div>
+                    <div class="col-6 form-group">
+                        <label>Tipo Rendición</label>
+                        <select id="cbx_Ant_TipoRendicion" class="form-control"></select>
+                    </div>
+                    <div class="col-6 form-group">
+                        <label>Banco (Destino)</label>
+                        <select id="cbx_Ant_Banco" class="form-control"></select>
+                    </div>
+                    <div class="col-6 form-group">
+                        <label>Moneda</label>
+                        <select id="cbx_Ant_Moneda" class="form-control"></select>
+                    </div>
+                    <div class="col-6 form-group">
+                        <label>Monto</label>
+                        <div class="input-group">
                             <input type="number" id="txt_Ant_Monto" class="form-control" step="0.01" placeholder="0.00">
                         </div>
-                        <div class="col-md-12 mb-3">
-                            <label for="txt_Ant_Descripcion">Descripción (opcional)</label>
-                            <textarea id="txt_Ant_Descripcion" class="form-control" rows="3"></textarea>
-                        </div>
+                    </div>
+                    <div class="col-12 form-group">
+                        <label>Descripción</label>
+                        <textarea id="txt_Ant_Descripcion" class="form-control" rows="2"></textarea>
                     </div>
                 </div>
             </div>
@@ -215,26 +257,21 @@
             </div>
             <div class="modal-body">
                 <input type="hidden" id="hdn_AnticipoId_Transfer">
-                <div class="alert alert-info py-2 small">
-                    <i class="fas fa-info-circle"></i> Suba la constancia de pago para confirmar el desembolso.
-                </div>
+                <div class="alert alert-info py-2 small"><i class="fas fa-info-circle"></i> Suba la constancia de pago.</div>
+
+                <div class="form-group"><label>N° Operación</label><input type="text" id="txt_Op" class="form-control"></div>
+                <div class="form-group"><label>Fecha Pago</label><input type="datetime-local" id="txt_FechaTransfer" class="form-control"></div>
+
+                <input type="file" id="file_V_Ant" class="d-none" accept=".jpg, .jpeg, .png, .pdf">
+
                 <div class="form-group">
-                    <label>N° Operación Banco</label>
-                    <input type="text" id="txt_Op" class="form-control" placeholder="Ej: 123456">
-                </div>
-                <div class="form-group">
-                    <label>Fecha Transferencia</label>
-                    <input type="datetime-local" id="txt_FechaTransfer" class="form-control">
-                </div>
-                <div class="form-group">
-                    <label>Adjuntar Voucher (Imagen/PDF)</label>
-                    <div id="dropZone" class="drop-zone text-center p-2 rounded bg-light">
-                        <p class="text-muted mb-1 small" id="lbl_DropInfo">Arrastra o click aquí</p>
-                        <input type="file" id="file_V" class="d-none" accept=".jpg, .jpeg, .png, .pdf">
-                        <div id="previewArea" style="display:none;" class="d-flex align-items-center justify-content-center">
-                            <i id="icon_Preview" class="fas fa-file mr-2"></i>
-                            <span id="name_Preview" class="small font-weight-bold mr-2">archivo.pdf</span>
-                            <button type="button" class="btn btn-xs btn-danger" id="btn_RemoveFile"><i class="fas fa-times"></i></button>
+                    <label>Adjuntar Voucher</label>
+                    <div id="dropZone_Ant" class="drop-zone text-center p-2 rounded bg-light border" style="cursor: pointer; border-style: dashed !important;">
+                        <p class="text-muted mb-1 small" id="lbl_DropInfo_Ant">Arrastra o click aquí</p>
+                        <div id="previewArea_Ant" style="display:none;" class="d-flex align-items-center justify-content-center">
+                            <i id="icon_Preview_Ant" class="fas fa-file mr-2"></i>
+                            <span id="name_Preview_Ant" class="small font-weight-bold mr-2">...</span>
+                            <button type="button" class="btn btn-xs btn-danger" id="btn_RemoveFile_Ant"><i class="fas fa-times"></i></button>
                         </div>
                     </div>
                 </div>
@@ -247,50 +284,135 @@
     </div>
 </div>
 
+<div class="modal fade" id="mdl_NuevoReembolso" tabindex="-1" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="fas fa-hand-holding-usd mr-1"></i> Registrar Pago / Cierre</h5>
+                <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-6 form-group">
+                        <label>Fecha Pago</label>
+                        <input type="datetime-local" id="txt_Reem_Fecha" class="form-control">
+                    </div>
+
+                    <div class="col-6 form-group">
+                        <label>N° Operación</label>
+                        <input type="text" id="txt_Reem_Op" class="form-control">
+                    </div>
+                    <div class="col-6 form-group">
+                        <label>Moneda</label>
+                        <select id="cbx_Reem_Moneda" class="form-control"></select>
+                    </div>
+                    <div class="col-6 form-group">
+                        <label>Monto</label>
+                        <input type="number" id="txt_Reem_Monto" class="form-control" step="0.01">
+                    </div>
+                    <div class="col-12 form-group">
+                        <label>Banco</label>
+                        <select id="cbx_Reem_Banco" class="form-control"></select>
+                    </div>
+                    <input type="file" id="file_V_Reem" class="d-none" accept=".jpg, .jpeg, .png, .pdf">
+
+                    <div class="col-12 form-group">
+                        <label>Voucher de Pago</label>
+                        <div id="dropZone_Reem" class="drop-zone text-center p-2 rounded bg-light border" style="cursor: pointer; border-style: dashed !important;">
+                            <p class="text-muted mb-1 small" id="lbl_DropInfo_Reem">Arrastra o click aquí</p>
+                            <div id="previewArea_Reem" style="display:none;" class="d-flex align-items-center justify-content-center">
+                                <i id="icon_Preview_Reem" class="fas fa-file mr-2"></i>
+                                <span id="name_Preview_Reem" class="small font-weight-bold mr-2">...</span>
+                                <button type="button" class="btn btn-xs btn-danger" id="btn_RemoveFile_Reem"><i class="fas fa-times"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="fct_RegistrarPagoReembolso()">Guardar y Cuadrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     var liqId = $('#hdn_LiqId').val();
 
     $(document).ready(function () {
         cargarTodo();
-        inicializarInputFile();
+        // Inicializamos los DropZones de forma segura
+        setupDropZone('dropZone_Ant', 'file_V_Ant', 'previewArea_Ant', 'lbl_DropInfo_Ant', 'icon_Preview_Ant', 'name_Preview_Ant', 'btn_RemoveFile_Ant');
+        setupDropZone('dropZone_Reem', 'file_V_Reem', 'previewArea_Reem', 'lbl_DropInfo_Reem', 'icon_Preview_Reem', 'name_Preview_Reem', 'btn_RemoveFile_Reem');
 
-
-        let fSolicitud = new Date($('#txt_Ant_FechaSolicitud').val());
-        let fLimite = new Date($('#txt_Ant_FechaLimiteRendicion').val());
-
-        if (fLimite < fSolicitud) {
-            toastr.error("La fecha límite no puede ser anterior a la fecha de solicitud", "SISTEMA");
-            return;
-        }
-
+        // Fechas Anticipo lógica
         $('#txt_Ant_FechaSolicitud').on('change', function () {
             let fechaSeleccionada = $(this).val();
-
             if (fechaSeleccionada) {
                 let date = new Date(fechaSeleccionada);
-
                 date.setDate(date.getDate() + 7);
-
-                let año = date.getFullYear();
-                let mes = ("0" + (date.getMonth() + 1)).slice(-2);
-                let dia = ("0" + date.getDate()).slice(-2);
-
-                let fechaLimite = `${año}-${mes}-${dia}`;
-
+                let fechaLimite = date.toISOString().split('T')[0];
                 $('#txt_Ant_FechaLimiteRendicion').val(fechaLimite);
             }
         });
-
-        if ($('#txt_Ant_FechaSolicitud').val()) {
-            $('#txt_Ant_FechaSolicitud').trigger('change');
-        }
+        if ($('#txt_Ant_FechaSolicitud').val()) $('#txt_Ant_FechaSolicitud').trigger('change');
     });
+
+    // ================================================================
+    // FUNCIÓN DROPZONE CORREGIDA (Sin recursividad)
+    // ================================================================
+    function setupDropZone(dropZoneId, fileInputId, previewId, infoId, iconId, nameId, removeBtnId) {
+        const dropZone = $('#' + dropZoneId);
+        const fileInput = $('#' + fileInputId);
+
+        // Click en zona -> abre input (Input está FUERA, no hay burbujeo infinito)
+        dropZone.on('click', function(e) {
+            if(e.target.id !== removeBtnId && e.target.parentNode.id !== removeBtnId) {
+                fileInput.trigger('click');
+            }
+        });
+
+        // Drag & Drop visual effects
+        dropZone.on('dragover', function(e) { e.preventDefault(); e.stopPropagation(); $(this).addClass('drag-over'); });
+        dropZone.on('dragleave', function(e) { e.preventDefault(); e.stopPropagation(); $(this).removeClass('drag-over'); });
+
+        // Drop Action
+        dropZone.on('drop', function(e) {
+            e.preventDefault(); e.stopPropagation(); $(this).removeClass('drag-over');
+            if (e.originalEvent.dataTransfer.files.length) {
+                fileInput[0].files = e.originalEvent.dataTransfer.files;
+                mostrarPreviewLocal(fileInput[0].files[0]);
+            }
+        });
+
+        // Input Change Action
+        fileInput.on('change', function() { if(this.files.length) mostrarPreviewLocal(this.files[0]); });
+
+        // Remove File Action
+        $('#' + removeBtnId).on('click', function(e){
+            e.stopPropagation(); e.preventDefault();
+            fileInput.val('');
+            $('#' + previewId).hide();
+            $('#' + infoId).show();
+        });
+
+        function mostrarPreviewLocal(file) {
+            $('#' + infoId).hide();
+            $('#' + nameId).text(file.name);
+            $('#' + previewId).show();
+
+            if(file.type.includes('pdf')) $('#' + iconId).attr('class', 'fas fa-file-pdf text-danger fa-2x');
+            else $('#' + iconId).attr('class', 'fas fa-file-image text-primary fa-2x');
+        }
+    }
 
     function cargarTodo() {
         cargarCabecera();
         cargarAnticipos();
         cargarComprobantes();
         cargarPlanilla();
+        cargarReembolsos();
         cargarResumen();
         cargarChat();
         fct_GetTipoRendicion();
@@ -298,47 +420,44 @@
         fct_GetMonedas();
     }
 
-        function fct_GetTipoRendicion() {
-            $.getJSON('/Liquidacion/GetTiposRendicionesData', function (res) {
-                if (res.status) {
-                    let data = res.data.map(t => ({ id: t.id, text: t.codigo + ' - ' + t.descripcion }));
-                    $('#cbx_Ant_TipoRendicion').select2({ theme: 'bootstrap4', data: data, placeholder: "Seleccionar Tipo" });
-                }
-            });
-        }
+    // --- COMBOS ---
+    function fct_GetTipoRendicion() {
+        $.getJSON('/Liquidacion/GetTiposRendicionesData', function (res) {
+            if (res.status) {
+                let data = res.data.map(t => ({ id: t.id, text: t.codigo + ' - ' + t.descripcion }));
+                $('#cbx_Ant_TipoRendicion').select2({ theme: 'bootstrap4', data: data, placeholder: "Seleccionar Tipo" });
+            }
+        });
+    }
+    function fct_GetBancos() {
+        $.getJSON('/Liquidacion/GetBancosData', function (res) {
+            if (res.status) {
+                let data = res.data.map(b => ({ id: b.id, text: b.codigo + ' - ' + b.descripcion }));
+                $('#cbx_Ant_Banco').select2({ theme: 'bootstrap4', data: data, placeholder: "Seleccionar Banco" });
+                $('#cbx_Reem_Banco').select2({ theme: 'bootstrap4', data: data, placeholder: "Seleccionar Banco" });
+            }
+        });
+    }
+    function fct_GetMonedas() {
+        $.getJSON('/Liquidacion/GetMonedasData', function (res) {
+            if (res.status) {
+                let opt = '<option value="" disabled selected>--SELECCIONAR--</option>';
+                res.data.forEach(m => opt += `<option value="${m.id}">${m.simbolo} ${m.nombre}</option>`);
+                $('#cbx_Ant_Moneda').html(opt);
+                $('#cbx_Reem_Moneda').html(opt);
+            }
+        });
+    }
 
-        function fct_GetBancos() {
-            $.getJSON('/Liquidacion/GetBancosData', function (res) {
-                if (res.status) {
-                    let data = res.data.map(b => ({ id: b.id, text: b.codigo + ' - ' + b.descripcion }));
-                    $('#cbx_Ant_Banco').select2({ theme: 'bootstrap4', data: data, placeholder: "Seleccionar Banco" });
-                }
-            });
-        }
-
-        function fct_GetMonedas() {
-            $.getJSON('/Liquidacion/GetMonedasData', function (res) {
-                if (res.status) {
-                    let opt = '<option value="" disabled selected>--SELECCIONAR--</option>';
-                    res.data.forEach(m => opt += `<option value="${m.id}">${m.simbolo} ${m.nombre}</option>`);
-                    $('#cbx_Ant_Moneda').html(opt);
-                }
-            });
-        }
-
-    // --- CABECERA ---
+    // --- CARGAS DE DATOS ---
     function cargarCabecera() {
         $.getJSON('/Liquidacion/ObtenerDatosCarpeta', { liquidacionId: liqId }, function(res) {
             if(res.status) {
                 $('#lbl_Codigo').text(res.data.codigoGenerado);
                 $('#lbl_Empresa').text(res.data.empresa);
                 $('#lbl_Responsable').html(`<i class="fas fa-user"></i> ${res.data.usuario}`);
-
-                let badge = res.data.estado === 'Abierta'
-                    ? '<span class="badge badge-success px-3">ABIERTA</span>'
-                    : '<span class="badge badge-secondary px-3">CERRADA</span>';
+                let badge = res.data.estado === 'Abierta' ? '<span class="badge badge-success px-3">ABIERTA</span>' : '<span class="badge badge-secondary px-3">CERRADA</span>';
                 $('#div_EstadoBadge').html(badge);
-
                 if(res.data.esCerrada) {
                     $('#btn_CerrarLiq').prop('disabled', true).text('LIQUIDACIÓN CERRADA');
                     $('.btn-auditar').prop('disabled', true);
@@ -352,108 +471,106 @@
             if(res.status) {
                 $('#lbl_Ingresos').text("S/ " + res.ingresos.toFixed(2));
                 $('#lbl_Egresos').text("S/ " + res.gastos.toFixed(2));
-
                 let saldo = res.saldo;
                 $('#lbl_Saldo').text("S/ " + Math.abs(saldo).toFixed(2));
                 $('#lbl_Saldo').removeClass('badge-success badge-danger badge-light');
                 $('#lbl_AccionSaldo').remove();
 
-                if(saldo > 0) {
+                if(Math.abs(saldo) < 0.01) {
+                     $('#lbl_Saldo').addClass('badge-light');
+                     $('#lbl_Saldo').after('<br><small class="text-muted font-weight-bold" id="lbl_AccionSaldo">(CUADRADO)</small>');
+                } else if(saldo > 0) {
                     $('#lbl_Saldo').addClass('badge-success');
                     $('#lbl_Saldo').after('<br><small class="text-success font-weight-bold" id="lbl_AccionSaldo">(DEVOLUCIÓN)</small>');
-                } else if (saldo < 0) {
+                } else {
                     $('#lbl_Saldo').addClass('badge-danger');
                     $('#lbl_Saldo').after('<br><small class="text-danger font-weight-bold" id="lbl_AccionSaldo">(REEMBOLSO)</small>');
-                } else {
-                    $('#lbl_Saldo').addClass('badge-light');
-                    $('#lbl_Saldo').after('<br><small class="text-muted font-weight-bold" id="lbl_AccionSaldo">(CUADRADO)</small>');
                 }
             }
         });
     }
 
-    // --- ANTICIPOS ---
     function cargarAnticipos() {
         $.getJSON('/Liquidacion/ListarAnticipos', { liquidacionId: liqId }, function(res) {
             let html = '';
             res.data.forEach(a => {
                 let accion = '';
-                // Lógica corregida:
-                // Generado = Admin lo creó, falta voucher.
-                // Transferido = Admin ya subió voucher.
                 if(a.estado === 'Generado') {
-                    accion = `<button class="btn btn-primary btn-xs btn-block btn-auditar" onclick="abrirModalVoucher(${a.id})">
-                                <i class="fas fa-upload mr-1"></i> Subir Voucher
-                              </button>`;
+                    accion = `<button class="btn btn-primary btn-xs btn-block btn-auditar" onclick="abrirModalVoucher(${a.id})"><i class="fas fa-upload mr-1"></i> Subir Voucher</button>`;
                 } else if (a.estado === 'Transferido') {
-                    accion = `<a href="${a.voucherUrl}" target="_blank" class="btn btn-info btn-xs btn-block">
-                                <i class="fas fa-eye mr-1"></i> Ver Voucher
-                              </a>`;
+                    accion = `<a href="${a.voucherUrl}" target="_blank" class="btn btn-info btn-xs btn-block"><i class="fas fa-eye mr-1"></i> Ver Voucher</a>`;
                 }
-
+                // SE RESPETA a.moneda
                 html += `<tr>
-                            <td class="align-middle">${a.tipoRendicion}</td>
-                            <td class="align-middle">${a.banco}</td>
-                            <td class="align-middle">${a.moneda}</td>
-                            <td class="align-middle font-weight-bold">${a.monto.toFixed(2)}</td>
-                            <td class="align-middle"><span class="badge badge-${a.estado==='Transferido'?'success':'warning'}">${a.estado}</span></td>
-                            <td class="align-middle">${accion}</td>
+                            <td>${a.tipoRendicion}<br><small class="text-muted">${a.banco}</small></td>
+                            <td>${a.moneda}</td>
+                            <td class="font-weight-bold text-right">${a.monto.toFixed(2)}</td>
+                            <td><span class="badge badge-${a.estado==='Transferido'?'success':'warning'}">${a.estado}</span></td>
+                            <td>${accion}</td>
                          </tr>`;
             });
             $('#tbl_Anticipos tbody').html(html);
         });
     }
 
-    // NUEVO: Admin Registra Anticipo
+    // LISTAR REEMBOLSOS (Usando la API que incluiste en tu controlador)
+    function cargarReembolsos() {
+        $.getJSON('/Liquidacion/ListarReembolsos', { liquidacionId: liqId }, function(res) {
+             let html = '';
+             if(res.status && res.data) {
+                res.data.forEach(r => {
+                    let tipo = r.esDevolucion
+                        ? '<span class="badge badge-success">Devolución (Usuario)</span>'
+                        : '<span class="badge badge-primary">Reembolso (Empresa)</span>';
+                    let voucher = r.voucherUrl
+                        ? `<a href="${r.voucherUrl}" target="_blank" class="btn btn-info btn-xs"><i class="fas fa-eye"></i></a>`
+                        : '-';
+                    // SE RESPETA r.moneda
+                    html += `<tr>
+                                <td>${r.fecha}</td>
+                                <td>${tipo}</td>
+                                <td>${r.banco}</td>
+                                <td>${r.moneda}</td>
+                                <td class="text-right font-weight-bold">${r.monto.toFixed(2)}</td>
+                                <td class="text-center">${voucher}</td>
+                             </tr>`;
+                });
+             }
+             $('#tbl_Reembolsos tbody').html(html);
+        });
+    }
+
+    // --- ACCIONES DE REGISTRO ---
+
     function fct_RegistrarAnticipo() {
-         // Recolección de datos
-            let obj = {
-                LiquidacionId: liqId,
-                FechaSolicitud: $('#txt_Ant_FechaSolicitud').val(),
-                FechaLimiteRendicion: $('#txt_Ant_FechaLimiteRendicion').val(),
-                TipoRendicionId: $('#cbx_Ant_TipoRendicion').val(), // FK de la tabla
-                BancoId: $('#cbx_Ant_Banco').val(),
-                MonedaId: $('#cbx_Ant_Moneda').val(),
-                Monto: $('#txt_Ant_Monto').val(),
-                Descripcion: $('#txt_Ant_Descripcion').val()
-            };
+        let obj = {
+            LiquidacionId: liqId,
+            FechaSolicitud: $('#txt_Ant_FechaSolicitud').val(),
+            FechaLimiteRendicion: $('#txt_Ant_FechaLimiteRendicion').val(),
+            TipoRendicionId: $('#cbx_Ant_TipoRendicion').val(),
+            BancoId: $('#cbx_Ant_Banco').val(),
+            MonedaId: $('#cbx_Ant_Moneda').val(),
+            Monto: $('#txt_Ant_Monto').val(),
+            Descripcion: $('#txt_Ant_Descripcion').val()
+        };
+        if (!obj.Monto || !obj.FechaSolicitud) { toastr.warning("Complete Fecha y Monto"); return; }
 
-            // Validación simple
-            if (!obj.Monto || !obj.FechaSolicitud) {
-                toastr.warning("Por favor complete los campos obligatorios (Fecha y Monto).", "SISTEMA");
-                return;
+        $.post('/Liquidacion/SolicitarAnticipo', obj, function(res) {
+            if(res.status) {
+                toastr.success("Anticipo registrado");
+                $('#mdl_NuevoAnticipo').modal('hide');
+                cargarTodo();
+            } else {
+                toastr.error(res.message);
             }
-
-            Swal.fire({
-                title: "¿Registrar anticipo?",
-                text: "Se creará una nueva solicitud con estado Generado.",
-                icon: "question",
-                showCancelButton: true,
-                confirmButtonColor: "#3085d6",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Sí, registrar anticipo",
-                cancelButtonText: "Cancelar",
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Reutilizamos el endpoint SolicitarAnticipo (que crea el registro en Generado)
-                    $.post('/Liquidacion/SolicitarAnticipo', obj, function(res) {
-                        if(res.status) {
-                            toastr.success("Anticipo registrado. Ahora suba el voucher.");
-                            $('#mdl_NuevoAnticipo').modal('hide');
-                            $('#txt_Ant_Monto').val('');
-                            $('#txt_Ant_Desc').val('');
-                            cargarTodo();
-                        } else {
-                            toastr.error(res.message);
-                        }
-                    });
-                }
-            });
+        });
     }
 
     function abrirModalVoucher(id) {
         $('#hdn_AnticipoId_Transfer').val(id);
+        $('#file_V_Ant').val('');
+        $('#previewArea_Ant').hide();
+        $('#lbl_DropInfo_Ant').show();
         $('#mdl_Voucher').modal('show');
     }
 
@@ -462,19 +579,54 @@
         fd.append('anticipoId', $('#hdn_AnticipoId_Transfer').val());
         fd.append('nroOperacion', $('#txt_Op').val());
         fd.append('fechaTransferencia', $('#txt_FechaTransfer').val());
-        fd.append('archivoVoucher', $('#file_V')[0].files[0]);
+        fd.append('archivoVoucher', $('#file_V_Ant')[0].files[0]);
 
-        if(!$('#file_V')[0].files[0]){ toastr.warning("Debe adjuntar el voucher"); return; }
+        if(!$('#file_V_Ant')[0].files[0]){ toastr.warning("Adjunte el voucher"); return; }
 
         $.ajax({
             url: '/Liquidacion/RegistrarTransferenciaAnticipo',
-            type: 'POST',
-            data: fd,
-            processData: false, contentType: false,
+            type: 'POST', data: fd, processData: false, contentType: false,
             success: function(res) {
                 if(res.status) {
                     toastr.success("Transferencia registrada");
                     $('#mdl_Voucher').modal('hide');
+                    cargarTodo();
+                } else { toastr.error(res.message); }
+            }
+        });
+    }
+
+    function abrirModalReembolso() {
+        $('#txt_Reem_Fecha').val('');
+        $('#txt_Reem_Monto').val('');
+        $('#txt_Reem_Op').val('');
+        $('#file_V_Reem').val('');
+        $('#previewArea_Reem').hide();
+        $('#lbl_DropInfo_Reem').show();
+        $('#mdl_NuevoReembolso').modal('show');
+    }
+
+    function fct_RegistrarPagoReembolso() {
+        let fd = new FormData();
+        fd.append('liquidacionId', liqId);
+        fd.append('monto', $('#txt_Reem_Monto').val());
+        fd.append('esDevolucion', false);
+        fd.append('nroOperacion', $('#txt_Reem_Op').val());
+        fd.append('fechaPago', $('#txt_Reem_Fecha').val());
+        fd.append('bancoId', $('#cbx_Reem_Banco').val());
+        fd.append('monedaId', $('#cbx_Reem_Moneda').val());
+        fd.append('archivoVoucher', $('#file_V_Reem')[0].files[0]);
+
+        if(!$('#txt_Reem_Monto').val()) { toastr.warning("Ingrese el monto"); return; }
+        if(!$('#file_V_Reem')[0].files[0]) { toastr.warning("El voucher es obligatorio"); return; }
+
+        $.ajax({
+            url: '/Liquidacion/RegistrarPagoCierre',
+            type: 'POST', data: fd, processData: false, contentType: false,
+            success: function(res) {
+                if(res.status) {
+                    toastr.success(res.message);
+                    $('#mdl_NuevoReembolso').modal('hide');
                     cargarTodo();
                 } else {
                     toastr.error(res.message);
@@ -483,36 +635,28 @@
         });
     }
 
-    // --- COMPROBANTES ---
+    // --- CARGAS COMPROBANTES Y PLANILLA ---
     function cargarComprobantes() {
         $.getJSON('/Liquidacion/ListarComprobantes', { liquidacionId: liqId }, function(res) {
             let html = '';
             res.data.forEach(c => {
-                let botones = '';
-                if(c.estado === 'Pendiente') {
-                    botones = `
-                        <div class="btn-group">
-                            <button class="btn btn-success btn-xs btn-auditar" onclick="evaluarComp(${c.id}, 'Aprobado')" title="Aprobar"><i class="fas fa-check"></i></button>
-                            <button class="btn btn-danger btn-xs btn-auditar" onclick="evaluarComp(${c.id}, 'Rechazado')" title="Rechazar"><i class="fas fa-times"></i></button>
-                        </div>
-                    `;
-                } else {
-                    botones = `<span class="text-muted small"><i class="fas fa-lock"></i> Auditado</span>`;
-                }
+                let botones = c.estado === 'Pendiente'
+                    ? `<div class="btn-group">
+                         <button class="btn btn-success btn-xs btn-auditar" onclick="evaluarComp(${c.id}, 'Aprobado')"><i class="fas fa-check"></i></button>
+                         <button class="btn btn-danger btn-xs btn-auditar" onclick="evaluarComp(${c.id}, 'Rechazado')"><i class="fas fa-times"></i></button>
+                       </div>`
+                    : `<span class="text-muted small"><i class="fas fa-lock"></i> Auditado</span>`;
 
                 let badge = c.estado === 'Aprobado' ? 'success' : (c.estado === 'Rechazado' ? 'danger' : 'warning');
-
+                // SE RESPETA c.moneda
                 html += `<tr>
-                            <td class="align-middle">${c.fecha}</td>
-                            <td class="align-middle">${c.tipoComprobante}<br><small class="text-muted">${c.concepto}</small></td>
-                            <td class="align-middle">${c.proveedor}<br><small class="text-muted">${c.serie}</small></td>
-                            <td class="align-middle">${c.moneda}</td>
-                            <td class="text-right font-weight-bold align-middle">${c.monto.toFixed(2)}</td>
-                            <td class="text-center align-middle"><span class="badge badge-${badge}">${c.estado}</span></td>
-                            <td class="text-center align-middle">${botones}</td>
-                            <td class="text-center align-middle">
-                                <a href="${c.archivoUrl}" target="_blank" class="btn btn-default btn-xs"><i class="fas fa-eye"></i></a>
-                            </td>
+                            <td>${c.fecha}</td>
+                            <td>${c.proveedor}<br><small>${c.serie}</small></td>
+                            <td>${c.moneda}</td>
+                            <td class="text-right font-weight-bold">${c.monto.toFixed(2)}</td>
+                            <td class="text-center"><span class="badge badge-${badge}">${c.estado}</span></td>
+                            <td class="text-center">${botones}</td>
+                            <td class="text-center"><a href="${c.archivoUrl}" target="_blank" class="btn btn-default btn-xs"><i class="fas fa-eye"></i></a></td>
                          </tr>`;
             });
             $('#tbl_Comprobantes tbody').html(html);
@@ -521,35 +665,22 @@
 
     function evaluarComp(id, estado) {
         $.post('/Liquidacion/EvaluarComprobante', { id: id, estado: estado }, function(res) {
-            if(res.status) {
-                toastr.info("Comprobante " + estado);
-                cargarTodo();
-            }
+            if(res.status) { toastr.info("Comprobante " + estado); cargarTodo(); }
         });
     }
 
-    // --- PLANILLA ---
     function cargarPlanilla() {
         $.getJSON('/Liquidacion/ListarDetallesPlanilla', { liquidacionId: liqId }, function(res) {
             let html = '';
             res.data.forEach(d => {
-                let estadoHtml = d.aprobado
-                    ? '<span class="badge badge-success">Aprobado</span>'
-                    : '<span class="badge badge-danger">Rechazado</span>';
-
-                let accion = '';
-                if(d.aprobado) {
-                    accion = `<button class="btn btn-outline-danger btn-xs btn-auditar" onclick="rechazarItem(${d.id})" title="Rechazar Gasto">
-                                <i class="fas fa-times"></i>
-                              </button>`;
-                }
-
+                let estadoHtml = d.aprobado ? '<span class="badge badge-success">OK</span>' : '<span class="badge badge-danger">Rechazado</span>';
+                let accion = d.aprobado ? `<button class="btn btn-outline-danger btn-xs btn-auditar" onclick="rechazarItem(${d.id})"><i class="fas fa-times"></i></button>` : '';
                 html += `<tr>
-                            <td class="align-middle">${d.fecha}</td>
-                            <td class="align-middle">${d.motivo}<br><small class="text-muted">${d.lugarOrigen} <i class="fas fa-arrow-right"></i> ${d.lugarDestino}</small></td>
-                            <td class="text-right align-middle">S/ ${d.monto.toFixed(2)}</td>
-                            <td class="text-center align-middle">${estadoHtml}</td>
-                            <td class="text-center align-middle">${accion}</td>
+                            <td>${d.fecha}</td>
+                            <td>${d.motivo}<br><small>${d.lugarOrigen} -> ${d.lugarDestino}</small></td>
+                            <td class="text-right">S/ ${d.monto.toFixed(2)}</td>
+                            <td class="text-center">${estadoHtml}</td>
+                            <td class="text-center">${accion}</td>
                          </tr>`;
             });
             $('#tbl_Planilla tbody').html(html);
@@ -558,14 +689,11 @@
 
     function rechazarItem(id) {
         $.post('/Liquidacion/RechazarItemPlanilla', { id: id }, function(res) {
-            if(res.status) {
-                toastr.warning("Item rechazado");
-                cargarTodo();
-            }
+            if(res.status) { toastr.warning("Item rechazado"); cargarTodo(); }
         });
     }
 
-    // --- CHAT ---
+    // --- CHAT Y CIERRE ---
     function cargarChat() {
         $.getJSON('/Liquidacion/ObtenerObservaciones', { liquidacionId: liqId }, function(res) {
             let html = '';
@@ -574,15 +702,10 @@
                     let align = msg.esMio ? 'text-right' : 'text-left';
                     let bg = msg.esMio ? 'bg-primary text-white' : 'bg-light text-dark';
                     let user = msg.esMio ? 'Yo' : msg.nombreUsuario;
-
-                    html += `
-                        <div class="${align} mb-2">
-                            <small class="text-muted font-weight-bold">${user} <span style="font-size:0.7em">${msg.fecha}</span></small>
-                            <div class="p-2 rounded ${bg}" style="display:inline-block; max-width:80%; border-radius: 10px;">
-                                ${msg.mensaje}
-                            </div>
-                        </div>
-                    `;
+                    html += `<div class="${align} mb-2">
+                                <small class="text-muted font-weight-bold">${user} <span style="font-size:0.7em">${msg.fecha}</span></small>
+                                <div class="p-2 rounded ${bg}" style="display:inline-block; max-width:80%; border-radius: 10px;">${msg.mensaje}</div>
+                             </div>`;
                 });
             }
             $('#div_ChatBox').html(html);
@@ -593,67 +716,31 @@
     function enviarObservacion() {
         let txt = $('#txt_Mensaje').val();
         if(!txt.trim()) return;
-
         $.post('/Liquidacion/RegistrarObservacion', { liquidacionId: liqId, mensaje: txt, prioridad: 'M' }, function(res) {
-            if(res.status) {
-                $('#txt_Mensaje').val('');
-                cargarChat();
-            }
+            if(res.status) { $('#txt_Mensaje').val(''); cargarChat(); }
         });
     }
 
-    // --- CIERRE ---
     function fct_CerrarLiquidacion() {
         Swal.fire({
             title: '¿Cerrar Liquidación?',
-            text: "Se calculará el saldo final y se cerrará la caja. No hay vuelta atrás.",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            confirmButtonText: 'Sí, Cerrar Caja',
+            text: "El saldo debe ser 0.00 para proceder.",
+            icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'Sí, Cerrar Caja',
         }).then((result) => {
             if (result.isConfirmed) {
                 $.post('/Liquidacion/CerrarLiquidacion', { liquidacionId: liqId }, function(res) {
                     if(res.status) {
-                        Swal.fire('Procesado', res.message, 'success').then(() => {
-                            location.reload();
-                        });
-                    } else {
-                        toastr.error(res.message);
-                    }
+                        Swal.fire('Procesado', res.message, 'success').then(() => { location.reload(); });
+                    } else { toastr.error(res.message); }
                 });
             }
         });
     }
-
-     function inicializarInputFile() {
-        const dropZone = $('#dropZone');
-        const fileInput = $('#file_V');
-
-        fileInput.on('click', function(e) { e.stopPropagation(); });
-        dropZone.on('click', function(e) {
-            if(e.target.id !== 'btn_RemoveFile' && e.target.parentNode.id !== 'btn_RemoveFile') {
-                fileInput.trigger('click');
-            }
-        });
-        dropZone.on('dragover', function(e) { e.preventDefault(); e.stopPropagation(); $(this).addClass('drag-over'); });
-        dropZone.on('dragleave', function(e) { e.preventDefault(); e.stopPropagation(); $(this).removeClass('drag-over'); });
-        dropZone.on('drop', function(e) {
-            e.preventDefault(); e.stopPropagation(); $(this).removeClass('drag-over');
-            if (e.originalEvent.dataTransfer.files.length) {
-                fileInput[0].files = e.originalEvent.dataTransfer.files;
-                mostrarPreview(fileInput[0].files[0]);
-            }
-        });
-        fileInput.on('change', function() { if(this.files.length) mostrarPreview(this.files[0]); });
-        $('#btn_RemoveFile').on('click', function(e){
-            e.stopPropagation(); e.preventDefault();
-            fileInput.val(''); $('#previewArea').hide(); $('#lbl_DropInfo').show();
-        });
-        function mostrarPreview(file) {
-            $('#lbl_DropInfo').hide(); $('#name_Preview').text(file.name); $('#previewArea').show();
-            if(file.type.includes('pdf')) $('#icon_Preview').attr('class', 'fas fa-file-pdf text-danger fa-2x');
-            else $('#icon_Preview').attr('class', 'fas fa-file-image text-primary fa-2x');
-        }
-    }
 </script>
+
+<style>
+    .drag-over {
+        background-color: #e9ecef !important;
+        border-color: #007bff !important;
+    }
+</style>

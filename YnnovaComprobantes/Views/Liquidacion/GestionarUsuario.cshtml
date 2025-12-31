@@ -68,6 +68,11 @@
                                 <i class="fas fa-car mr-1"></i> 3. Registrar Movilidad
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="pill" href="#tab-devolucion" role="tab">
+                                <i class="fas fa-hand-holding-usd mr-1"></i> 4. Devolución / Cierre
+                            </a>
+                        </li>
                     </ul>
                 </div>
                 <div class="card-body">
@@ -111,6 +116,31 @@
                                 <tbody></tbody>
                             </table>
                         </div>
+
+                        <div class="tab-pane fade" id="tab-devolucion">
+                            <div class="alert alert-info small p-2">
+                                <i class="fas fa-info-circle"></i> Si te sobró dinero, realiza la transferencia a la empresa y regístralo aquí.
+                            </div>
+                            <div class="text-right mb-2">
+                                <button class="btn btn-success btn-sm font-weight-bold" onclick="abrirModalDevolucion()">
+                                    <i class="fas fa-money-bill-wave mr-1"></i> Registrar Devolución
+                                </button>
+                            </div>
+                            <table class="table table-bordered table-sm w-100" id="tbl_Devoluciones">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th class="text-center">Tipo</th>
+                                        <th>Fecha</th>
+                                        <th>Banco</th>
+                                        <th>N° Operación</th>
+                                        <th>Moneda</th>
+                                        <th class="text-right">Monto</th>
+                                        <th class="text-center">Voucher</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -127,8 +157,7 @@
                     </div>
                 </div>
                 <div class="card-body" style="display: none;">
-                    <div class="direct-chat-messages" id="div_ChatBox" style="height: 250px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; background: #f8f9fa;">
-                    </div>
+                    <div class="direct-chat-messages" id="div_ChatBox" style="height: 250px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; background: #f8f9fa;"></div>
                     <div class="input-group mt-2">
                         <input type="text" id="txt_Mensaje" placeholder="Responder o consultar..." class="form-control">
                         <span class="input-group-append">
@@ -150,34 +179,13 @@
             </div>
             <div class="modal-body">
                 <div class="row">
-                    <div class="col-md-6 mb-2">
-                        <label>Proveedor</label>
-                        <input type="text" id="txt_Comp_Proveedor" class="form-control form-control-sm">
-                    </div>
-                    <div class="col-md-6 mb-2">
-                        <label>RUC</label>
-                        <input type="text" id="txt_Comp_RUC" class="form-control form-control-sm" maxlength="11">
-                    </div>
-                    <div class="col-md-6 mb-2">
-                        <label>Serie</label>
-                        <input type="text" id="txt_Comp_Serie" class="form-control form-control-sm">
-                    </div>
-                    <div class="col-md-6 mb-2">
-                        <label>Número</label>
-                        <input type="text" id="txt_Comp_Numero" class="form-control form-control-sm">
-                    </div>
-                    <div class="col-md-6 mb-2">
-                        <label>Tipo</label>
-                        <select id="cbx_Comp_Tipo" class="form-control form-control-sm loading"></select>
-                    </div>
-                    <div class="col-md-6 mb-2">
-                        <label>Concepto</label>
-                        <select id="cbx_Comp_Concepto" class="form-control form-control-sm loading"></select>
-                    </div>
-                    <div class="col-md-6 mb-2">
-                        <label>Fecha Emisión</label>
-                        <input type="date" id="txt_Comp_Fecha" class="form-control form-control-sm">
-                    </div>
+                    <div class="col-md-6 mb-2"><label>Proveedor</label><input type="text" id="txt_Comp_Proveedor" class="form-control form-control-sm"></div>
+                    <div class="col-md-6 mb-2"><label>RUC</label><input type="text" id="txt_Comp_RUC" class="form-control form-control-sm" maxlength="11"></div>
+                    <div class="col-md-6 mb-2"><label>Serie</label><input type="text" id="txt_Comp_Serie" class="form-control form-control-sm"></div>
+                    <div class="col-md-6 mb-2"><label>Número</label><input type="text" id="txt_Comp_Numero" class="form-control form-control-sm"></div>
+                    <div class="col-md-6 mb-2"><label>Tipo</label><select id="cbx_Comp_Tipo" class="form-control form-control-sm loading"></select></div>
+                    <div class="col-md-6 mb-2"><label>Concepto</label><select id="cbx_Comp_Concepto" class="form-control form-control-sm loading"></select></div>
+                    <div class="col-md-6 mb-2"><label>Fecha Emisión</label><input type="date" id="txt_Comp_Fecha" class="form-control form-control-sm"></div>
                     <div class="col-md-6 mb-2">
                         <label>Moneda / Monto</label>
                         <div class="input-group input-group-sm">
@@ -216,23 +224,11 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
-                <div class="form-group">
-                    <label>Fecha Gasto</label>
-                    <input type="date" id="mov_Fecha" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-dd")">
-                </div>
-                <div class="form-group">
-                    <label>Motivo</label>
-                    <input type="text" id="mov_Motivo" class="form-control" placeholder="Ej: Visita a cliente X">
-                </div>
+                <div class="form-group"><label>Fecha Gasto</label><input type="date" id="mov_Fecha" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-dd")"></div>
+                <div class="form-group"><label>Motivo</label><input type="text" id="mov_Motivo" class="form-control" placeholder="Ej: Visita a cliente X"></div>
                 <div class="row">
-                    <div class="col-6 form-group">
-                        <label>Origen</label>
-                        <input type="text" id="mov_Origen" class="form-control" placeholder="Oficina">
-                    </div>
-                    <div class="col-6 form-group">
-                        <label>Destino</label>
-                        <input type="text" id="mov_Destino" class="form-control" placeholder="Cliente">
-                    </div>
+                    <div class="col-6 form-group"><label>Origen</label><input type="text" id="mov_Origen" class="form-control" placeholder="Oficina"></div>
+                    <div class="col-6 form-group"><label>Destino</label><input type="text" id="mov_Destino" class="form-control" placeholder="Cliente"></div>
                 </div>
                 <div class="form-group">
                     <label>Precio Pagado</label>
@@ -250,13 +246,69 @@
     </div>
 </div>
 
+<div class="modal fade" id="mdl_NuevaDevolucion" tabindex="-1" role="dialog" data-backdrop="static">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="fas fa-hand-holding-usd mr-1"></i> Registrar Devolución</h5>
+                <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-light small"><i class="fas fa-info-circle"></i> Sube el voucher de la devolución del dinero sobrante.</div>
+                <div class="row">
+                    <div class="col-6 form-group">
+                        <label>Fecha Transferencia</label>
+                        <input type="datetime-local" id="txt_Dev_Fecha" class="form-control">
+                    </div>
+                    <div class="col-6 form-group">
+                        <label>Monto Devuelto</label>
+                        <input type="number" id="txt_Dev_Monto" class="form-control" step="0.01">
+                    </div>
+                    <div class="col-6 form-group">
+                        <label>Banco (Empresa)</label>
+                        <select id="cbx_Dev_Banco" class="form-control"></select>
+                    </div>
+                    <div class="col-6 form-group">
+                        <label>N° Operación</label>
+                        <input type="text" id="txt_Dev_Op" class="form-control">
+                    </div>
+
+                    <input type="file" id="file_V_Dev" class="d-none" accept=".jpg, .jpeg, .png, .pdf">
+
+                    <div class="col-12 form-group">
+                        <label>Voucher</label>
+                        <div id="dropZone_Dev" class="drop-zone text-center p-2 rounded bg-light border" style="cursor: pointer; border-style: dashed !important;">
+                            <p class="text-muted mb-1 small" id="lbl_DropInfo_Dev">Arrastra o click aquí</p>
+                            <div id="previewArea_Dev" style="display:none;" class="d-flex align-items-center justify-content-center">
+                                <i id="icon_Preview_Dev" class="fas fa-file mr-2"></i>
+                                <span id="name_Preview_Dev" class="small font-weight-bold mr-2">...</span>
+                                <button type="button" class="btn btn-xs btn-danger" id="btn_RemoveFile_Dev"><i class="fas fa-times"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" onclick="fct_RegistrarDevolucion()">Guardar Devolución</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     var liqId = $('#hdn_LiqId').val();
 
     $(document).ready(function(){
         cargarTodoUser();
         cargarListasParaComprobante();
-        initCardComprobante();
+        initCardComprobante(); // Mantiene lógica anterior para Facturas
+
+        // Inicializar Dropzone seguro para Devoluciones
+        setupDropZone('dropZone_Dev', 'file_V_Dev', 'previewArea_Dev', 'lbl_DropInfo_Dev', 'icon_Preview_Dev', 'name_Preview_Dev', 'btn_RemoveFile_Dev');
+
+        // Cargar bancos para devolución
+        fct_GetBancosUser();
     });
 
     function cargarTodoUser() {
@@ -266,8 +318,7 @@
                 $('#lbl_Codigo').text(res.data.codigoGenerado);
                 $('#lbl_Empresa').text(res.data.empresa);
                 if(res.data.esCerrada) {
-                    // Si está cerrada, bloqueamos los botones de registro
-                    $('.btn-primary, .btn-warning').prop('disabled', true);
+                    $('.btn-primary, .btn-warning, .btn-success').prop('disabled', true);
                     toastr.info("Esta liquidación está CERRADA.");
                 }
             }
@@ -282,7 +333,7 @@
             }
         });
 
-        // Anticipos (Solo lectura, ver estado)
+        // Anticipos (Solo lectura)
         $.getJSON('/Liquidacion/ListarAnticipos', { liquidacionId: liqId }, function(res) {
             let html = '';
             res.data.forEach(a => {
@@ -331,26 +382,144 @@
             $('#tbl_Planilla tbody').html(html);
         });
 
+        // NUEVO: Devoluciones
+        cargarDevoluciones();
         cargarChat();
     }
 
-    // --- ACCIONES DE REGISTRO ---
+    // --- FUNCIONES DEVOLUCIÓN ---
+    function cargarDevoluciones() {
+        $.getJSON('/Liquidacion/ListarReembolsos', { liquidacionId: liqId }, function(res) {
+             let html = '';
+             if(res.status && res.data) {
+                res.data.forEach(r => {
+                    // Lógica de visualización
+                    // Si esDevolucion = true  -> Usuario paga a Empresa (Verde/Success)
+                    // Si esDevolucion = false -> Empresa paga a Usuario (Azul/Primary)
+
+                    let badgeClass = r.esDevolucion ? 'badge-success' : 'badge-primary';
+                    let label = r.esDevolucion ? 'Mi Devolución' : 'Reembolso Empresa';
+
+                    let voucher = r.voucherUrl
+                        ? `<a href="${r.voucherUrl}" target="_blank" class="btn btn-default btn-xs"><i class="fas fa-eye"></i></a>`
+                        : '-';
+
+                    html += `<tr>
+                                <td class="text-center align-middle">
+                                    <span class="badge ${badgeClass}">${label}</span>
+                                </td>
+                                <td class="align-middle">${r.fecha}</td>
+                                <td class="align-middle">${r.banco}</td>
+                                <td class="align-middle">${r.voucherOperacion || '-'}</td>
+                                <td class="align-middle">${r.moneda}</td>
+                                <td class="text-right font-weight-bold align-middle">${r.monto.toFixed(2)}</td>
+                                <td class="text-center align-middle">${voucher}</td>
+                             </tr>`;
+                });
+             }
+
+             // Si no hay datos, mostramos mensaje ocupando las 7 columnas
+             if(html === '') {
+                 html = '<tr><td colspan="7" class="text-center text-muted">No hay movimientos de cierre registrados</td></tr>';
+             }
+
+             $('#tbl_Devoluciones tbody').html(html);
+        });
+    }
+
+    function abrirModalDevolucion() {
+        $('#txt_Dev_Fecha').val('');
+        $('#txt_Dev_Monto').val('');
+        $('#txt_Dev_Op').val('');
+        $('#file_V_Dev').val('');
+        $('#previewArea_Dev').hide();
+        $('#lbl_DropInfo_Dev').show();
+        $('#mdl_NuevaDevolucion').modal('show');
+    }
+
+    function fct_RegistrarDevolucion() {
+        let fd = new FormData();
+        fd.append('liquidacionId', liqId);
+        fd.append('monto', $('#txt_Dev_Monto').val());
+        fd.append('esDevolucion', true); // TRUE: EL USUARIO DEVUELVE
+        fd.append('nroOperacion', $('#txt_Dev_Op').val());
+        fd.append('fechaPago', $('#txt_Dev_Fecha').val());
+        fd.append('bancoId', $('#cbx_Dev_Banco').val());
+        fd.append('archivoVoucher', $('#file_V_Dev')[0].files[0]);
+
+        if(!$('#txt_Dev_Monto').val()) { toastr.warning("Ingrese el monto"); return; }
+        if(!$('#file_V_Dev')[0].files[0]) { toastr.warning("El voucher es obligatorio"); return; }
+
+        $.ajax({
+            url: '/Liquidacion/RegistrarPagoCierre', // Reutilizamos el endpoint del admin
+            type: 'POST', data: fd, processData: false, contentType: false,
+            success: function(res) {
+                if(res.status) {
+                    toastr.success("Devolución registrada");
+                    $('#mdl_NuevaDevolucion').modal('hide');
+                    cargarTodoUser();
+                } else {
+                    toastr.error(res.message);
+                }
+            }
+        });
+    }
+
+    function fct_GetBancosUser() {
+         $.getJSON('/Liquidacion/GetBancosData', function (res) {
+            if (res.status) {
+                let data = res.data.map(b => ({ id: b.id, text: b.descripcion })); // Simple mapping
+                let opt = '<option value="">-- Banco Destino --</option>';
+                data.forEach(b => opt += `<option value="${b.id}">${b.text}</option>`);
+                $('#cbx_Dev_Banco').html(opt);
+            }
+        });
+    }
+
+    // ================================================================
+    // FUNCIÓN DROPZONE SEGURA (COPIADA DE ADMIN PARA EL NUEVO MODAL)
+    // ================================================================
+    function setupDropZone(dropZoneId, fileInputId, previewId, infoId, iconId, nameId, removeBtnId) {
+        const dropZone = $('#' + dropZoneId);
+        const fileInput = $('#' + fileInputId);
+
+        dropZone.on('click', function(e) {
+            if(e.target.id !== removeBtnId && e.target.parentNode.id !== removeBtnId) {
+                fileInput.trigger('click');
+            }
+        });
+        dropZone.on('dragover', function(e) { e.preventDefault(); e.stopPropagation(); $(this).addClass('drag-over'); });
+        dropZone.on('dragleave', function(e) { e.preventDefault(); e.stopPropagation(); $(this).removeClass('drag-over'); });
+        dropZone.on('drop', function(e) {
+            e.preventDefault(); e.stopPropagation(); $(this).removeClass('drag-over');
+            if (e.originalEvent.dataTransfer.files.length) {
+                fileInput[0].files = e.originalEvent.dataTransfer.files;
+                mostrarPreviewLocal(fileInput[0].files[0]);
+            }
+        });
+        fileInput.on('change', function() { if(this.files.length) mostrarPreviewLocal(this.files[0]); });
+        $('#' + removeBtnId).on('click', function(e){
+            e.stopPropagation(); e.preventDefault();
+            fileInput.val(''); $('#' + previewId).hide(); $('#' + infoId).show();
+        });
+        function mostrarPreviewLocal(file) {
+            $('#' + infoId).hide(); $('#' + nameId).text(file.name); $('#' + previewId).show();
+            if(file.type.includes('pdf')) $('#' + iconId).attr('class', 'fas fa-file-pdf text-danger fa-2x');
+            else $('#' + iconId).attr('class', 'fas fa-file-image text-primary fa-2x');
+        }
+    }
+
+    // --- ACCIONES DE REGISTRO ORIGINALES ---
 
     function abrirModalFactura() { $('#mdl_SubirComp').modal('show'); }
     function abrirModalMovilidad() { $('#mdl_AddMov').modal('show'); }
 
     function cargarListasParaComprobante() {
-        // 1. Moneda (Requerido para el combo de nuevo comprobante)
         cargarDropdown('/Liquidacion/GetMonedasData', '#cbx_Comp_Moneda', null);
-
-        // 2. Tipos de Comprobante
         cargarDropdown('/Liquidacion/GetTipoComprobanteData', '#cbx_Comp_Tipo', null);
-
-        // 3. Conceptos
         cargarDropdown('/Liquidacion/GetConceptosData', '#cbx_Comp_Concepto', null);
     }
 
-    // Helper Genérico (Mismo de antes)
     function cargarDropdown(url, selector, valorPreSeleccionado) {
         let $select = $(selector);
         $select.html('<option>Cargando...</option>').addClass('loading');
@@ -368,6 +537,7 @@
         });
     }
 
+    // ESTO SE MANTIENE PARA EL MODAL DE FACTURAS EXISTENTE
     function initCardComprobante() {
         const dropZone = $('#dropZone');
         const fileInput = $('#cp_File');
@@ -443,7 +613,7 @@
                                 toastr.success("Comprobante subido");
                                 $('#mdl_SubirComp').modal('hide');
                                 // Limpiar campos
-                                $('#cp_Prov').val(''); $('#cp_Monto').val(''); $('#cp_File').val('');
+                                $('#txt_Comp_Proveedor').val(''); $('#txt_Comp_Monto').val(''); $('#cp_File').val('');
                                 cargarTodoUser();
                             } else {
                                 toastr.error("Error al subir");
@@ -452,11 +622,8 @@
                     });
                 }
             });
-
-            
         });
     }
-
 
     function guardarMovilidad() {
         if(!$('#mov_Monto').val()) { toastr.warning("Ingrese el monto"); return; }
@@ -489,7 +656,6 @@
                     let align = msg.esMio ? 'text-right' : 'text-left';
                     let bg = msg.esMio ? 'bg-primary text-white' : 'bg-light text-dark';
                     let user = msg.esMio ? 'Yo' : msg.nombreUsuario;
-
                     html += `<div class="${align} mb-2">
                                 <small class="text-muted font-weight-bold">${user} <span style="font-size:0.7em">${msg.fecha}</span></small>
                                 <div class="p-2 rounded ${bg}" style="display:inline-block; max-width:80%; border-radius:10px;">
@@ -511,3 +677,10 @@
         });
     }
 </script>
+
+<style>
+    .drag-over {
+        background-color: #e9ecef !important;
+        border-color: #007bff !important;
+    }
+</style>

@@ -32,13 +32,24 @@ namespace YnnovaComprobantes.Models
         public string? NumeroCuenta { get; set; }
 
         [Column("es_devolucion")]
-        public bool? EsDevolucion { get; set; } // true: Devolución, false: Reembolso
+        public bool? EsDevolucion { get; set; } // 1: Usuario devuelve, 0: Empresa paga
+
+        // === NUEVOS CAMPOS VOUCHER ===
+        [Column("voucher_numero_operacion")]
+        public string? VoucherNumeroOperacion { get; set; }
+
+        [Column("voucher_fecha")]
+        public DateTime? VoucherFecha { get; set; }
+
+        [Column("voucher_archivo_url")]
+        public string? VoucherArchivoUrl { get; set; }
+        // ==============================
 
         [Column("estado_id")]
         public int? EstadoId { get; set; }
 
-        [Column("usuario_aprobador")]
-        public int? UsuarioAprobador { get; set; }
+        [Column("usuario_registro")]
+        public int? UsuarioRegistro { get; set; } // Admin o Usuario
 
         [Column("fecha_registro")]
         public DateTime FechaRegistro { get; set; } = DateTime.Now;
