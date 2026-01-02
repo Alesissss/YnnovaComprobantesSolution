@@ -1,20 +1,20 @@
 ﻿@{
-    ViewData["Title"] = "Dashboard de rendiciones";
+    ViewData["Title"] = "Dashboard de Rendiciones";
 }
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.css"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
 
 <style>
-    /* Estilos personalizados para un look "Premium" */
+    /* --- Estilos Generales & Responsivos --- */
     .dashboard-card {
         border: none;
         border-radius: 12px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-        transition: transform 0.3s;
-        margin-bottom: 20px;
-        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        background: white;
+        margin-bottom: 25px;
+        transition: transform 0.3s ease;
+        overflow: hidden; /* Importante para bordes redondeados */
     }
 
         .dashboard-card:hover {
@@ -32,7 +32,7 @@
         align-items: center;
     }
 
-    /* InfoBoxes con degradados modernos */
+    /* KPI BOXES con degradados */
     .info-box-custom {
         color: white;
         border-radius: 12px;
@@ -43,6 +43,8 @@
         display: flex;
         flex-direction: column;
         justify-content: center;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        margin-bottom: 20px; /* Espacio en móvil */
     }
 
     .bg-gradient-primary {
@@ -66,95 +68,136 @@
         right: 15px;
         top: 50%;
         transform: translateY(-50%);
-        font-size: 3rem;
-        opacity: 0.3;
+        font-size: 3.5rem;
+        opacity: 0.25;
     }
 
     .info-box-value {
         font-size: 2rem;
-        font-weight: bold;
+        font-weight: 800;
         margin: 0;
+        position: relative;
+        z-index: 1;
     }
 
     .info-box-label {
-        font-size: 1rem;
+        font-size: 0.85rem;
         text-transform: uppercase;
         letter-spacing: 1px;
+        opacity: 0.9;
+        position: relative;
+        z-index: 1;
     }
 
-    /* Altura de los gráficos */
+    /* Contenedor Gráfico Responsivo */
     .chart-container {
-        height: 350px;
-        width: 100%;
+        position: relative;
+        height: 350px; /* Altura base */
+        width: 100%; /* Ancho total del padre */
+        overflow: hidden;
+    }
+
+    /* Filtros */
+    .filter-container {
+        background: white;
+        padding: 15px;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+        margin-bottom: 20px;
+    }
+
+    /* Ajuste para móviles en filtros */
+    @@media (max-width: 768px) {
+        .filter-container {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .form-inline {
+            width: 100%;
+            margin-top: 10px;
+            flex-direction: column;
+        }
+
+        .input-group {
+            width: 100% !important;
+            margin-bottom: 10px;
+        }
+
+        .btn-filter {
+            width: 100%;
+        }
     }
 </style>
 
 <div class="container-fluid mt-3">
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="font-weight-bold text-dark mb-0">Resumen Financiero</h2>
-            <p class="text-muted">Panorama general de gastos y rendiciones</p>
+    <div class="filter-container d-flex flex-wrap justify-content-between align-items-center">
+        <div class="mb-2 mb-md-0">
+            <h3 class="font-weight-bold text-dark mb-0">Resumen Financiero</h3>
+            <p class="text-muted mb-0 small">Control de rendiciones</p>
         </div>
-        <div>
-            <button class="btn btn-white shadow-sm"><i class="fas fa-calendar-alt mr-2"></i> Este Mes</button>
-            <button class="btn btn-primary shadow-sm"><i class="fas fa-download mr-2"></i> Reporte</button>
+        <div class="form-inline d-flex">
+            <div class="input-group input-group-sm mr-md-2 mb-2 mb-md-0">
+                <div class="input-group-prepend"><span class="input-group-text bg-white border-0 font-weight-bold">Del:</span></div>
+                <input type="date" id="txtFechaInicio" class="form-control shadow-sm border-0" style="background:#f8f9fa;">
+            </div>
+            <div class="input-group input-group-sm mr-md-2 mb-2 mb-md-0">
+                <div class="input-group-prepend"><span class="input-group-text bg-white border-0 font-weight-bold">Al:</span></div>
+                <input type="date" id="txtFechaFin" class="form-control shadow-sm border-0" style="background:#f8f9fa;">
+            </div>
+            <button class="btn btn-primary btn-sm shadow-sm font-weight-bold px-3 btn-filter" onclick="cargarDashboard()">
+                <i class="fas fa-filter mr-1"></i> Filtrar
+            </button>
         </div>
     </div>
 
     <div class="row">
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="dashboard-card info-box-custom bg-gradient-primary">
-                <div class="info-box-label">Gasto Total (Mes)</div>
-                <h3 class="info-box-value" id="lblTotalGasto">S/. 0.00</h3>
-                <i class="fas fa-wallet info-box-icon"></i>
-                <small class="mt-2"><i class="fas fa-arrow-up"></i> 12% vs mes anterior</small>
+        <div class="col-xl-3 col-md-6">
+            <div class="info-box-custom bg-gradient-primary">
+                <div class="info-box-label">Gasto Total</div>
+                <h3 class="info-box-value" id="lblTotalGasto">S/ 0.00</h3>
+                <i class="fas fa-coins info-box-icon"></i>
             </div>
         </div>
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="dashboard-card info-box-custom bg-gradient-warning">
-                <div class="info-box-label">Pendientes Aprobación</div>
+        <div class="col-xl-3 col-md-6">
+            <div class="info-box-custom bg-gradient-warning">
+                <div class="info-box-label">Pendientes</div>
                 <h3 class="info-box-value" id="lblPendientes">0</h3>
-                <i class="fas fa-clock info-box-icon"></i>
-                <small class="mt-2">Solicitudes en cola</small>
+                <i class="fas fa-hourglass-half info-box-icon"></i>
             </div>
         </div>
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="dashboard-card info-box-custom bg-gradient-success">
-                <div class="info-box-label">Comprobantes Aprobados</div>
+        <div class="col-xl-3 col-md-6">
+            <div class="info-box-custom bg-gradient-success">
+                <div class="info-box-label">Aprobados</div>
                 <h3 class="info-box-value" id="lblAprobados">0</h3>
                 <i class="fas fa-check-circle info-box-icon"></i>
-                <small class="mt-2">95% de efectividad</small>
             </div>
         </div>
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="dashboard-card info-box-custom bg-gradient-danger">
-                <div class="info-box-label">Observados / Rech.</div>
+        <div class="col-xl-3 col-md-6">
+            <div class="info-box-custom bg-gradient-danger">
+                <div class="info-box-label">Observados</div>
                 <h3 class="info-box-value" id="lblObservados">0</h3>
-                <i class="fas fa-exclamation-triangle info-box-icon"></i>
-                <small class="mt-2">Atención requerida</small>
+                <i class="fas fa-exclamation-circle info-box-icon"></i>
             </div>
         </div>
     </div>
 
     <div class="row">
-        <div class="col-lg-8">
-            <div class="card dashboard-card">
+        <div class="col-lg-8 mb-4">
+            <div class="dashboard-card h-100">
                 <div class="card-header-custom">
-                    <span><i class="fas fa-chart-line text-primary mr-2"></i> Evolución de Gastos (Últimos 6 meses)</span>
-                    <div class="card-tools">
-                        <button type="button" class="btn btn-tool btn-sm"><i class="fas fa-ellipsis-v"></i></button>
-                    </div>
+                    <span><i class="fas fa-chart-line text-primary mr-2"></i> Evolución de Gastos</span>
                 </div>
                 <div class="card-body">
                     <div id="chartTrend" class="chart-container"></div>
                 </div>
             </div>
         </div>
-        <div class="col-lg-4">
-            <div class="card dashboard-card">
+        <div class="col-lg-4 mb-4">
+            <div class="dashboard-card h-100">
                 <div class="card-header-custom">
-                    <span><i class="fas fa-chart-pie text-warning mr-2"></i> Distribución (Anticipo vs Reembolso)</span>
+                    <span><i class="fas fa-chart-pie text-warning mr-2"></i> Flujo de Dinero</span>
                 </div>
                 <div class="card-body">
                     <div id="chartType" class="chart-container"></div>
@@ -164,20 +207,20 @@
     </div>
 
     <div class="row">
-        <div class="col-lg-6">
-            <div class="card dashboard-card">
+        <div class="col-lg-6 mb-4">
+            <div class="dashboard-card h-100">
                 <div class="card-header-custom">
-                    <span><i class="fas fa-shopping-cart text-success mr-2"></i> Gastos por Concepto</span>
+                    <span><i class="fas fa-tags text-success mr-2"></i> Gastos por Concepto</span>
                 </div>
                 <div class="card-body">
                     <div id="chartConceptos" class="chart-container"></div>
                 </div>
             </div>
         </div>
-        <div class="col-lg-6">
-            <div class="card dashboard-card">
+        <div class="col-lg-6 mb-4">
+            <div class="dashboard-card h-100">
                 <div class="card-header-custom">
-                    <span><i class="fas fa-file-invoice-dollar text-info mr-2"></i> Estado de Comprobantes</span>
+                    <span><i class="fas fa-clipboard-list text-info mr-2"></i> Estado Liquidaciones</span>
                 </div>
                 <div class="card-body">
                     <div id="chartStatus" class="chart-container"></div>
@@ -189,172 +232,173 @@
 
 @section Scripts {
     <script>
-        // ==========================================
-        // 1. ESTRUCTURA DE DATOS (MOCK DATA)
-        // ==========================================
-        // Esta variable simula la respuesta que traerías de tu Backend (Controller).
-        // Tiene exactamente la estructura que necesitas mapear de tus tablas:
-        // Gasto, TipoGasto, Concepto, Comprobante.
+        // Variables globales
+        let chartTrend, chartType, chartConceptos, chartStatus;
 
-        var serverResponse = {
-            kpis: {
-                totalGastoMes: 15420.50,
-                pendientes: 8,
-                aprobados: 145,
-                observados: 3
-            },
-            graficoEvolucion: {
-                meses: ['Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
-                valores: [8500, 9200, 11000, 10500, 14000, 15420]
-            },
-            graficoTipo: [
-                // Basado en tabla 'tipo_gasto'
-                { value: 8500, name: 'Anticipos' },
-                { value: 6920, name: 'Reembolsos' }
-            ],
-            graficoConceptos: {
-                // Basado en tabla 'concepto' sumando los 'comprobantes'
-                nombres: ['Alimentación', 'Hospedaje', 'Combustible', 'Transporte', 'Otros'],
-                valores: [4500, 3200, 5100, 1200, 800]
-            },
-            graficoEstadoComprobantes: {
-                // Basado en tabla 'estado' unida a 'comprobante'
-                estados: ['Aprobado', 'Pendiente', 'Observado', 'Rechazado'],
-                cantidades: [120, 15, 5, 2]
-            }
-        };
-
-        // ==========================================
-        // 2. FUNCIÓN DE CARGA (SIMULACIÓN AJAX)
-        // ==========================================
         $(document).ready(function () {
-            // AQUÍ HARÍAS TU PETICIÓN AJAX REAL:
-            /*
-            $.getJSON('/Dashboard/GetData', function(data) {
-                renderDashboard(data);
-            });
-            */
-
-            // Por ahora, usamos los datos mockeados directos:
-            renderDashboard(serverResponse);
+            initFechas();
+            cargarDashboard();
         });
 
-        function renderDashboard(data) {
-            // A. Llenar KPIs (InfoBoxes)
-            $('#lblTotalGasto').text('S/. ' + data.kpis.totalGastoMes.toLocaleString('es-PE', { minimumFractionDigits: 2 }));
-            $('#lblPendientes').text(data.kpis.pendientes);
-            $('#lblAprobados').text(data.kpis.aprobados);
-            $('#lblObservados').text(data.kpis.observados);
+        // 1. Inicializar Fechas (Año Actual)
+        function initFechas() {
+            const now = new Date();
+            const year = now.getFullYear();
 
-            // B. Inicializar Gráficos
-            initChartTrend(data.graficoEvolucion);
-            initChartType(data.graficoTipo);
-            initChartConceptos(data.graficoConceptos);
-            initChartStatus(data.graficoEstadoComprobantes);
+            // Ajustamos horas para evitar problemas de zona horaria al convertir a ISO
+            const firstDay = new Date(year, 0, 1, 12, 0, 0);
+            const lastDay = new Date(year, 11, 31, 12, 0, 0);
+
+            $('#txtFechaInicio').val(firstDay.toISOString().split('T')[0]);
+            $('#txtFechaFin').val(lastDay.toISOString().split('T')[0]);
         }
 
-        // ==========================================
-        // 3. CONFIGURACIÓN ECHARTS
-        // ==========================================
+        // 2. Cargar Datos AJAX
+        function cargarDashboard() {
+            const fi = $('#txtFechaInicio').val();
+            const ff = $('#txtFechaFin').val();
 
-        // --- Gráfico 1: Evolución (Línea Suave) ---
-        function initChartTrend(data) {
-            var chart = echarts.init(document.getElementById('chartTrend'));
-            var option = {
+            // Pequeño indicador de carga en botón
+            const btn = $('.btn-filter');
+            const originalText = btn.html();
+            btn.html('<i class="fas fa-spinner fa-spin"></i>').prop('disabled', true);
+
+            $.ajax({
+                url: '@Url.Action("GetDashboardData", "Home")',
+                type: 'GET',
+                data: { fechaInicio: fi, fechaFin: ff },
+                success: function (res) {
+                    if (res.status) {
+                        renderKPIs(res.data);
+                        renderCharts(res.data);
+                    } else {
+                        console.error(res.message);
+                    }
+                },
+                complete: function() {
+                    btn.html(originalText).prop('disabled', false);
+                }
+            });
+        }
+
+        function renderKPIs(data) {
+            const fmt = new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' });
+            $('#lblTotalGasto').text(fmt.format(data.gastoTotal));
+            $('#lblPendientes').text(data.pendientes);
+            $('#lblAprobados').text(data.aprobados);
+            $('#lblObservados').text(data.observados);
+        }
+
+        // 3. Renderizar Gráficos Responsivos
+        function renderCharts(data) {
+            // Configuración común para responsividad en gráficos cartesianos (Barras/Líneas)
+            // 'containLabel: true' evita que los textos se corten en móviles
+            const gridConfig = { left: '3%', right: '4%', bottom: '3%', containLabel: true };
+
+            // --- A. LINE CHART (Tendencia) ---
+            if (chartTrend) chartTrend.dispose();
+            chartTrend = echarts.init(document.getElementById('chartTrend'));
+            chartTrend.setOption({
                 tooltip: { trigger: 'axis' },
-                grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
-                xAxis: { type: 'category', boundaryGap: false, data: data.meses },
+                grid: gridConfig,
+                xAxis: { type: 'category', boundaryGap: false, data: data.evolucionGastos.labels },
                 yAxis: { type: 'value' },
                 series: [{
-                    name: 'Gasto Total',
+                    name: 'Monto',
                     type: 'line',
-                    smooth: true, // Curva suave
-                    lineStyle: { width: 4, color: '#4099ff' },
+                    smooth: true,
+                    lineStyle: { width: 3, color: '#4099ff' },
                     areaStyle: {
                         color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
                             { offset: 0, color: 'rgba(64, 153, 255, 0.5)' },
-                            { offset: 1, color: 'rgba(64, 153, 255, 0.1)' }
+                            { offset: 1, color: 'rgba(64, 153, 255, 0.01)' }
                         ])
                     },
-                    data: data.valores
+                    data: data.evolucionGastos.values
                 }]
-            };
-            chart.setOption(option);
-            window.addEventListener('resize', function() { chart.resize(); });
-        }
+            });
 
-        // --- Gráfico 2: Tipos (Donut) ---
-        function initChartType(data) {
-            var chart = echarts.init(document.getElementById('chartType'));
-            var option = {
+            // --- B. PIE CHART (Donut) ---
+            if (chartType) chartType.dispose();
+            chartType = echarts.init(document.getElementById('chartType'));
+            chartType.setOption({
                 tooltip: { trigger: 'item' },
-                legend: { top: '5%', left: 'center' },
+                legend: { bottom: 0, padding: 0, itemGap: 10 },
                 series: [{
-                    name: 'Tipo de Gasto',
+                    name: 'Distribución',
                     type: 'pie',
-                    radius: ['40%', '70%'], // Efecto Donut
-                    avoidLabelOverlap: false,
-                    itemStyle: { borderRadius: 10, borderColor: '#fff', borderWidth: 2 },
-                    label: { show: false, position: 'center' },
-                    emphasis: { label: { show: true, fontSize: 20, fontWeight: 'bold' } },
-                    labelLine: { show: false },
-                    data: data,
-                    color: ['#4099ff', '#2ed8b6'] // Colores personalizados
+                    radius: ['35%', '65%'], // Donut responsivo
+                    center: ['50%', '45%'], // Subimos un poco para dejar espacio a la leyenda
+                    itemStyle: { borderRadius: 5, borderColor: '#fff', borderWidth: 2 },
+                    data: data.distribucionDinero,
+                    color: ['#4099ff', '#FFB64D', '#2ed8b6']
                 }]
-            };
-            chart.setOption(option);
-            window.addEventListener('resize', function() { chart.resize(); });
-        }
+            });
 
-        // --- Gráfico 3: Conceptos (Barras Horizontales) ---
-        function initChartConceptos(data) {
-            var chart = echarts.init(document.getElementById('chartConceptos'));
-            var option = {
+            // --- C. BAR CHART (Conceptos) ---
+            if (chartConceptos) chartConceptos.dispose();
+            chartConceptos = echarts.init(document.getElementById('chartConceptos'));
+            chartConceptos.setOption({
                 tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
-                grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+                grid: gridConfig,
                 xAxis: { type: 'value' },
-                yAxis: { type: 'category', data: data.nombres },
+                yAxis: {
+                    type: 'category',
+                    data: data.gastosPorConcepto.labels,
+                    axisLabel: {
+                        interval: 0,
+                        rotate: 0, // En móviles los nombres largos se ajustan gracias a containLabel
+                        width: 100,
+                        overflow: 'break' // Romper líneas si es muy largo
+                    }
+                },
                 series: [{
-                    name: 'Monto',
+                    name: 'Total',
                     type: 'bar',
                     barWidth: '60%',
-                    data: data.valores,
+                    data: data.gastosPorConcepto.values,
                     itemStyle: {
                         color: new echarts.graphic.LinearGradient(1, 0, 0, 0, [
-                            { offset: 0, color: '#83a4d4' }, // Degradado
-                            { offset: 1, color: '#b6fbff' }
+                            { offset: 0, color: '#2ed8b6' },
+                            { offset: 1, color: '#59e0c5' }
                         ]),
                         borderRadius: [0, 5, 5, 0]
                     }
                 }]
-            };
-            chart.setOption(option);
-            window.addEventListener('resize', function() { chart.resize(); });
-        }
+            });
 
-        // --- Gráfico 4: Estado (Barras Simples o Radar) ---
-        function initChartStatus(data) {
-            var chart = echarts.init(document.getElementById('chartStatus'));
-            var option = {
-                tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
-                grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
-                xAxis: { type: 'category', data: data.estados },
+            // --- D. BAR CHART (Estados) ---
+            if (chartStatus) chartStatus.dispose();
+            chartStatus = echarts.init(document.getElementById('chartStatus'));
+            chartStatus.setOption({
+                tooltip: { trigger: 'item' },
+                grid: gridConfig,
+                xAxis: { type: 'category', data: data.estadoLiquidaciones.labels },
                 yAxis: { type: 'value' },
                 series: [{
-                    data: [
-                        { value: data.cantidades[0], itemStyle: { color: '#2ed8b6' } }, // Aprobado
-                        { value: data.cantidades[1], itemStyle: { color: '#FFB64D' } }, // Pendiente
-                        { value: data.cantidades[2], itemStyle: { color: '#FF5370' } }, // Observado
-                        { value: data.cantidades[3], itemStyle: { color: '#a0a0a0' } }  // Rechazado
-                    ],
+                    data: data.estadoLiquidaciones.values,
                     type: 'bar',
                     showBackground: true,
-                    backgroundStyle: { color: 'rgba(180, 180, 180, 0.2)' }
+                    backgroundStyle: { color: 'rgba(180, 180, 180, 0.1)' },
+                    itemStyle: {
+                        color: function(params) {
+                            const colors = ['#007bff', '#6c757d', '#28a745'];
+                            return colors[params.dataIndex % colors.length];
+                        },
+                        borderRadius: [5, 5, 0, 0]
+                    }
                 }]
-            };
-            chart.setOption(option);
-            window.addEventListener('resize', function() { chart.resize(); });
-        }
+            });
 
+            // =========================================================
+            // LÓGICA DE RESPONSIVIDAD (RESIZE LISTENER)
+            // =========================================================
+            window.addEventListener('resize', function() {
+                chartTrend && chartTrend.resize();
+                chartType && chartType.resize();
+                chartConceptos && chartConceptos.resize();
+                chartStatus && chartStatus.resize();
+            });
+        }
     </script>
 }

@@ -217,16 +217,19 @@
                                 </p>
                             </a>
                             <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="/Liquidacion/IndexAdmin"
-                                       class="nav-link @((controllerName == "Liquidacion" && actionName == "IndexAdmin") ? "active" : "")">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Gestionar liquidaciones</p>
-                                    </a>
-                                </li>
+                                @if (User.FindFirst("TipoUsuario")?.Value == "Administrador del sistema")
+                                {
+                                    <li class="nav-item">
+                                        <a href="/Liquidacion/IndexAdmin"
+                                           class="nav-link @((controllerName == "Liquidacion" && new[] { "IndexAdmin", "GestionarAdmin" }.Contains(actionName)) ? "active" : "")">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>Gestionar liquidaciones</p>
+                                        </a>
+                                    </li>
+                                }
                                 <li class="nav-item">
                                     <a href="/Liquidacion/IndexUsuario"
-                                       class="nav-link @((controllerName == "Liquidacion" && actionName == "IndexUsuario") ? "active" : "")">
+                                       class="nav-link @((controllerName == "Liquidacion" && new[]{ "IndexUsuario", "GestionarUsuario" }.Contains(actionName)) ? "active" : "")">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Mis liquidaciones</p>
                                     </a>
